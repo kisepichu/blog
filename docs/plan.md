@@ -32,7 +32,8 @@ spec-do
 pnpm astro check   # TypeScript + Astro 型チェック
 pnpm lint          # ESLint
 pnpm test          # Vitest
-pnpm build         # Astro ビルド + Pagefind インデックス生成
+pnpm build         # Astro ビルド (本番モード) + Pagefind インデックス生成
+pnpm test:e2e      # Playwright (ページ実装後)
 ```
 
 ---
@@ -41,7 +42,7 @@ pnpm build         # Astro ビルド + Pagefind インデックス生成
 
 ### Phase 0: 環境構築 ← 今ここ
 
-- [ ] Astro v5 プロジェクト初期化 (pnpm create astro)
+- [ ] Astro v6 プロジェクト初期化 (pnpm create astro)
 - [ ] React 統合 (@astrojs/react)
 - [ ] TypeScript 設定
 - [ ] ESLint + Vitest 設定
@@ -84,7 +85,7 @@ pnpm build         # Astro ビルド + Pagefind インデックス生成
 
 | 項目 | 決定内容 |
 |------|----------|
-| フレームワーク | Astro v5 + React |
+| フレームワーク | Astro v6 + React |
 | 言語 | TypeScript |
 | パッケージマネージャー | pnpm |
 | スタイリング | CSS Modules |

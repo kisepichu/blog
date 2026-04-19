@@ -4,7 +4,7 @@
 
 ## プロジェクト概要
 
-- **フレームワーク**: Astro v5 + React
+- **フレームワーク**: Astro v6 + React
 - **言語**: TypeScript
 - **パッケージマネージャー**: pnpm
 - **ホスティング**: GitHub Pages (develop push で自動デプロイ)
