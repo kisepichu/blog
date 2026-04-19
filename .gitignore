@@ -1,0 +1,17 @@
+# Build output
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Test results
+playwright-report/
+test-results/
+
+# OS
+.DS_Store
+Thumbs.db
