@@ -31,10 +31,14 @@ Agent tool (general-purpose):
     Do NOT write any implementation code.
 
     Steps:
-    1. Identify which layer this belongs to (src/lib/ or src/components/)
+    1. Identify which layer this belongs to
     2. For src/lib/: write Vitest unit tests in `src/lib/**/__tests__/*.test.ts`
+       Run: `pnpm vitest run <test_file> 2>&1`
     3. For src/components/: write Vitest + React Testing Library tests in `src/components/**/__tests__/*.test.tsx`
-    4. Run `pnpm test [test_file] 2>&1` to confirm tests FAIL
+       Run: `pnpm vitest run <test_file> 2>&1`
+    4. For src/pages/: write Playwright e2e tests in `e2e/*.spec.ts`
+       Run: `pnpm test:e2e <test_file> 2>&1`
+       (Requires dev server — start with `pnpm dev` first if needed)
     5. Verify the failure is "not yet implemented" or similar, NOT a compilation error
 
     ## Rules
@@ -50,6 +54,6 @@ Agent tool (general-purpose):
     When done, report:
     - **Status:** DONE | BLOCKED
     - Tests written (file paths + test names)
-    - Failure output from `pnpm test` (copy actual output)
+    - Failure output (copy actual output from `pnpm vitest run` or `pnpm test:e2e`)
     - Confirmation that each test fails for the right reason
 ```

@@ -2,21 +2,29 @@
   "permissions": {
     "allow": [
       "mcp__*",
-      "Bash(pnpm run:*)",
-      "Bash(pnpm test:*)",
-      "Bash(pnpm astro:*)",
-      "Bash(pnpm add:*)",
-      "Bash(pnpm install:*)",
-      "Bash(find:*)",
-      "Bash(echo:*)",
-      "Bash(cat:*)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
+      "Bash(pnpm*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git mv*)",
+      "Bash(mkdir*)",
+      "Bash(mv*)",
+      "Bash(cp*)",
+      "Bash(touch*)",
+      "Bash(ls*)",
+      "Bash(cat*)",
+      "Bash(echo*)",
+      "Bash(find*)",
+      "Bash(sed*)",
       "WebSearch"
     ],
     "ask": [
-      "Bash(git push:*)",
-      "Bash(pnpm remove:*)"
+      "Bash(git push*)",
+      "Bash(git reset*)",
+      "Bash(git checkout*)",
+      "Bash(rm*)"
     ]
   },
   "enableAllProjectMcpServers": true,

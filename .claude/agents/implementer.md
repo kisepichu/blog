@@ -36,8 +36,10 @@ Agent tool (general-purpose):
     Steps:
     1. Read the failing tests to understand the required behavior
     2. Write the minimal code needed — no extra features, no speculative abstractions
-    3. Run `pnpm test [test_file] 2>&1` to confirm target tests now PASS
-    4. Run `pnpm test 2>&1` to confirm ALL tests still pass
+    3. Run the target tests to confirm they PASS:
+       - src/lib/ or src/components/: `pnpm vitest run <test_file> 2>&1`
+       - src/pages/ (e2e): `pnpm test:e2e <test_file> 2>&1`
+    4. Run `pnpm test 2>&1` to confirm ALL unit/component tests still pass
     5. Fix any regressions before reporting back
 
     ## Rules
@@ -51,7 +53,8 @@ Agent tool (general-purpose):
     ## Self-Review Before Reporting
 
     - [ ] Target tests pass
-    - [ ] All other tests still pass (`pnpm test` clean)
+    - [ ] All unit/component tests still pass (`pnpm test` clean)
+    - [ ] e2e tests pass if applicable (`pnpm test:e2e`)
     - [ ] No over-engineering beyond what tests require
     - [ ] src/lib/ has no Astro/React imports
 
@@ -60,6 +63,6 @@ Agent tool (general-purpose):
     When done, report:
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED
     - What you implemented (files changed)
-    - `pnpm test` output (copy actual output showing all tests pass)
+    - Test output (copy actual output showing tests pass)
     - Any concerns or caveats
 ```

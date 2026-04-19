@@ -19,12 +19,12 @@
 
 ```
 spec-do
-  ├── RED    test-writer subagent がテストを書く (pnpm test で失敗確認)
-  ├── GREEN  implementer subagent が最小実装 (pnpm test で通過確認)
+  ├── RED    test-writer subagent がテストを書く
+  │           src/lib/, src/components/ → pnpm vitest run で失敗確認
+  │           src/pages/               → pnpm test:e2e で失敗確認
+  ├── GREEN  implementer subagent が最小実装で通過確認
   └── REFACTOR 全テストを維持しながらクリーンアップ
 ```
-
-`src/lib/` と `src/components/` は Vitest、`src/pages/` は Playwright (e2e)。
 
 ### 品質チェック (実装完了ごとに実行)
 

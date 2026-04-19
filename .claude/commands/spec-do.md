@@ -29,7 +29,7 @@
 
    > **src/pages/ の項目**: Vitest ではなく Playwright を使う (pnpm test:e2e)
 
-7. `pnpm astro check` で型チェック、`pnpm lint` で lint、`pnpm test` で全テスト通過を確認する
+7. `pnpm astro check` で型チェック、`pnpm lint` で lint、`pnpm test` で全テスト通過、`pnpm build` でビルド成功を確認する
 
 ## タスクファイル形式
 

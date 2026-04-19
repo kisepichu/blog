@@ -62,13 +62,13 @@ series_order: 1              # series 指定時は必須
 [[λ計算]] の基本操作は α 変換と [[β簡約]] である。
 ```
 
-- `term` は Definition の `id` または `aliases` のいずれかにマッチすれば解決される。
+- `term` は Definition の `id` または `aliases` のいずれかにマッチすれば解決される。alias マッチの場合も href は canonical id を使う (`/defs/<id>`)。
 - hover 時に preview-index.json から definition_block の HTML を取得し、React island で描画する。
 - 描画後に `MathJax.typesetPromise([element])` を再実行して数式をレンダリングする。
 
 ### ローカル定義
 
-記事内のみで有効な一時的な定義。`:::definition{#id}` で記述し、`[[#id]]` で参照する。
+記事内のみで有効な一時的な定義。`:::definition{#id}` で記述する。
 
 ```markdown
 ここでは写像 $f$ を次のように定める。
@@ -78,16 +78,20 @@ $f : A \to B$ を...と定義する。
 :::
 
 [[#local-f]] を使うと...
+[[f]] でも参照できる (同名の global Definition がない場合、または local を優先)
 ```
 
-- ページ外から参照されない。
-- `[[term]]` で global と local に同名が存在する場合、ローカルを優先する。
+参照方法:
+- `[[#id]]` — 明示的なローカル定義参照 (同一ページ内のみ)
+- `[[term]]` — まずローカル定義の id を検索し、なければ global Definition の id/alias を検索する (ローカル優先)
+
+ページ外から参照されない。
 
 ### リンク記法一覧
 
 | 記法 | 解決先 | hover preview |
 |------|--------|---------------|
-| `[[term]]` | global Definition (id or alias) | definition_block |
+| `[[term]]` | ローカル定義 (id 優先) → global Definition (id or alias) | ローカル定義または definition_block |
 | `[[#anchor]]` | 同一ページのローカル定義または見出し | ローカル定義の場合のみ表示 |
 | `[[post-id#anchor]]` | 別記事の特定箇所 | なし |
 | `[[post-id]]` | 別記事 | なし |
@@ -110,9 +114,10 @@ $f : A \to B$ を...と定義する。
 | `/posts/[slug]` | 記事ページ。本文・タグ・series ナビ・backlink |
 | `/defs/[id]` | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]` | タグ別記事・定義一覧 |
+| `/series/[slug]` | シリーズ記事一覧・順序表示 |
 
 - Definition の URL は `/defs/[id]` のみ。aliases によるリダイレクトは設けない。
-- series ページ (`/series/[slug]`) は将来拡張として保留。記事ページ内の series ナビ (prev/next) は MVP に含む。
+- 記事ページ内の series ナビ (prev/next リンク) も表示する。
 
 ---
 
@@ -123,7 +128,7 @@ $f : A \to B$ を...と定義する。
 ### remark/rehype プラグイン (per-file)
 
 1. **remark-definition-block**: `:::definition` → definition_block ノード (remark-directive を利用)
-2. **remark-concept-link**: `[[term]]` → `<a class="concept-link" data-term="term" href="/defs/term">term</a>`
+2. **remark-concept-link**: `[[term]]` → `<a class="concept-link" data-term="<canonical-id>" href="/defs/<canonical-id>">term</a>` (alias の場合も canonical id に正規化)
 
 ### ビルド時生成物 (cross-file)
 
@@ -135,6 +140,8 @@ $f : A \to B$ を...と定義する。
 ### 検索インデックス
 
 Pagefind を使用。ビルド後に自動生成。各ページに `data-pagefind-meta` で `type` (post/definition)・`tags`・`series`・`aliases` を付与し、フィルタリングに対応する。
+
+Definition ページでは `data-pagefind-body` を definition_block にのみ付与し、補足本文には `data-pagefind-ignore` を付けてインデックス対象を definition_block に限定する。
 
 ---
 
@@ -182,8 +189,14 @@ Pagefind を使用。ビルド後に自動生成。各ページに `data-pagefin
 
 ## 未決事項 (Q リスト)
 
-- series 専用ページ (`/series/[slug]`) の要否と内容
 - ホームページの詳細レイアウト (最新記事の件数、シリーズ一覧の表示形式)
 - Definition 一覧ページ (`/defs`) の要否
 - タグ一覧ページ (`/tags`) の要否
 - 本番ブランチ運用 (develop 以外のブランチでの執筆フロー詳細)
+- GitHub Pages の base path: リポジトリ名サブパス配下でのデプロイか独自ドメインか (Astro の `site`/`base` 設定に影響)
+- alias 重複時の解決順序 (複数 Definition が同じ alias を持つ場合)
+- `:::definition` が 0 個または複数ある Definition ファイルの扱い (ビルドエラー? 警告?)
+- `[[term]]` が未解決だった場合の挙動 (ビルドエラー / 警告のみ / 素通し)
+- 本番ビルドで published の記事が draft/scrap の Definition へリンクしている場合の挙動
+- タグ URL のエンコード規則 (日本語タグをそのまま URL に使うか slug 化するか)
+- hover preview のタッチ端末・キーボード操作・閉じ方・遅延表示仕様
