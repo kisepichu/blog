@@ -40,16 +40,16 @@ pnpm test:e2e      # Playwright (ページ実装後)
 
 ## 実装順序
 
-### Phase 0: 環境構築 ← 今ここ
+### Phase 0: 環境構築 ✅ 完了
 
-- [ ] Astro v6 プロジェクト初期化 (pnpm create astro)
-- [ ] React 統合 (@astrojs/react)
-- [ ] TypeScript 設定
-- [ ] ESLint + Vitest 設定
-- [ ] Playwright 設定
-- [ ] Astro content collections スキーマ定義 (Post / Definition)
-- [ ] GitHub Actions ワークフロー (develop push → GitHub Pages)
-- [ ] CSS Modules + Google Fonts (M PLUS Rounded 1c, DotGothic16, JetBrains Mono)
+- [x] Astro v6 プロジェクト初期化
+- [x] React 統合 (@astrojs/react)
+- [x] TypeScript 設定 (strict)
+- [x] ESLint + Vitest 設定
+- [x] Playwright 設定
+- [x] Astro content collections スキーマ定義 (Post / Definition)
+- [x] GitHub Actions ワークフロー (develop push → GitHub Pages)
+- [x] CSS Modules + Google Fonts (M PLUS Rounded 1c, DotGothic16, JetBrains Mono)
 
 ### Phase 1: コンテンツ記法実装
 
