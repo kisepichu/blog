@@ -8,11 +8,6 @@ const allPosts = await getCollection('posts')
 const posts = import.meta.env.PROD
   ? allPosts.filter((e) => e.data.status === 'published')
   : allPosts
-
-const allDefs = await getCollection('defs')
-const defs = import.meta.env.PROD
-  ? allDefs.filter((e) => e.data.status === 'published')
-  : allDefs
 ---
 
 <!doctype html>
@@ -41,21 +36,6 @@ const defs = import.meta.env.PROD
             {posts.map((post) => (
               <li>
                 <a href={`${base}/posts/${post.id}`}>{post.data.title}</a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section>
-        <h2>定義一覧</h2>
-        {defs.length === 0 ? (
-          <p>定義はまだありません。</p>
-        ) : (
-          <ul>
-            {defs.map((def) => (
-              <li>
-                <a href={`${base}/defs/${def.id}`}>{def.data.title}</a>
               </li>
             ))}
           </ul>
