@@ -55,7 +55,7 @@ const defs = import.meta.env.PROD
           <ul>
             {defs.map((def) => (
               <li>
-                <a href={`${base}/defs/${def.data.id}`}>{def.data.title}</a>
+                <a href={`${base}/defs/${def.id}`}>{def.data.title}</a>
               </li>
             ))}
           </ul>
