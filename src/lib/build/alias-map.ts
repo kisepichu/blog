@@ -32,8 +32,9 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
   let files: string[]
   try {
     files = readdirSync(dir)
-  } catch {
-    return []
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === 'ENOENT') return []
+    throw err
   }
 
   const result: Array<DefEntry & { title: string; body: string }> = []
