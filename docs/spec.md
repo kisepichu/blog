@@ -1,0 +1,287 @@
+# 仕様書
+
+壁打ちをもとに確定した仕様をまとめたもの。未決事項は末尾の Q リストに記載。
+
+---
+
+## ドメインモデル
+
+ドメインは **Post** と **Definition** の 2 種類のみ。
+
+### Definition
+
+1 ページ 1 概念。`content/defs/<id>.md` に配置する。
+
+**frontmatter:**
+
+```yaml
+id: poset                    # URL・参照キー。ファイル名と一致させる
+title: 半順序集合
+aliases: [poset, 半順序]     # 別名。[[alias]] でも参照可能
+status: published            # published | draft | scrap
+tags: [順序理論, 集合論]
+```
+
+**本文構造:**
+
+```markdown
+:::definition
+**半順序集合** (poset) とは、集合 $P$ と反射的・反対称的・推移的な
+二項関係 $\leq$ の組 $(P, \leq)$ である。
+:::
+
+補足説明はここに書く。preview・検索には含まれない。
+```
+
+- `:::definition` ブロックが **definition_block**。hover preview・検索・一覧表示はすべてこれを対象とする。
+- definition_block の外の本文は補足説明として自由に記述できる。
+
+### Post
+
+通常の記事。`content/posts/<slug>.md` に配置する。定理・証明・局所定義はページ種別としては扱わず、記事内の構造として自由に記述する。
+
+**frontmatter:**
+
+```yaml
+title: 型理論入門
+status: published            # published | draft | scrap
+tags: [型理論]
+series: type-theory-intro    # 省略可
+series_order: 1              # series 指定時は必須
+```
+
+---
+
+## コンテンツ記法
+
+### 概念リンクと Hover Preview【目玉機能】
+
+`[[term]]` 記法で global Definition へのリンクを記述する。リンクにカーソルを合わせると definition_block がその場に表示される (hover preview)。数式・導出図を含めてレンダリングされる。
+
+```markdown
+[[半順序集合]] において [[上界]] が存在するとは限らない。
+```
+
+hover で「半順序集合」の上にカーソルを乗せると、その場で definition_block が展開される:
+
+```
+┌─────────────────────────────────────────────┐
+│ 半順序集合 (poset)                           │
+│                                             │
+│ 集合 P と反射的・反対称的・推移的な二項関係 │
+│ ≤ の組 (P, ≤) を半順序集合という。         │
+└─────────────────────────────────────────────┘
+```
+
+- `term` は Definition の `id` または `aliases` のいずれかにマッチすれば解決される。alias マッチの場合も href は canonical id を使う (`/defs/<id>`)。
+- hover 時に preview-index.json から definition_block の HTML を取得し、React island で描画する。
+- 描画後に `MathJax.typesetPromise([element])` を再実行して数式をレンダリングする。
+
+### グローバル定義の埋め込み
+
+`::embed[term]` 記法でグローバル Definition の definition_block をページへビルド時に静的展開する。
+hover preview とは異なり、ページのコンテンツとして HTML に含まれる。
+
+```markdown
+ここで基本概念を定義する。
+
+::embed[poset]
+
+::embed[upper-bound]
+
+以上を踏まえて...
+```
+
+- `term` は Definition の `id` または `aliases` のいずれかにマッチすれば解決される。
+- 埋め込み順 (上から) に定義番号が振られる (`data-def-number` 属性 + `定義 N` ラベル)。
+- 番号スコープはページ内のみ。ローカル定義 (`:::definition{#id}`) はカウントしない。
+- 埋め込まれた definition_block 内の `[[term]]` リンクも有効 (hover preview が動作する)。
+- `::embed[term]` は `[[term]]` と同等の backlink 参照として扱われる。
+
+### ローカル定義
+
+記事内のみで有効な一時的な定義。`:::definition{#id}` で記述する。
+
+```markdown
+ここでは写像 $f$ を次のように定める。
+
+:::definition{#local-f}
+$f : A \to B$ を...と定義する。
+:::
+
+[[#local-f]] を使うと...
+```
+
+参照方法:
+- `[[#id]]` — 明示的なローカル定義参照 (同一ページ内のみ)
+- `[[term]]` — まずローカル定義の id を検索し、なければ global Definition の id/alias を検索する (ローカル優先)
+
+ページ外から参照されない。
+
+### リンク・埋め込み記法一覧
+
+| 記法 | 解決先 | hover preview | backlink |
+|------|--------|---------------|----------|
+| `[[term]]` | ローカル定義 (id 優先) → global Definition (id or alias) | ローカル定義または definition_block | ✓ |
+| `[[#id]]` | 同一ページのローカル定義のみ (`:::definition{#id}` で定義したもの) | ローカル定義の場合のみ表示 | — |
+| `::embed[term]` | global Definition の definition_block をビルド時展開 | — (本文として埋め込み済み) | ✓ |
+
+- `[[term]]` は常に Definition (またはローカル定義) の参照。Post へのリンクには使わない。
+- 見出しへのページ内リンク・記事間リンクは通常の Markdown (`[text](#heading)`, `[text](/posts/slug)`) を使う。`[[...]]` 記法は Definition 参照専用。
+
+### 数式・導出図
+
+- **数式**: TeX 記法、インライン `$...$` / ブロック `$$...$$`
+- **導出図**: bussproofs (prooftree) 記法、MathJax の `bussproofs` 拡張で描画
+- レンダラー: MathJax (CDN)、hover preview 内でも再実行される
+
+---
+
+## ページ構成
+
+| URL | 内容 |
+|-----|------|
+| `/` | ホーム。最新記事一覧・シリーズ一覧 |
+| `/posts/[slug]` | 記事ページ。本文・タグ・series ナビ・backlink |
+| `/defs/[id]` | 定義ページ。definition_block・補足・タグ・backlink |
+| `/tags/[tag]` | タグ別記事・定義一覧 |
+| `/series/[slug]` | シリーズ記事一覧・順序表示 |
+
+- Definition の URL は `/defs/[id]` のみ。aliases によるリダイレクトは設けない。
+- 記事ページ内の series ナビ (prev/next リンク) も表示する。
+
+---
+
+## ビルドパイプライン
+
+独自 AST は持たない。Astro のコンテンツコレクション + remark/rehype プラグインで実現する。
+
+### 事前処理: alias map 構築
+
+remark プラグインより先に `content/defs/` を全スキャンして alias map を構築する。
+
+```ts
+// { "半順序": "poset", "poset": "poset", ... }
+type AliasMap = Record<string, string>  // alias/id → canonical id
+```
+
+Astro integration の `astro:config:setup` フックで一括構築し、`remarkPlugins` と backlink ビルダーの両方に渡す:
+
+```ts
+// astro.config.ts (integration hook 内)
+const isProd = process.env.NODE_ENV === 'production'
+const allDefs = scanDefsDirectory('content/defs/')
+const defs = isProd ? allDefs.filter(d => d.status === 'published') : allDefs
+const aliasMap = buildAliasMap(defs)            // alias/id → canonical id
+const baseUrl = config.base ?? '/'
+const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
+                                                // canonical id → { title, html }
+
+// preview-index.json をここで生成
+writePreviewIndex(defContentMap, 'public/preview-index.json')
+
+// remarkPlugins に注入
+config.markdown.remarkPlugins.push(
+  [remarkConceptLink, { aliasMap, baseUrl }],
+  [remarkEmbedDefinition, { defContentMap, aliasMap }]
+)
+```
+
+本番ビルド時は draft/scrap の Definition を alias map・defContentMap から除外する。
+
+### remark/rehype プラグイン (per-file)
+
+実行順:
+
+1. **remark-definition-block**: `:::definition` → `<div class="definition-block">` (remark-directive 利用)
+2. **remark-local-definition**: `:::definition{#id}` → `<div class="definition-block" id="...">` + `file.data.localIds` を設定
+3. **remark-concept-link**: alias map と `baseUrl` を受け取り、`[[term]]` を変換する
+   - 解決成功: `<a class="concept-link" data-term="<canonical-id>" href="<baseUrl>/defs/<canonical-id>">term</a>`
+   - 解決失敗 (開発時): `<a class="concept-link concept-link--unresolved" ...>term</a>` (赤枠等で視覚的に明示)
+   - 解決失敗 (本番): プレーンテキストとして出力 + ビルド警告。ビルドは止めない。
+4. **remark-embed-definition**: `::embed[term]` → definition_block を静的展開・定義番号付与
+
+**URL 生成の経路:**
+- remark プラグイン (ビルド時 Node.js): `config.base` を integration から注入して使用
+- クライアントサイド JS (hover preview 等): `import.meta.env.BASE_URL` を使用
+
+### ビルド時生成物 (cross-file)
+
+`astro:config:setup` フックで生成:
+
+- **preview-index.json** (`public/preview-index.json`): `{ [id]: { html: "...", title: "..." } }` — 全 Definition の definition_block HTML (defContentMap から生成)
+
+`getStaticPaths` 内で生成:
+
+- **backlink グラフ**: alias map を使って `[[term]]` と `::embed[term]` を canonical id に正規化しながら全ファイルをスキャンし、各ページの backlink 一覧を生成してページ props に渡す
+
+### 検索インデックス
+
+Pagefind を使用。ビルド後に自動生成。各ページに `data-pagefind-meta` で `type` (post/definition)・`tags`・`series`・`aliases` を付与し、フィルタリングに対応する。
+
+Definition ページでは `data-pagefind-body` を definition_block にのみ付与し、補足本文には `data-pagefind-ignore` を付けてインデックス対象を definition_block に限定する。
+
+---
+
+## 技術スタック
+
+| 項目 | 選択 |
+|------|------|
+| フレームワーク | Astro v6 |
+| UI コンポーネント | React (Astro island) |
+| 言語 | TypeScript |
+| パッケージマネージャー | pnpm |
+| スタイリング | CSS Modules |
+| 数式レンダラー | MathJax (CDN) + bussproofs 拡張 |
+| 検索 | Pagefind |
+| Markdown 拡張 | remark-directive |
+| ホスティング | GitHub Pages |
+| CI/CD | GitHub Actions (develop push でデプロイ) |
+
+---
+
+## UI 方針
+
+- **カラー**: パステルカラーを基調。ターミナル風のアクセントカラー。
+- **フォント**:
+  - 本文・日本語: M PLUS Rounded 1c (丸ゴシック等幅、Google Fonts)
+  - UI・見出し: DotGothic16 (ドットフォント、ターミナル感、Google Fonts)
+  - コードブロック: JetBrains Mono (Google Fonts)
+  - 数式: MathJax 内蔵フォント (STIX Two / TeX Gyre)
+- **組版**: 数学書的なレイアウト。definition_block は太字・枠で強調。余白・行間を広めに取る。
+- **レスポンシブ**: モバイル対応。
+
+---
+
+## status の扱い
+
+| status | ローカルビルド | 本番ビルド |
+|--------|--------------|-----------|
+| `published` | 表示 | 表示 |
+| `draft` | 表示 | **除外** |
+| `scrap` | 表示 | **除外** |
+
+切り替えは `import.meta.env.PROD` で行う。`astro build` 時は `PROD = true`、`astro dev` 時は `PROD = false`。`getStaticPaths` および content collection のクエリで以下のようにフィルタリングする:
+
+```ts
+const entries = await getCollection('posts')
+const visible = import.meta.env.PROD
+  ? entries.filter(e => e.data.status === 'published')
+  : entries
+```
+
+---
+
+## 未決事項 (Q リスト)
+
+- ホームページの詳細レイアウト (最新記事の件数、シリーズ一覧の表示形式)
+- Definition 一覧ページ (`/defs`) の要否
+- タグ一覧ページ (`/tags`) の要否
+- 本番ブランチ運用 (develop 以外のブランチでの執筆フロー詳細)
+- GitHub Pages の base path: 独自ドメインなら `base: '/'`、リポジトリ配下なら `base: '/blog'` 等 (Astro config の `site`/`base` に影響。remark plugin は integration から注入された `config.base`、クライアントサイドは `import.meta.env.BASE_URL` を使う設計のため、決定後に config を埋めるだけでよい)
+- alias 重複時: ビルド警告を出し、ファイル id のアルファベット順で先勝ち ← 確定
+- `:::definition` が 0 個の場合: ビルド警告、そのページの preview と検索インデックスはなし ← 確定
+- `:::definition` が複数ある場合: 先頭の 1 つのみ definition_block として扱い、残りは通常ブロックとして描画 + ビルド警告 ← 確定
+- `[[term]]` が未解決の場合: 開発時は視覚的 broken リンク、本番は警告 + プレーンテキスト出力 (ビルドは止めない) ← 確定
+- タグ URL のエンコード規則 (日本語タグをそのまま URL に使うか slug 化するか)
+- hover preview のタッチ端末・キーボード操作・閉じ方・遅延表示仕様

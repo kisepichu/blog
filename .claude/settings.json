@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__*",
+      "Bash(pnpm*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git mv*)",
+      "Bash(mkdir*)",
+      "Bash(mv*)",
+      "Bash(cp*)",
+      "Bash(touch*)",
+      "Bash(ls*)",
+      "Bash(cat*)",
+      "Bash(echo*)",
+      "Bash(find*)",
+      "Bash(sed*)",
+      "WebSearch"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git reset*)",
+      "Bash(git checkout*)",
+      "Bash(rm*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "context7",
+    "serena",
+    "kiri",
+    "chrome-devtools"
+  ]
+}

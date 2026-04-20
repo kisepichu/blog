@@ -1,0 +1,20 @@
+# Build output
+dist/
+.astro/
+
+# Generated at build time
+public/preview-index.json
+
+# Dependencies
+node_modules/
+
+# Logs
+*.log
+
+# Test results
+playwright-report/
+test-results/
+
+# OS
+.DS_Store
+Thumbs.db
