@@ -20,9 +20,8 @@ export function extractReferences(markdown: string): string[] {
 export function resolveLinks(terms: string[], aliasMap: AliasMap): string[] {
   const resolved = new Set<string>()
   for (const term of terms) {
-    const canonicalId = aliasMap[term]
-    if (canonicalId !== undefined) {
-      resolved.add(canonicalId)
+    if (Object.hasOwn(aliasMap, term)) {
+      resolved.add(aliasMap[term])
     }
   }
   return [...resolved]

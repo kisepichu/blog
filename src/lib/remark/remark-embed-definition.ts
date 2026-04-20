@@ -32,7 +32,7 @@ const remarkEmbedDefinition: Plugin<[EmbedDefinitionOptions], Root> = (options) 
       const term = toString(node).trim()
 
       // alias-map で canonical id に解決
-      const canonicalId = aliasMap[term]
+      const canonicalId = Object.hasOwn(aliasMap, term) ? aliasMap[term] : undefined
       const defContent = canonicalId !== undefined ? defContentMap[canonicalId] : undefined
 
       if (defContent !== undefined) {

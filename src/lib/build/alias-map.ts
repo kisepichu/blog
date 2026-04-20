@@ -62,7 +62,8 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
 }
 
 export function buildAliasMap(defs: DefEntry[]): AliasMap {
-  const map: AliasMap = {}
+  // null-prototype で prototype 汚染を防ぐ
+  const map: AliasMap = Object.create(null) as AliasMap
 
   // アルファベット順に並べ替えることで、先勝ちロジックを id の辞書順で実現する
   const sorted = [...defs].sort((a, b) => a.id.localeCompare(b.id))
@@ -70,7 +71,7 @@ export function buildAliasMap(defs: DefEntry[]): AliasMap {
   for (const def of sorted) {
     const keys = [def.id, ...def.aliases]
     for (const key of keys) {
-      if (key in map) {
+      if (Object.hasOwn(map, key)) {
         console.warn(
           `[alias-map] alias "${key}" is already registered for "${map[key]}", skipping "${def.id}"`,
         )

@@ -131,7 +131,7 @@ function splitByConceptLinks(
       parts.push({ type: 'text', value: value.slice(lastIndex, start) })
     }
 
-    const canonicalId = aliasMap[term]
+    const canonicalId = Object.hasOwn(aliasMap, term) ? aliasMap[term] : undefined
 
     if (canonicalId !== undefined) {
       // 解決成功: <a class="concept-link" data-term="{canonicalId}" href="{baseUrl}/defs/{canonicalId}">{term}</a>
