@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, extname, basename } from 'node:path'
+import { load as yamlLoad } from 'js-yaml'
 
 interface DefEntry {
   id: string
@@ -13,47 +14,18 @@ export type { DefEntry, AliasMap }
 /**
  * content/defs/*.md を読み込み、frontmatter を解析して DefEntry + title + body を返す。
  * ディレクトリが存在しない場合は空配列を返す。
+ * frontmatter は js-yaml でパースする。
  */
 function parseFrontmatter(content: string): { frontmatter: Record<string, unknown>; body: string } {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
   if (!match) return { frontmatter: {}, body: content }
 
-  const fm: Record<string, unknown> = {}
-  const body = match[2]
-  const lines = match[1].split('\n')
+  const parsed = yamlLoad(match[1])
+  const frontmatter = (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed))
+    ? (parsed as Record<string, unknown>)
+    : {}
 
-  let i = 0
-  while (i < lines.length) {
-    const line = lines[i]
-    const colonIdx = line.indexOf(':')
-    if (colonIdx < 0) { i++; continue }
-
-    const key = line.slice(0, colonIdx).trim()
-    const rest = line.slice(colonIdx + 1).trim()
-
-    if (rest.startsWith('[')) {
-      // インライン配列: [a, b, c]
-      const inner = rest.slice(1, rest.lastIndexOf(']'))
-      fm[key] = inner.length > 0 ? inner.split(',').map(s => s.trim()) : []
-    } else if (rest === '') {
-      // ブロック配列:
-      //   - item1
-      //   - item2
-      const arr: string[] = []
-      i++
-      while (i < lines.length && /^\s+-\s/.test(lines[i])) {
-        arr.push(lines[i].replace(/^\s+-\s+/, '').trim())
-        i++
-      }
-      fm[key] = arr
-      continue
-    } else {
-      fm[key] = rest
-    }
-    i++
-  }
-
-  return { frontmatter: fm, body }
+  return { frontmatter, body: match[2] }
 }
 
 export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string; body: string }> {

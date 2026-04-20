@@ -15,8 +15,8 @@ function contentPipelineIntegration(): AstroIntegration {
   return {
     name: 'content-pipeline',
     hooks: {
-      'astro:config:setup': async ({ config, updateConfig }) => {
-        const isProd = process.env.NODE_ENV === 'production'
+      'astro:config:setup': async ({ config, updateConfig, command }) => {
+        const isProd = command === 'build'
         const defsDir = fileURLToPath(new URL('content/defs/', config.root))
         const previewIndexPath = fileURLToPath(new URL('public/preview-index.json', config.root))
         const allDefs = scanDefsDirectory(defsDir)
