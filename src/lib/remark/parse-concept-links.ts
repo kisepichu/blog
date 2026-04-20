@@ -28,7 +28,7 @@ export function parseEmbeds(text: string): string[] {
   const regex = new RegExp(EMBED_REGEX.source, 'gm')
   let match: RegExpExecArray | null
   while ((match = regex.exec(text)) !== null) {
-    results.push(match[1])
+    results.push(match[1].trim())
   }
   return results
 }
