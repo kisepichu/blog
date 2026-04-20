@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
 import remarkDirective from 'remark-directive'
@@ -16,17 +17,21 @@ function contentPipelineIntegration(): AstroIntegration {
     hooks: {
       'astro:config:setup': async ({ config, updateConfig }) => {
         const isProd = process.env.NODE_ENV === 'production'
-        const allDefs = scanDefsDirectory('content/defs/')
+        const defsDir = fileURLToPath(new URL('content/defs/', config.root))
+        const previewIndexPath = fileURLToPath(new URL('public/preview-index.json', config.root))
+        const allDefs = scanDefsDirectory(defsDir)
         const defs = isProd ? allDefs.filter(d => d.status === 'published') : allDefs
         const aliasMap = buildAliasMap(defs)
         const baseUrl = config.base ?? '/'
         const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl, isProd)
 
-        writePreviewIndex(defContentMap, 'public/preview-index.json')
+        writePreviewIndex(defContentMap, previewIndexPath)
 
+        const existingPlugins = config.markdown?.remarkPlugins ?? []
         updateConfig({
           markdown: {
             remarkPlugins: [
+              ...existingPlugins,
               remarkDirective,
               remarkDefinitionBlock,
               remarkLocalDefinition,
