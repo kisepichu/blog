@@ -26,7 +26,7 @@ export async function buildDefContentMap(
   baseUrl: string,
   isProd = false,
 ): Promise<DefContentMap> {
-  const map: DefContentMap = {}
+  const map: DefContentMap = Object.create(null) as DefContentMap
 
   for (const def of defs) {
     const html = unified()

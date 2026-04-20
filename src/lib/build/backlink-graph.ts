@@ -32,13 +32,13 @@ export async function getBacklinkGraph(
   entries: Array<{ type: 'post' | 'definition'; slug: string; title: string; body: string }>,
   aliasMap: AliasMap,
 ): Promise<BacklinkGraph> {
-  const graph: BacklinkGraph = {}
+  const graph: BacklinkGraph = Object.create(null) as BacklinkGraph
 
   for (const entry of entries) {
     const terms = extractReferences(entry.body)
     const canonicalIds = resolveLinks(terms, aliasMap)
     for (const id of canonicalIds) {
-      if (!graph[id]) graph[id] = []
+      if (!Object.hasOwn(graph, id)) graph[id] = []
       // 同じページからの重複を避ける
       const alreadyAdded = graph[id].some((e) => e.slug === entry.slug && e.type === entry.type)
       if (!alreadyAdded) {
