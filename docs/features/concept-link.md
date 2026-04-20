@@ -130,10 +130,17 @@ export function parseConceptLinks(text: string): string[]
 const localIds: Set<string> = file.data.localIds ?? new Set()
 ```
 
-### `[[#anchor]]` との分離
+### `[[#anchor]]` の処理
 
-`[[#anchor]]` (先頭が `#`) は `local-definition` プラグインが処理する。
-`remarkConceptLink` は `#` で始まる term を **スキップ** する。
+`[[#anchor]]` (先頭が `#`) も `remarkConceptLink` が処理する。
+`remarkLocalDefinition` が事前に `file.data.localIds` を設定し、`remarkConceptLink` がそれを参照して以下を行う:
+
+- `localIds` が未設定: スキップ (旧来の動作、通常発生しない)
+- `localIds.has(id)` が true: `concept-link--local` リンク (`href="#id"`)
+- `localIds` にない・開発: `concept-link--unresolved` リンク
+- `localIds` にない・本番: プレーンテキスト + `console.warn`
+
+`remarkLocalDefinition` の役割は `localIds` の収集のみであり、`[[#id]]` の HTML 変換は `remarkConceptLink` が担う。
 
 ### プラグインオプション
 

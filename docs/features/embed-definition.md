@@ -81,6 +81,11 @@ export async function buildDefContentMap(
 3. `extractDefinitionBlockHtml(html)` で inner HTML を抽出 (preview-index と共有)
 4. `{ title, html }` として canonical id をキーに登録
 
+> **実装上の前提**: `remarkEmbedDefinition` は取得した `defContent.html` を mdast の `type: 'html'` raw ノードとして AST に挿入する。
+> これが出力に含まれるには remark-rehype に `allowDangerousHtml: true` が必要。
+> Astro の Markdown パイプラインはこれをデフォルトで有効にしているため動作する。
+> HAST へのパースによる改善は将来の課題とする。
+
 `definition-block` が 0 個のファイルはエントリを含めない + console.warn。
 
 `astro:config:setup` フック全体のフロー:
