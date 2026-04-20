@@ -7,6 +7,5 @@ export default defineConfig({
     environmentMatchGlobs: [
       ['src/components/**/*.test.{ts,tsx}', 'jsdom'],
     ],
-    passWithNoTests: true,
   },
 })
