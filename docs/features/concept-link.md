@@ -58,10 +58,17 @@ const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
 
 writePreviewIndex(defContentMap, 'public/preview-index.json')
 
-config.markdown.remarkPlugins.push(
-  [remarkConceptLink, { aliasMap, baseUrl: config.base ?? '/' }],
-  [remarkEmbedDefinition, { defContentMap, aliasMap }]
-)
+updateConfig({
+  markdown: {
+    remarkPlugins: [
+      remarkDirective,
+      remarkDefinitionBlock,
+      remarkLocalDefinition,
+      [remarkConceptLink, { aliasMap, baseUrl, isProd }],
+      [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
+    ],
+  },
+})
 ```
 
 ---

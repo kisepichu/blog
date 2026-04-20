@@ -50,7 +50,7 @@ body を持たないため container directive (`:::`) ではなく leaf directi
 
 | 環境 | 挙動 |
 |------|------|
-| 開発 | `<div class="definition-block--embed-unresolved"><p>term</p></div>` |
+| 開発 | `<div class="definition-block--embed-unresolved">term</div>` |
 | 本番 | プレーンテキスト + console.warn。ビルドは止めない。 |
 
 ---
@@ -97,10 +97,17 @@ const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
 writePreviewIndex(defContentMap, 'public/preview-index.json')
 
 // remark plugins に注入
-config.markdown.remarkPlugins.push(
-  [remarkConceptLink, { aliasMap, baseUrl }],
-  [remarkEmbedDefinition, { defContentMap, aliasMap }]
-)
+updateConfig({
+  markdown: {
+    remarkPlugins: [
+      remarkDirective,
+      remarkDefinitionBlock,
+      remarkLocalDefinition,
+      [remarkConceptLink, { aliasMap, baseUrl, isProd }],
+      [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
+    ],
+  },
+})
 ```
 
 ---

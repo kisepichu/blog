@@ -21,14 +21,15 @@ type BacklinkGraph = Record<string, BacklinkEntry[]>
 ## 生成タイミング・場所
 
 `src/pages/defs/[id].astro` と `src/pages/posts/[slug].astro` の `getStaticPaths` 内で使用する。
-ビルド中に複数の `getStaticPaths` から呼ばれる可能性があるため、モジュールレベルでキャッシュする。
+呼び出し側が Astro content collection のエントリ一覧を収集して `entries` として渡す。
+関数はステートレスな純粋関数として実装する (テスタビリティ優先)。
 
 ```ts
 // src/lib/build/backlink-graph.ts
-let cache: BacklinkGraph | null = null
-
-export async function getBacklinkGraph(aliasMap: AliasMap): Promise<BacklinkGraph>
-// 初回呼び出し時のみスキャンを実行し、以降はキャッシュを返す
+export async function getBacklinkGraph(
+  entries: Array<{ type: 'post' | 'definition'; slug: string; title: string; body: string }>,
+  aliasMap: AliasMap,
+): Promise<BacklinkGraph>
 ```
 
 ## スキャン方法
@@ -83,7 +84,7 @@ const aliasMap = buildAliasMap(defs)
 
 | ファイル | 役割 |
 |---------|------|
-| `src/lib/build/backlink-graph.ts` | `getBacklinkGraph`・`extractConceptLinks`・`resolveLinks` |
+| `src/lib/build/backlink-graph.ts` | `getBacklinkGraph`・`extractReferences`・`resolveLinks` |
 | `src/lib/build/backlink-graph.test.ts` | Vitest テスト |
 | `src/lib/remark/parse-concept-links.ts` | 共有正規表現 (concept-link feature で定義) |
 | `src/pages/defs/[id].astro` | backlink を props として利用 (def-page と合わせて実装) |
@@ -119,7 +120,7 @@ const aliasMap = buildAliasMap(defs)
 | Definition から Definition を参照 | `type: 'definition'` のエントリが追加される |
 | 同じ Definition を複数回参照 | backlink は重複しない |
 | 未解決の `[[term]]` | backlink に含まれない |
-| キャッシュ | 2 回目の呼び出しはスキャンをスキップ |
+| entries が空 | 空の BacklinkGraph `{}` を返す |
 
 ## エッジケース
 

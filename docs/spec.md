@@ -123,12 +123,11 @@ $f : A \to B$ を...と定義する。
 | 記法 | 解決先 | hover preview | backlink |
 |------|--------|---------------|----------|
 | `[[term]]` | ローカル定義 (id 優先) → global Definition (id or alias) | ローカル定義または definition_block | ✓ |
-| `[[#anchor]]` | 同一ページのローカル定義または見出し | ローカル定義の場合のみ表示 | — |
-| `[[post-slug#anchor]]` | 別記事の特定箇所へのリンク | なし | — |
+| `[[#id]]` | 同一ページのローカル定義のみ (`:::definition{#id}` で定義したもの) | ローカル定義の場合のみ表示 | — |
 | `::embed[term]` | global Definition の definition_block をビルド時展開 | — (本文として埋め込み済み) | ✓ |
 
 - `[[term]]` は常に Definition (またはローカル定義) の参照。Post へのリンクには使わない。
-- 記事同士のリンクおよびページ内リンクは通常の Markdown / `#anchor` を使う (`[[post-slug]]` 記法は存在しない)。
+- 見出しへのページ内リンク・記事間リンクは通常の Markdown (`[text](#heading)`, `[text](/posts/slug)`) を使う。`[[...]]` 記法は Definition 参照専用。
 
 ### 数式・導出図
 
