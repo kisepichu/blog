@@ -2,6 +2,9 @@
 dist/
 .astro/
 
+# Generated at build time
+public/preview-index.json
+
 # Dependencies
 node_modules/
 

@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     include: ['src/lib/**/*.test.ts', 'src/components/**/*.test.{ts,tsx}'],
     environment: 'node',
-    passWithNoTests: true,
+    environmentMatchGlobs: [
+      ['src/components/**/*.test.{ts,tsx}', 'jsdom'],
+    ],
   },
 })

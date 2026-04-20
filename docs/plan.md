@@ -55,11 +55,25 @@ pnpm test:e2e      # Playwright (ページ実装後)
 
 実装順: `src/lib/` から始め `src/pages/` へ向かう
 
-- [ ] `/spec-do definition-block` — `:::definition` パース・レンダリング
-- [ ] `/spec-do concept-link` — `[[term]]` パース・レンダリング
-- [ ] `/spec-do local-definition` — `:::definition{#id}` + `[[#id]]`
-- [ ] `/spec-do preview-index` — preview-index.json ビルド時生成
-- [ ] `/spec-do backlink-graph` — 参照グラフ自動生成
+まず Phase 1 全機能の仕様を作成してから実装に入る (機能が密結合なため)。
+
+**[spec-update フェーズ]**
+
+- [x] `/spec-update definition-block` — `:::definition` パース・レンダリング仕様
+- [x] `/spec-update concept-link` — `[[term]]` パース・alias-map 設計を含む
+- [x] `/spec-update local-definition` — `:::definition{#id}` + `[[#id]]` 仕様
+- [x] `/spec-update embed-definition` — `::embed[term]` global 定義インライン展開仕様
+- [x] `/spec-update preview-index` — preview-index.json ビルド時生成仕様
+- [x] `/spec-update backlink-graph` — 参照グラフ自動生成仕様
+
+**[実装フェーズ]**
+
+- [ ] `/spec-do definition-block`
+- [ ] `/spec-do concept-link`
+- [ ] `/spec-do embed-definition`  ← defContentMap 構築 (preview-index と共有インフラ)
+- [ ] `/spec-do local-definition`
+- [ ] `/spec-do preview-index`
+- [ ] `/spec-do backlink-graph`
 
 ### Phase 2: ページ実装 (MVP)
 
@@ -97,7 +111,8 @@ pnpm test:e2e      # Playwright (ページ実装後)
 | ドメイン | Post / Definition の 2 種類 |
 | 目玉機能 | `[[term]]` hover preview (definition_block) |
 | backlink | getStaticPaths で自動生成 |
-| preview-index | public/preview-index.json をビルド時生成 |
+| preview-index | public/preview-index.json を astro:config:setup 時に生成 |
+| 定義埋め込み | `::embed[term]` でビルド時静的展開・定義番号付与 |
 | 本文フォント | M PLUS Rounded 1c |
 | UI フォント | DotGothic16 |
 | コードフォント | JetBrains Mono |
