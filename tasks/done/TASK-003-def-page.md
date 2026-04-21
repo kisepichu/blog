@@ -41,7 +41,7 @@
 ### src/pages/
 
 - [x] `src/pages/defs/[id].astro` — getStaticPaths + ページ本体
-- [x] `src/pages/defs/def-page.e2e.ts` — Playwright e2e テスト
+- [x] `e2e/def-page.e2e.ts` — Playwright e2e テスト
 
 ## 完了条件
 

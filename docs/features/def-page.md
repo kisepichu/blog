@@ -57,7 +57,6 @@ container--narrow (max-width: 720px, padding: 2.5rem 1.25rem)
 interface Props {
   title: string        // <title> タグ用
   siteTitle?: string   // ヘッダーロゴ表示名 (デフォルト: "kise.dev")
-  siteSubtitle?: string // 未使用、将来のホームページ用
   activePage?: 'home' | 'post' | 'def' | 'series'
 }
 ```
@@ -230,7 +229,7 @@ export function getTagColor(tag: string): TagColorVars
 
 ### JSON ファイルの読み込み
 
-`src/lib/tag-colors.ts` から `import tagColorsConfig from '../../config/tag-colors.json'` で読み込む。  
+`src/lib/tag-colors.ts` から `import tagColorsConfig from '../config/tag-colors.json'` で読み込む。  
 TypeScript の `resolveJsonModule` が有効であること (`tsconfig.json` 確認)。
 
 ---

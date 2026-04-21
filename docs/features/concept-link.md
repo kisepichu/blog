@@ -90,7 +90,10 @@ export const CONCEPT_LINK_REGEX = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
 export function parseConceptLinks(text: string): string[]
 ```
 
-### `[[term|display]]` 記法
+### `[[term|display]]` 記法 (将来予定 — 未実装)
+
+> **注意**: 現状の実装 (`parse-concept-links.ts`, `remark-concept-link.ts`) は `[[term]]` のみ対応。
+> `[[term|display]]` 記法は将来実装予定。
 
 表示テキストを指定する場合: `[[解決キー|表示テキスト]]`
 

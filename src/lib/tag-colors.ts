@@ -26,15 +26,18 @@ function pastelKeyToColor(key: PastelKey): TagColor {
 export function getTagColor(tag: string): TagColor {
   const config = tagColorsConfig as Record<string, string>
   if (Object.prototype.hasOwnProperty.call(config, tag)) {
-    const key = config[tag] as PastelKey
-    return pastelKeyToColor(key)
+    const value = config[tag]
+    // 設定値が有効な PastelKey でない場合はフォールバックへ
+    if ((PASTEL_KEYS as readonly string[]).includes(value)) {
+      return pastelKeyToColor(value as PastelKey)
+    }
   }
 
-  // 決定論的ハッシュ: charCodeAt の合計 % 5
+  // 決定論的ハッシュ: charCodeAt の合計 % PASTEL_KEYS.length
   let sum = 0
   for (let i = 0; i < tag.length; i++) {
     sum += tag.charCodeAt(i)
   }
-  const index = sum % 5
+  const index = sum % PASTEL_KEYS.length
   return pastelKeyToColor(PASTEL_KEYS[index])
 }
