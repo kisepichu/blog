@@ -272,3 +272,68 @@ a:hover { color: var(--link-h); }
   color: var(--text-muted);
   text-decoration-style: dashed;
 }
+
+/* ── SECTION TITLE ──────────────────────────────── */
+.section-title {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.section-title::before { content: '──'; letter-spacing: -0.1em; color: var(--border); }
+
+/* ── POST CARD ──────────────────────────────────── */
+.post-card {
+  display: block;
+  border: 1px solid var(--border-l);
+  border-radius: var(--r-md);
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 0.85rem;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+  background: white;
+  text-decoration: none;
+  color: inherit;
+}
+.post-card:hover {
+  border-color: var(--accent-pale);
+  box-shadow: 0 2px 12px rgba(61,158,138,0.08);
+  transform: translateY(-1px);
+}
+.post-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+.post-card__date { font-family: var(--font-ui); font-size: 0.68rem; color: var(--text-faint); }
+.post-card__title {
+  font-family: var(--font-ui);
+  font-size: 0.98rem;
+  color: var(--text);
+  font-weight: normal;
+  line-height: 1.45;
+}
+.post-card:hover .post-card__title { color: var(--link); }
+
+/* ── DEF COMPACT ────────────────────────────────── */
+.def-compact { display: flex; flex-direction: column; gap: 0.35rem; }
+.def-compact-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--r-sm);
+  background: var(--accent-bg);
+  transition: background 0.1s;
+  text-decoration: none;
+  color: inherit;
+}
+.def-compact-item:hover { background: var(--accent-pale); }
+.def-compact-item__title { font-size: 0.88rem; }
+.def-compact-item__id { font-family: var(--font-code); font-size: 0.68rem; color: var(--text-faint); }

@@ -80,7 +80,7 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
         {def.data.tags.length > 0 && (
           <div class="def-tags">
             {def.data.tags.map((tag) => (
-              <TagBadge tag={tag} href={`${base}/tags/${encodeURIComponent(tag)}`} />
+              <TagBadge tag={tag} href={`${base}/tags/${tag}`} />
             ))}
           </div>
         )}

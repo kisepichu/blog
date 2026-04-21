@@ -154,6 +154,7 @@ $f : A \to B$ を...と定義する。
 - 記事ページ内の series ナビ (prev/next リンク) も表示する。
 - 共有コンポーネント (Layout, Breadcrumb, TagBadge, Backlinks) は `src/components/` に置き def-page ブランチで整備する。
 - タグ色は `src/config/tag-colors.json` で著者が指定できる。未指定タグはハッシュ値で 5 色のパステルパレットから自動割り当て。
+- タグ URL は raw タグ名をそのまま使用する (`/tags/集合論`)。encodeURIComponent は使わない。
 
 ---
 
