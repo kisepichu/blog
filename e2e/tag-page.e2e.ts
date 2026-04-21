@@ -70,10 +70,11 @@ test.describe('/tags/集合論 ページ', () => {
     await expect(postCard).toBeVisible()
   })
 
-  test('post-card に date "2025-03-22" が表示される', async ({ page }) => {
-    const date = page.locator('.post-card__date')
-    await expect(date.first()).toBeVisible()
-    await expect(date.first()).toContainText('2025-03-22')
+  test('order-theory の post-card に date "2025-03-22" が表示される', async ({ page }) => {
+    const postCard = page.locator('a.post-card[href="/posts/order-theory"]')
+    const date = postCard.locator('.post-card__date')
+    await expect(date).toBeVisible()
+    await expect(date).toContainText('2025-03-22')
   })
 
   test('定義セクション .section-title に "定義" が表示される', async ({ page }) => {
@@ -109,6 +110,42 @@ test.describe('/tags/代数 ページ (defs あり、posts あり)', () => {
     const postCards = page.locator('.post-card')
     const count = await postCards.count()
     expect(count).toBeGreaterThanOrEqual(1)
+  })
+})
+
+test.describe('/tags/e2e-posts-only ページ (posts のみ)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/tags/e2e-posts-only')
+  })
+
+  test('記事セクションが表示される', async ({ page }) => {
+    const sectionTitles = page.locator('.section-title')
+    const articleSection = sectionTitles.filter({ hasText: '記事' })
+    await expect(articleSection).toBeVisible()
+  })
+
+  test('定義セクションは表示されない', async ({ page }) => {
+    const sectionTitles = page.locator('.section-title')
+    const defSection = sectionTitles.filter({ hasText: '定義' })
+    await expect(defSection).toHaveCount(0)
+  })
+})
+
+test.describe('/tags/e2e-defs-only ページ (defs のみ)', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/tags/e2e-defs-only')
+  })
+
+  test('定義セクションが表示される', async ({ page }) => {
+    const sectionTitles = page.locator('.section-title')
+    const defSection = sectionTitles.filter({ hasText: '定義' })
+    await expect(defSection).toBeVisible()
+  })
+
+  test('記事セクションは表示されない', async ({ page }) => {
+    const sectionTitles = page.locator('.section-title')
+    const articleSection = sectionTitles.filter({ hasText: '記事' })
+    await expect(articleSection).toHaveCount(0)
   })
 })
 
