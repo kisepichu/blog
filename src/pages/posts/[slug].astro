@@ -51,7 +51,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
     {post.data.series && (
       <div class="series-banner">
         <span>シリーズ:</span>
-        <a href={`${base}/series/${post.data.series}`}>{post.data.series}</a>
+        <a href={`${base}/series/${encodeURIComponent(post.data.series)}`}>{post.data.series}</a>
         <span class="series-banner__order">#{post.data.series_order}</span>
       </div>
     )}

@@ -10,9 +10,12 @@ const posts = defineCollection({
     title: z.string(),
     status: statusSchema.default('draft'),
     tags: z.array(z.string()).default([]),
-    series: z.string().optional(),
+    series: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'series は kebab-case の ASCII スラグで指定してください').optional(),
     series_order: z.number().int().positive().optional(),
-    date: z.union([z.string(), z.date().transform((d) => d.toISOString().slice(0, 10))]).optional(),
+    date: z.preprocess(
+      (value) => (value instanceof Date ? value.toISOString().slice(0, 10) : value),
+      z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date は YYYY-MM-DD 形式で指定してください'),
+    ).optional(),
   }).refine(
     (data) => !data.series || data.series_order !== undefined,
     { message: 'series_order は series 指定時に必須です' }
