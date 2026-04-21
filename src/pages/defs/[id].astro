@@ -96,11 +96,13 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
       <span data-pagefind-meta={`aliases:${def.data.aliases.join(',')}`} hidden></span>
     )}
 
-    <div class="def-content prose">
+    <div class="def-content prose" data-pagefind-body>
       <Content />
     </div>
 
-    <Backlinks items={backlinks} />
+    <div data-pagefind-ignore>
+      <Backlinks items={backlinks} />
+    </div>
   </div>
 </Layout>
 

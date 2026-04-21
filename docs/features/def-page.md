@@ -237,24 +237,23 @@ TypeScript の `resolveJsonModule` が有効であること (`tsconfig.json` 確
 ## Pagefind 対応
 
 ```html
-<!-- defs/[id].astro の <html> または wrapper div -->
-<div data-pagefind-meta="type:definition"
-     data-pagefind-meta="tags:集合論"
-     data-pagefind-meta="aliases:poset,半順序">
+<!-- data-pagefind-meta は同名属性を 1 要素に複数書けないため、別々の hidden span にする -->
+<span data-pagefind-meta="type:definition" hidden></span>
+<span data-pagefind-meta="tags:集合論" hidden></span>
+<span data-pagefind-meta="aliases:poset,半順序" hidden></span>
 
-  <!-- definition-block にのみ pagefind-body -->
-  <div class="definition-block" data-pagefind-body>
-    ...rendered definition content...
-  </div>
+<!-- def-content 全体を検索対象にする -->
+<div class="def-content prose" data-pagefind-body>
+  ...rendered definition content...
+</div>
 
-  <!-- 補足説明は検索対象外 -->
-  <section data-pagefind-ignore>
-    ...supplement...
-  </section>
+<!-- バックリンクは検索対象外 -->
+<div data-pagefind-ignore>
+  <Backlinks ... />
 </div>
 ```
 
-`data-pagefind-meta` は複数指定可能 (同名属性を複数書く)。
+`data-pagefind-meta` は HTML 属性の重複が無効なため、値ごとに別要素に分ける。
 
 ---
 

@@ -85,10 +85,10 @@ updateConfig({
 
 ```ts
 // src/lib/remark/parse-concept-links.ts (backlink-graph と共有)
-// 現状: [[term]] のみ対応。[[term|display]] は将来予定 (REGEX は先行定義済み)
-export const CONCEPT_LINK_REGEX = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g
-//                                        ^term       ^display (将来予定、現在は未使用)
+// 現状: [[term]] のみ対応
+export const CONCEPT_LINK_REGEX = /\[\[([^\]]+)\]\]/g
 export function parseConceptLinks(text: string): string[]
+// 将来予定: [[term|display]] 対応時は /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g に変更
 ```
 
 ### `[[term|display]]` 記法 (将来予定 — 未実装)
