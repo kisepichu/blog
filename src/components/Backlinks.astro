@@ -1,0 +1,37 @@
+---
+// BacklinkEntry の型は src/lib/build/backlink-graph.ts に合わせる
+// type: 'post' | 'definition', slug: string, title: string
+interface BacklinkEntry {
+  type: 'post' | 'definition'
+  slug: string
+  title: string
+}
+
+interface Props {
+  items: BacklinkEntry[]
+}
+
+const { items } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+{items.length > 0 && (
+  <section class="backlinks">
+    <div class="backlinks__title">← バックリンク</div>
+    <div class="backlinks__list">
+      {items.map((item) => (
+        <div class="backlink-item">
+          <span class={`backlink-badge backlink-badge--${item.type === 'post' ? 'post' : 'def'}`}>
+            {item.type === 'post' ? 'post' : 'def'}
+          </span>
+          <a href={item.type === 'post'
+            ? `${base}/posts/${item.slug}`
+            : `${base}/defs/${item.slug}`
+          }>
+            {item.title}
+          </a>
+        </div>
+      ))}
+    </div>
+  </section>
+)}

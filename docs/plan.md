@@ -68,19 +68,31 @@ pnpm test:e2e      # Playwright (ページ実装後)
 
 **[実装フェーズ]**
 
-- [ ] `/spec-do definition-block`
-- [ ] `/spec-do concept-link`
-- [ ] `/spec-do embed-definition`  ← defContentMap 構築 (preview-index と共有インフラ)
-- [ ] `/spec-do local-definition`
-- [ ] `/spec-do preview-index`
-- [ ] `/spec-do backlink-graph`
+- [x] `/spec-do definition-block`
+- [x] `/spec-do concept-link`
+- [x] `/spec-do embed-definition`  ← defContentMap 構築 (preview-index と共有インフラ)
+- [x] `/spec-do local-definition`
+- [x] `/spec-do preview-index`
+- [x] `/spec-do backlink-graph`
 
 ### Phase 2: ページ実装 (MVP)
 
-- [ ] `/spec-do def-page` — `/defs/[id]` 定義ページ
-- [ ] `/spec-do post-page` — `/posts/[slug]` 記事ページ
-- [ ] `/spec-do tag-page` — `/tags/[tag]` タグページ
-- [ ] `/spec-do home-page` — `/` ホームページ
+Phase 1 と異なり各ページの依存が疎なため、**ページごとにブランチを切る**。  
+共有コンポーネント (Layout, Breadcrumb, TagBadge, Backlinks) と CSS トークンは def-page ブランチに含める。  
+hover-preview (Phase 3) は後回し — Phase 2 では concept-link は静的リンクとして表示する。
+
+**[spec-update → spec-do サイクル]**
+
+- [x] `/spec-update def-page`   ← Layout・CSS トークン・共有コンポーネントも含む
+- [x] `/spec-do def-page`       ← feat/phase-2-def-page ブランチ
+- [ ] `/spec-update post-page`
+- [ ] `/spec-do post-page`      ← feat/phase-2-post-page ブランチ
+- [ ] `/spec-update tag-page`
+- [ ] `/spec-do tag-page`       ← feat/phase-2-tag-page ブランチ
+- [ ] `/spec-update home-page`
+- [ ] `/spec-do home-page`      ← feat/phase-2-home-page ブランチ
+- [ ] `/spec-update series-page` ← デザイン・spec.md に記載あり。plan 未掲載だったため追加
+- [ ] `/spec-do series-page`    ← feat/phase-2-series-page ブランチ
 
 ### Phase 3: インタラクティブ機能
 
