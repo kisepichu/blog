@@ -9,7 +9,7 @@ const posts = defineCollection({
   schema: z.object({
     title: z.string(),
     status: statusSchema.default('draft'),
-    tags: z.array(z.string().regex(/^[^/?#]+$/, 'タグに / ? # は使用できません')).default([]),
+    tags: z.array(z.string().trim().regex(/^[^\s/?#%]+$/, 'タグに / ? # % および空白は使用できません')).default([]),
     series: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'series は kebab-case の ASCII スラグで指定してください').optional(),
     series_order: z.number().int().positive().optional(),
     date: z.preprocess(
@@ -29,7 +29,7 @@ const defs = defineCollection({
     title: z.string(),
     aliases: z.array(z.string()).default([]),
     status: statusSchema.default('draft'),
-    tags: z.array(z.string().regex(/^[^/?#]+$/, 'タグに / ? # は使用できません')).default([]),
+    tags: z.array(z.string().trim().regex(/^[^\s/?#%]+$/, 'タグに / ? # % および空白は使用できません')).default([]),
   }),
 })
 
