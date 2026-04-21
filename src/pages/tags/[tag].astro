@@ -1,0 +1,91 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '@/components/Layout.astro'
+import Breadcrumb from '@/components/Breadcrumb.astro'
+import TagBadge from '@/components/TagBadge.astro'
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts')
+  const allDefs  = await getCollection('defs')
+
+  const posts = import.meta.env.PROD
+    ? allPosts.filter((p) => p.data.status === 'published')
+    : allPosts
+  const defs = import.meta.env.PROD
+    ? allDefs.filter((d) => d.data.status === 'published')
+    : allDefs
+
+  const tagMap = new Map<string, { posts: typeof posts; defs: typeof defs }>()
+  const ensure = (tag: string) => {
+    if (!tagMap.has(tag)) tagMap.set(tag, { posts: [], defs: [] })
+    return tagMap.get(tag)!
+  }
+  for (const post of posts) post.data.tags.forEach((t) => ensure(t).posts.push(post))
+  for (const def  of defs)  def.data.tags.forEach((t)  => ensure(t).defs.push(def))
+
+  return [...tagMap.entries()].map(([tag, { posts, defs }]) => ({
+    params: { tag },
+    props:  { tag, tagPosts: posts, tagDefs: defs },
+  }))
+}
+
+const { tag, tagPosts, tagDefs } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+<Layout title={`#${tag}`}>
+  <div class="container--narrow" data-pagefind-ignore>
+    <Breadcrumb items={[
+      { label: 'Home', href: `${base}/` },
+      { label: 'Tags' },
+      { label: tag },
+    ]} />
+
+    <header>
+      <h1 class="tag-title">
+        <TagBadge tag={tag} />
+        <span class="tag-name">{tag}</span>
+      </h1>
+    </header>
+
+    {tagPosts.length > 0 && (
+      <div class="tag-section">
+        <div class="section-title">記事</div>
+        {tagPosts.map((post) => (
+          <a class="post-card" href={`${base}/posts/${post.id}`}>
+            <div class="post-card__meta">
+              {post.data.date && <span class="post-card__date">{post.data.date}</span>}
+            </div>
+            <h3 class="post-card__title">{post.data.title}</h3>
+          </a>
+        ))}
+      </div>
+    )}
+
+    {tagDefs.length > 0 && (
+      <div class="tag-section">
+        <div class="section-title">定義</div>
+        <div class="def-compact">
+          {tagDefs.map((def) => (
+            <a class="def-compact-item" href={`${base}/defs/${def.id}`}>
+              <span class="def-compact-item__title">{def.data.title}</span>
+              <span class="def-compact-item__id">{def.id}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .tag-title {
+    font-size: 1.4rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .tag-name { font-family: var(--font-ui); }
+  .tag-section { margin-bottom: 2.5rem; }
+</style>

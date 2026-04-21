@@ -63,7 +63,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
         {post.data.tags.length > 0 && (
           <div class="post-tags">
             {post.data.tags.map((tag) => (
-              <TagBadge tag={tag} href={`${base}/tags/${encodeURIComponent(tag)}`} />
+              <TagBadge tag={tag} href={`${base}/tags/${tag}`} />
             ))}
           </div>
         )}
