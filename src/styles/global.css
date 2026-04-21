@@ -84,8 +84,8 @@ a:hover { color: var(--link-h); }
 .definition-block[id] {
   margin: 1.8rem 0;
 }
-.definition-block .prose { font-size: 0.95rem; }
-.definition-block .prose p:last-child { margin-bottom: 0; }
+.definition-block { font-size: 0.95rem; }
+.definition-block p:last-child { margin-bottom: 0; }
 
 /* definition-number span (::embed / local-numbered blocks が持つ) */
 .definition-number {
@@ -174,11 +174,10 @@ a:hover { color: var(--link-h); }
 /* ── FOOTER ─────────────────────────────────────── */
 .site-footer {
   border-top: 1px solid var(--border-l);
-  padding: 1.2rem 1.25rem;
 }
 .site-footer .container {
-  padding-top: 0;
-  padding-bottom: 0;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
