@@ -44,7 +44,8 @@ tags: [集合論]
 
 ```yaml
 title: 型理論入門
-status: published # published | draft | scrap
+date: 2025-04-10    # 省略可 (YYYY-MM-DD)
+status: published   # published | draft | scrap
 tags: [型理論]
 series: type-theory-intro # 省略可
 series_order: 1 # series 指定時は必須
@@ -144,7 +145,7 @@ $f : A \to B$ を...と定義する。
 | URL              | 内容                                               |
 | ---------------- | -------------------------------------------------- |
 | `/`              | ホーム。最新記事一覧・シリーズ一覧                 |
-| `/posts/[slug]`  | 記事ページ。本文・タグ・series ナビ・backlink      |
+| `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・backlink (series nav は Phase 3) |
 | `/defs/[id]`     | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]`    | タグ別記事・定義一覧                               |
 | `/series/[slug]` | シリーズ記事一覧・順序表示                         |

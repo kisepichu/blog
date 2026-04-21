@@ -12,6 +12,7 @@ const posts = defineCollection({
     tags: z.array(z.string()).default([]),
     series: z.string().optional(),
     series_order: z.number().int().positive().optional(),
+    date: z.union([z.string(), z.date().transform((d) => d.toISOString().slice(0, 10))]).optional(),
   }).refine(
     (data) => !data.series || data.series_order !== undefined,
     { message: 'series_order は series 指定時に必須です' }

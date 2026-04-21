@@ -1,0 +1,108 @@
+---
+import { getCollection, render } from 'astro:content'
+import { buildAliasMap } from '@/lib/build/alias-map'
+import { getBacklinkGraph } from '@/lib/build/backlink-graph'
+import Layout from '@/components/Layout.astro'
+import Breadcrumb from '@/components/Breadcrumb.astro'
+import TagBadge from '@/components/TagBadge.astro'
+import Backlinks from '@/components/Backlinks.astro'
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts')
+  const allDefs = await getCollection('defs')
+
+  const posts = import.meta.env.PROD
+    ? allPosts.filter((p) => p.data.status === 'published')
+    : allPosts
+  const defs = import.meta.env.PROD
+    ? allDefs.filter((d) => d.data.status === 'published')
+    : allDefs
+
+  const aliasMap = buildAliasMap(
+    defs.map((d) => ({ id: d.id, aliases: d.data.aliases, status: d.data.status })),
+  )
+
+  const entries = [
+    ...defs.map((d) => ({ type: 'definition' as const, slug: d.id, title: d.data.title, body: d.body ?? '' })),
+    ...posts.map((p) => ({ type: 'post' as const, slug: p.id, title: p.data.title, body: p.body ?? '' })),
+  ]
+
+  const backlinkGraph = await getBacklinkGraph(entries, aliasMap)
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, backlinks: backlinkGraph[post.id] ?? [] },
+  }))
+}
+
+const { post, backlinks } = Astro.props
+const { Content } = await render(post)
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+<Layout title={post.data.title} activePage="post">
+  <div class="container--narrow">
+    <Breadcrumb items={[
+      { label: 'Home', href: `${base}/` },
+      { label: 'Posts' },
+      { label: post.data.title },
+    ]} />
+
+    {post.data.series && (
+      <div class="series-banner">
+        <span>シリーズ:</span>
+        <a href={`${base}/series/${post.data.series}`}>{post.data.series}</a>
+        <span class="series-banner__order">#{post.data.series_order}</span>
+      </div>
+    )}
+
+    <header class="post-header">
+      <h1 class="post-title">{post.data.title}</h1>
+      <div class="post-meta">
+        {post.data.date && <span class="post-date">{post.data.date}</span>}
+        {post.data.tags.length > 0 && (
+          <div class="post-tags">
+            {post.data.tags.map((tag) => (
+              <TagBadge tag={tag} href={`${base}/tags/${encodeURIComponent(tag)}`} />
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+
+    <!-- Pagefind メタデータ -->
+    <span data-pagefind-meta="type:post" hidden></span>
+    {post.data.tags.length > 0 && (
+      <span data-pagefind-meta={`tags:${post.data.tags.join(',')}`} hidden></span>
+    )}
+    {post.data.series && (
+      <span data-pagefind-meta={`series:${post.data.series}`} hidden></span>
+    )}
+
+    <article class="prose" data-pagefind-body>
+      <Content />
+    </article>
+
+    {/* TODO: series-nav (Phase 3) */}
+
+    <div data-pagefind-ignore>
+      <Backlinks items={backlinks} />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .post-header { margin-bottom: 2.2rem; }
+  .post-title { font-size: 1.55rem; letter-spacing: 0.01em; line-height: 1.35; margin-bottom: 0.7rem; }
+  .post-meta { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
+  .post-date { font-family: var(--font-ui); font-size: 0.72rem; color: var(--text-faint); }
+  .post-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+  .series-banner {
+    display: flex; align-items: center; gap: 0.6rem;
+    font-family: var(--font-ui); font-size: 0.72rem;
+    background: var(--lav-bg); border: 1px solid var(--lav-b);
+    border-radius: var(--r-sm); padding: 0.4rem 0.9rem;
+    margin-bottom: 1.2rem; color: var(--lav);
+  }
+  .series-banner__order { color: var(--lav); opacity: 0.6; }
+</style>
