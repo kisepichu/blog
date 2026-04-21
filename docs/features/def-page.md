@@ -37,7 +37,7 @@ container--narrow (max-width: 720px, padding: 2.5rem 1.25rem)
     [def] 束                  ← teal badge
     [post] 型理論入門…        ← lavender badge
 
-[footer: © 2025 kise | Built with Astro · React · MathJax]
+[footer: © 2026 kise | Built with Astro · React · MathJax]
 ```
 
 ---
