@@ -1,32 +1,114 @@
 ---
 import { getCollection } from 'astro:content'
 import Layout from '@/components/Layout.astro'
+import TagBadge from '@/components/TagBadge.astro'
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 const allPosts = await getCollection('posts')
-const posts = import.meta.env.PROD
-  ? allPosts.filter((e) => e.data.status === 'published')
+const posts = (import.meta.env.PROD
+  ? allPosts.filter((p) => p.data.status === 'published')
   : allPosts
+).sort((a, b) => {
+  if (!a.data.date && !b.data.date) return 0
+  if (!a.data.date) return 1
+  if (!b.data.date) return -1
+  return b.data.date.localeCompare(a.data.date)
+})
+const recentPosts = posts.slice(0, 5)
+
+// シリーズ: 投稿から収集
+const seriesMap = new Map<string, number>()
+for (const post of posts) {
+  if (post.data.series) {
+    seriesMap.set(post.data.series, (seriesMap.get(post.data.series) ?? 0) + 1)
+  }
+}
+
+// 定義: id のアルファベット順に最大4件
+const allDefs = await getCollection('defs')
+const defs = import.meta.env.PROD
+  ? allDefs.filter((d) => d.data.status === 'published')
+  : allDefs
+const recentDefs = [...defs].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 4)
+
+// タグ: 投稿・定義から全ユニークタグを収集
+const allTags = [...new Set([
+  ...posts.flatMap((p) => p.data.tags),
+  ...defs.flatMap((d) => d.data.tags),
+])]
 ---
 
-<Layout title="Blog" activePage="home">
-  <div class="container">
-    <h1>Blog</h1>
+<Layout title="きせのブログ" activePage="home">
+  <div class="container" data-pagefind-ignore>
+    <div class="home-hero">
+      <div class="home-hero__prompt">~/blog $ ls</div>
+      <h1 class="home-title">きせのブログ</h1>
+      <p class="home-subtitle">型理論 · 論理学 · 数学 · プログラミング言語理論</p>
+    </div>
 
-    <section>
-      <h2>最新記事</h2>
-      {posts.length === 0 ? (
-        <p>記事はまだありません。</p>
-      ) : (
-        <ul>
-          {posts.map((post) => (
-            <li>
-              <a href={`${base}/posts/${post.id}`}>{post.data.title}</a>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <div class="home-grid">
+      <!-- メインカラム -->
+      <div>
+        <div class="section-title">最新記事</div>
+        {recentPosts.map((post) => (
+          <a class="post-card" href={`${base}/posts/${post.id}`}>
+            <div class="post-card__meta">
+              {post.data.date && <span class="post-card__date">{post.data.date}</span>}
+              <div class="post-card__tags">
+                {post.data.tags.map((tag) => <TagBadge tag={tag} />)}
+              </div>
+            </div>
+            <h3 class="post-card__title">{post.data.title}</h3>
+            {post.data.series && (
+              <div class="post-card__series">
+                シリーズ: {post.data.series} #{post.data.series_order}
+              </div>
+            )}
+          </a>
+        ))}
+        {posts.length > 5 && (
+          <a class="view-all" href={`${base}/posts`}>すべての記事を見る →</a>
+        )}
+      </div>
+
+      <!-- サイドバー -->
+      <aside>
+        {seriesMap.size > 0 && (
+          <>
+            <div class="section-title">シリーズ</div>
+            {[...seriesMap.entries()].map(([slug, count]) => (
+              <a class="series-card" href={`${base}/series/${slug}`}>
+                <span class="series-card__title">{slug}</span>
+                <span class="series-card__count">{count} 記事</span>
+              </a>
+            ))}
+          </>
+        )}
+
+        {recentDefs.length > 0 && (
+          <>
+            <div class="section-title" style="margin-top: 2rem">最近の定義</div>
+            <div class="def-compact">
+              {recentDefs.map((def) => (
+                <a class="def-compact-item" href={`${base}/defs/${def.id}`}>
+                  <span class="def-compact-item__title">{def.data.title}</span>
+                  <span class="def-compact-item__id">{def.id}</span>
+                </a>
+              ))}
+            </div>
+          </>
+        )}
+
+        {allTags.length > 0 && (
+          <>
+            <div class="section-title" style="margin-top: 2rem">タグ</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              {allTags.map((tag) => <TagBadge tag={tag} href={`${base}/tags/${tag}`} />)}
+            </div>
+          </>
+        )}
+      </aside>
+    </div>
   </div>
 </Layout>

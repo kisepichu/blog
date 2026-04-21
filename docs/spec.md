@@ -144,7 +144,7 @@ $f : A \to B$ を...と定義する。
 
 | URL              | 内容                                               |
 | ---------------- | -------------------------------------------------- |
-| `/`              | ホーム。最新記事一覧・シリーズ一覧                 |
+| `/`              | ホーム。hero + 最新記事5件 (post-card with tags/series) + サイドバー (シリーズ一覧・最近の定義4件・タグ一覧)。詳細は `docs/features/home-page.md` |
 | `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・backlink (series nav は Phase 3) |
 | `/defs/[id]`     | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]`    | タグ別記事・定義一覧                               |
@@ -281,7 +281,7 @@ const visible = import.meta.env.PROD
 
 ## 未決事項 (Q リスト)
 
-- ホームページの詳細レイアウト (最新記事の件数、シリーズ一覧の表示形式)
+- ~~ホームページの詳細レイアウト~~ → 確定: 最新5件・サイドバー形式 (`docs/features/home-page.md`)
 - Definition 一覧ページ (`/defs`) の要否
 - タグ一覧ページ (`/tags`) の要否
 - 本番ブランチ運用 (develop 以外のブランチでの執筆フロー詳細)

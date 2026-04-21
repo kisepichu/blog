@@ -337,3 +337,54 @@ a:hover { color: var(--link-h); }
 .def-compact-item:hover { background: var(--accent-pale); }
 .def-compact-item__title { font-size: 0.88rem; }
 .def-compact-item__id { font-family: var(--font-code); font-size: 0.68rem; color: var(--text-faint); }
+
+/* ── HOME HERO ─────────────────────────────────── */
+.home-hero { margin-bottom: 2.8rem; padding: 2.4rem 0 2rem; }
+.home-hero__prompt {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.05em;
+}
+.home-hero__prompt::before { content: '› '; }
+.home-title { font-family: var(--font-ui); font-size: 2rem; letter-spacing: 0.02em; color: var(--text); margin-bottom: 0.4rem; }
+.home-subtitle { font-family: var(--font-body); color: var(--text-muted); font-size: 0.9rem; }
+
+/* ── HOME GRID ──────────────────────────────────── */
+.home-grid { display: grid; grid-template-columns: 1fr 280px; gap: 3rem; align-items: start; }
+@media (max-width: 720px) { .home-grid { grid-template-columns: 1fr; gap: 2rem; } }
+
+/* ── SERIES CARD ────────────────────────────────── */
+.series-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border-l);
+  border-radius: var(--r-md);
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+  background: white;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s;
+}
+.series-card:hover { border-color: var(--lav-b); }
+.series-card__title { font-family: var(--font-ui); font-size: 0.85rem; }
+.series-card__count { font-family: var(--font-ui); font-size: 0.68rem; color: var(--text-faint); }
+
+/* post-card 追加フィールド */
+.post-card__tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+.post-card__series { font-size: 0.72rem; color: var(--text-faint); font-family: var(--font-ui); margin-top: 0.3rem; }
+
+/* ── VIEW ALL LINK ──────────────────────────────── */
+.view-all {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+.view-all:hover { color: var(--accent-dim); text-decoration: underline; }
