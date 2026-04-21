@@ -1,0 +1,31 @@
+---
+import { getTagColor } from '@/lib/tag-colors'
+
+interface Props {
+  tag: string
+  href?: string
+}
+
+const { tag, href } = Astro.props
+const color = getTagColor(tag)
+---
+
+{href
+  ? (
+    <a
+      class="tag"
+      href={href}
+      style={`background:${color.bg};color:${color.fg};border-color:${color.border}`}
+    >
+      #{tag}
+    </a>
+  )
+  : (
+    <span
+      class="tag"
+      style={`background:${color.bg};color:${color.fg};border-color:${color.border}`}
+    >
+      #{tag}
+    </span>
+  )
+}

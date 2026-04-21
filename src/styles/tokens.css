@@ -1,0 +1,54 @@
+/* デザイントークン — プロトタイプより確定した値 */
+:root {
+  /* fonts */
+  --font-body: 'M PLUS Rounded 1c', sans-serif;
+  --font-ui:   'DotGothic16', monospace;
+  --font-code: 'JetBrains Mono', monospace;
+
+  /* surface */
+  --bg:       #fafaf8;
+  --surface:  #f3f3ef;
+  --surface2: #eaeae5;
+  --border:   #d8d8cf;
+  --border-l: #eaeae5;
+
+  /* text */
+  --text:       #252520;
+  --text-muted: #747468;
+  --text-faint: #aeae9e;
+
+  /* accent (terminal teal) */
+  --accent:      #3d9e8a;
+  --accent-dim:  #287a68;
+  --accent-bg:   #ecfaf5;
+  --accent-pale: #c4ede4;
+
+  /* link */
+  --link:   #4070c8;
+  --link-h: #2855a0;
+
+  /* pastel palette */
+  --lav:      #8878c8;
+  --lav-bg:   #f0edf8;
+  --lav-b:    #ccc4ed;
+  --peach:    #c8784a;
+  --peach-bg: #fdf1e8;
+  --peach-b:  #e8c0a0;
+  --rose:     #c84878;
+  --rose-bg:  #fceef4;
+  --rose-b:   #f0aac8;
+  --sage:     #5a9a6a;
+  --sage-bg:  #edf6ee;
+  --sage-b:   #aed8b4;
+  --amber:    #a88a28;
+  --amber-bg: #faf6e0;
+  --amber-b:  #ddd090;
+
+  /* unresolved concept-link */
+  --unresolved: #d03030;
+
+  /* border-radius */
+  --r-sm: 4px;
+  --r-md: 8px;
+  --r-lg: 12px;
+}

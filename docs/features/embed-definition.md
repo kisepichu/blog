@@ -44,7 +44,13 @@ body を持たないため container directive (`:::`) ではなく leaf directi
 
 - スコープ: 1 ページ内
 - 順序: AST の上から下の出現順
-- カウント対象: `::embed` のみ (`:::definition{#id}` ローカル定義はカウントしない)
+- カウント対象 (将来予定): `::embed[term]` および `:::definition{#id}` ローカル定義の両方を同一カウンターで連番
+- ローカル定義の出力例 (将来予定): `<div class="definition-block definition-block--local" id="..." data-def-number="1"><span class="definition-number">定義 1</span>...</div>`
+
+> **現状の実装**: `remarkEmbedDefinition` は `::embed` のみカウント。ローカル定義 (`:::definition{#id}`) は番号なしの `<div class="definition-block" id="...">` を出力するだけ。
+> **将来予定 (post-page ブランチ)**: ローカル定義にも同一カウンターで番号を付与する。
+> 方法: `remarkEmbedDefinition` 内で `:::definition{#id}` ノードにも番号を付与する
+> (または専用の `remarkDefNumberer` プラグインを追加する)。
 
 ### 解決失敗時
 

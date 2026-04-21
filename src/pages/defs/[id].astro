@@ -1,0 +1,153 @@
+---
+import { getCollection, render } from 'astro:content'
+import { buildAliasMap } from '@/lib/build/alias-map'
+import { getBacklinkGraph } from '@/lib/build/backlink-graph'
+import Layout from '@/components/Layout.astro'
+import Breadcrumb from '@/components/Breadcrumb.astro'
+import TagBadge from '@/components/TagBadge.astro'
+import Backlinks from '@/components/Backlinks.astro'
+
+export async function getStaticPaths() {
+  const allDefs = await getCollection('defs')
+  const allPosts = await getCollection('posts')
+
+  const defs = import.meta.env.PROD
+    ? allDefs.filter((d) => d.data.status === 'published')
+    : allDefs
+  const posts = import.meta.env.PROD
+    ? allPosts.filter((p) => p.data.status === 'published')
+    : allPosts
+
+  // alias map を構築 (backlink 解決に使用)
+  const aliasMap = buildAliasMap(
+    defs.map((d) => ({ id: d.id, aliases: d.data.aliases, status: d.data.status })),
+  )
+
+  // backlink グラフ構築用エントリ
+  const entries = [
+    ...defs.map((d) => ({
+      type: 'definition' as const,
+      slug: d.id,
+      title: d.data.title,
+      body: d.body ?? '',
+    })),
+    ...posts.map((p) => ({
+      type: 'post' as const,
+      slug: p.id,
+      title: p.data.title,
+      body: p.body ?? '',
+    })),
+  ]
+
+  const backlinkGraph = await getBacklinkGraph(entries, aliasMap)
+
+  return defs.map((def) => ({
+    params: { id: def.id },
+    props: {
+      def,
+      backlinks: backlinkGraph[def.id] ?? [],
+    },
+  }))
+}
+
+const { def, backlinks } = Astro.props
+const { Content } = await render(def)
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+// id を除いたエイリアス一覧
+const displayAliases = def.data.aliases.filter((a) => a !== def.id)
+---
+
+<Layout title={def.data.title} activePage="def">
+  <div class="container--narrow">
+    <Breadcrumb
+      items={[
+        { label: 'Home', href: `${base}/` },
+        { label: 'Defs' },
+        { label: def.data.title },
+      ]}
+    />
+
+    <header class="def-header">
+      <div class="def-header__type">定義 / DEFINITION</div>
+      <h1 class="def-title">{def.data.title}</h1>
+      <div class="def-meta">
+        <span class="def-id-badge">{def.id}</span>
+        {displayAliases.length > 0 && (
+          <span class="def-aliases">別名: {displayAliases.join(', ')}</span>
+        )}
+        {def.data.tags.length > 0 && (
+          <div class="def-tags">
+            {def.data.tags.map((tag) => (
+              <TagBadge tag={tag} href={`${base}/tags/${encodeURIComponent(tag)}`} />
+            ))}
+          </div>
+        )}
+      </div>
+    </header>
+
+    <!-- Pagefind メタデータ (各要素に1つ) -->
+    <span data-pagefind-meta="type:definition" hidden></span>
+    {def.data.tags.length > 0 && (
+      <span data-pagefind-meta={`tags:${def.data.tags.join(',')}`} hidden></span>
+    )}
+    {def.data.aliases.length > 0 && (
+      <span data-pagefind-meta={`aliases:${def.data.aliases.join(',')}`} hidden></span>
+    )}
+
+    <div class="def-content prose" data-pagefind-body>
+      <Content />
+    </div>
+
+    <div data-pagefind-ignore>
+      <Backlinks items={backlinks} />
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .def-header {
+    margin-bottom: 1.5rem;
+  }
+  .def-header__type {
+    font-family: var(--font-ui);
+    font-size: 0.68rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .def-title {
+    font-size: 1.55rem;
+    margin-bottom: 0.6rem;
+  }
+  .def-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+  }
+  .def-id-badge {
+    font-family: var(--font-code);
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 1px 8px;
+  }
+  .def-aliases {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-ui);
+  }
+  .def-tags {
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .def-content {
+    margin-top: 0;
+  }
+</style>

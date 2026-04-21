@@ -85,9 +85,27 @@ updateConfig({
 
 ```ts
 // src/lib/remark/parse-concept-links.ts (backlink-graph と共有)
+// 現状: [[term]] のみ対応
 export const CONCEPT_LINK_REGEX = /\[\[([^\]]+)\]\]/g
 export function parseConceptLinks(text: string): string[]
+// 将来予定: [[term|display]] 対応時は /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g に変更
 ```
+
+### `[[term|display]]` 記法 (将来予定 — 未実装)
+
+> **注意**: 現状の実装 (`parse-concept-links.ts`, `remark-concept-link.ts`) は `[[term]]` のみ対応。
+> `[[term|display]]` 記法は将来実装予定。
+
+表示テキストを指定する場合: `[[解決キー|表示テキスト]]`
+
+```markdown
+[[judgment|判断]]        → 表示: 判断、href: /defs/judgment
+[[poset|半順序集合]]      → 表示: 半順序集合、href: /defs/poset
+[[poset]]                → 表示: poset (term そのまま)
+```
+
+- 解決 (alias-map 照合) には `term` 部分のみ使う
+- `display` が省略された場合は `term` をリンクテキストにする
 
 ### 出力
 
@@ -99,7 +117,7 @@ export function parseConceptLinks(text: string): string[]
 
 - `data-term`: canonical id (hover-preview がこれを使って preview-index.json を引く)
 - `href`: `{baseUrl}/defs/{canonicalId}`
-- リンクテキスト: 元の `term` をそのまま使う
+- リンクテキスト: 現状は常に元の `term` (将来予定: `display` があればそれを使う)
 
 **解決失敗時 (開発環境):**
 

@@ -1,0 +1,92 @@
+---
+import '@/styles/global.css'
+
+interface Props {
+  title: string
+  siteTitle?: string
+  activePage?: 'home' | 'post' | 'def' | 'series'
+}
+
+const { title, siteTitle = 'kise.dev', activePage } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const navItems = [
+  { label: 'home',   href: `${base}/`,        key: 'home'   },
+  { label: 'posts',  href: `${base}/posts`,    key: 'post'   },
+  { label: 'defs',   href: `${base}/defs`,     key: 'def'    },
+  { label: 'series', href: `${base}/series`,   key: 'series' },
+] as const
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DotGothic16&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- MathJax -->
+    <script is:inline>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$']],
+          displayMath: [['$$', '$$']],
+          packages: { '[+]': ['bussproofs'] },
+          tags: 'none',
+        },
+        options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre'] },
+        loader: { load: ['[tex]/bussproofs'] },
+        startup: { typeset: true },
+      }
+    </script>
+    <script
+      is:inline
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"
+      crossorigin="anonymous"
+      async
+    ></script>
+  </head>
+
+  <body>
+    <div class="app">
+      <header class="site-header">
+        <div class="site-header__inner">
+          <a class="site-logo" href={`${base}/`}>
+            <span class="site-logo__prompt">$</span>
+            <span>{siteTitle}</span>
+          </a>
+          <nav class="site-nav">
+            {navItems.map((item) => (
+              <a
+                href={item.href}
+                class={activePage === item.key ? 'active' : undefined}
+                aria-current={activePage === item.key ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <main class="site-main">
+        <slot />
+      </main>
+
+      <footer class="site-footer">
+        <div class="container">
+          <span>© 2026 kise</span>
+          <span>Built with Astro · React · MathJax</span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
