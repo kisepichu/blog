@@ -94,13 +94,17 @@ test.describe('/ (ホームページ)', () => {
   })
 
   // --- "すべての記事を見る" リンク ---
+  // dev content: 6件 (order-theory + test-posts-only-tag + test-series-post + test-home-extra-{1,2,3})
+  // posts.length (6) > 5 → view-all が表示される
 
-  test('"すべての記事を見る" リンク (.view-all) は記事が5件以下のとき非表示', async ({
-    page,
-  }) => {
-    // 現在のdev contentは3件のみ → 表示されないはず
-    const viewAll = page.locator('.view-all')
-    await expect(viewAll).toHaveCount(0)
+  test('"すべての記事を見る" リンクが表示される (記事が6件以上)', async ({ page }) => {
+    const viewAll = page.locator('a.view-all')
+    await expect(viewAll).toBeVisible()
+  })
+
+  test('"すべての記事を見る" リンクが /posts へのリンクになっている', async ({ page }) => {
+    const viewAll = page.locator('a.view-all')
+    await expect(viewAll).toHaveAttribute('href', '/posts')
   })
 
   // --- aside: シリーズ ---
