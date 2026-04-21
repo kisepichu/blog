@@ -68,6 +68,7 @@ const navItems = [
               <a
                 href={item.href}
                 class={activePage === item.key ? 'active' : undefined}
+                aria-current={activePage === item.key ? 'page' : undefined}
               >
                 {item.label}
               </a>
@@ -82,7 +83,7 @@ const navItems = [
 
       <footer class="site-footer">
         <div class="container">
-          <span>© 2025 kise</span>
+          <span>© {new Date().getFullYear()} kise</span>
           <span>Built with Astro · React · MathJax</span>
         </div>
       </footer>

@@ -25,8 +25,8 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
             {item.type === 'post' ? 'post' : 'def'}
           </span>
           <a href={item.type === 'post'
-            ? `${base}/posts/${item.slug}`
-            : `${base}/defs/${item.slug}`
+            ? `${base}/posts/${encodeURIComponent(item.slug)}`
+            : `${base}/defs/${encodeURIComponent(item.slug)}`
           }>
             {item.title}
           </a>
