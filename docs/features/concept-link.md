@@ -117,7 +117,7 @@ export function parseConceptLinks(text: string): string[]
 
 - `data-term`: canonical id (hover-preview がこれを使って preview-index.json を引く)
 - `href`: `{baseUrl}/defs/{canonicalId}`
-- リンクテキスト: `display` があればそれを使い、なければ元の `term`
+- リンクテキスト: 現状は常に元の `term` (将来予定: `display` があればそれを使う)
 
 **解決失敗時 (開発環境):**
 
