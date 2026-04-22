@@ -123,12 +123,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
     {seriesNav && (seriesNav.prev || seriesNav.next) && (
       <nav class="series-nav">
         {seriesNav.prev && (
-          <a class="series-nav__btn series-nav__btn--prev" href={`${base}/posts/${seriesNav.prev.id}`}>
+          <a class="series-nav__btn series-nav__btn--prev" href={`${base}/posts/${encodeURIComponent(seriesNav.prev.id)}`}>
             <span>←</span><span>{seriesNav.prev.data.title}</span>
           </a>
         )}
         {seriesNav.next && (
-          <a class="series-nav__btn series-nav__btn--next" href={`${base}/posts/${seriesNav.next.id}`}>
+          <a class="series-nav__btn series-nav__btn--next" href={`${base}/posts/${encodeURIComponent(seriesNav.next.id)}`}>
             <span>{seriesNav.next.data.title}</span><span>→</span>
           </a>
         )}

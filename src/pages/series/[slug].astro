@@ -58,7 +58,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
           </li>
         ) : (
           <li>
-            <a class="series-post-item" href={`${base}/posts/${post.id}`}>
+            <a class="series-post-item" href={`${base}/posts/${encodeURIComponent(post.id)}`}>
               <span class="series-post-num">{String(post.data.series_order ?? 0).padStart(2, '0')}</span>
               <span>
                 <span class="series-post-title">{post.data.title}</span>
