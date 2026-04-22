@@ -1,8 +1,8 @@
 ---
-title: home-page フィクスチャ 1
+title: home-page フィクスチャ (メイン)
 status: draft
-tags: [e2e-home]
-date: 2024-03-01
+tags: [e2e-home, 集合論]
+date: 2099-01-01
 ---
 
-home-page の view-all 表示テスト用フィクスチャ。
+home-page の e2e テスト用メインフィクスチャ。date を 2099-01-01 にして常に最新記事1位に入るよう保証する。
