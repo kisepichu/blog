@@ -22,14 +22,11 @@ test.describe('/posts/order-theory ページ', () => {
     await expect(items.nth(4)).toHaveText('日記：半順序と束について')
   })
 
-  test('パンくずリストの "Posts" はリンクではなく <span> である', async ({ page }) => {
+  test('パンくずリストの "Posts" が /posts へのリンクである', async ({ page }) => {
     const breadcrumb = page.locator('nav[aria-label="パンくずリスト"]')
-    const postsItem = breadcrumb.locator('span', { hasText: 'Posts' })
-    await expect(postsItem).toBeVisible()
-
-    // <a> タグではないことを確認
     const postsLink = breadcrumb.locator('a', { hasText: 'Posts' })
-    await expect(postsLink).toHaveCount(0)
+    await expect(postsLink).toBeVisible()
+    await expect(postsLink).toHaveAttribute('href', '/posts')
   })
 
   test('series なし → .series-banner が表示されない', async ({ page }) => {
