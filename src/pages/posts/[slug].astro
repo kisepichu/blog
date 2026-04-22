@@ -121,7 +121,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
     </article>
 
     {seriesNav && (seriesNav.prev || seriesNav.next) && (
-      <nav class="series-nav">
+      <nav class="series-nav" aria-label="シリーズナビゲーション">
         {seriesNav.prev && (
           <a class="series-nav__btn series-nav__btn--prev" href={`${base}/posts/${encodeURIComponent(seriesNav.prev.id)}`}>
             <span>←</span><span>{seriesNav.prev.data.title}</span>

@@ -15,16 +15,21 @@ export async function getStaticPaths() {
     ? allPosts.filter((p) => p.data.status === 'published')
     : allPosts
 
-  return seriesList.map((s) => {
-    const seriesPosts = posts
-      .filter((p) => p.data.series === s.id)
-      .sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+  const postsBySeries = new Map<string, typeof posts>()
+  for (const post of posts) {
+    if (!post.data.series) continue
+    const group = postsBySeries.get(post.data.series) ?? []
+    group.push(post)
+    postsBySeries.set(post.data.series, group)
+  }
+  for (const group of postsBySeries.values()) {
+    group.sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+  }
 
-    return {
-      params: { slug: s.id },
-      props: { series: s, posts: seriesPosts },
-    }
-  })
+  return seriesList.map((s) => ({
+    params: { slug: s.id },
+    props: { series: s, posts: postsBySeries.get(s.id) ?? [] },
+  }))
 }
 
 const { series, posts } = Astro.props
