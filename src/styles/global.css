@@ -406,7 +406,7 @@ a:hover { color: var(--link-h); }
 }
 .series-page__title { font-size: 1.5rem; margin-bottom: 1.8rem; }
 
-.series-post-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.series-post-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
 .series-post-item {
   display: flex;
   align-items: flex-start;

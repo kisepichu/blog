@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content'
+import { getCollection, render, type CollectionEntry } from 'astro:content'
 import { buildAliasMap } from '@/lib/build/alias-map'
 import { getBacklinkGraph } from '@/lib/build/backlink-graph'
 import Layout from '@/components/Layout.astro'
@@ -35,19 +35,30 @@ export async function getStaticPaths() {
     : allSeries
   const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))
 
-  return posts.map((post) => {
-    let seriesNav: { prev: typeof posts[0] | null; next: typeof posts[0] | null } | null = null
-    // seriesNav は series が公開されている場合のみ生成 (draft series の構造を公開しない)
-    if (post.data.series && seriesTitleMap.has(post.data.series)) {
-      const seriesPosts = posts
-        .filter((p) => p.data.series === post.data.series)
-        .sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
-      const idx = seriesPosts.findIndex((p) => p.id === post.id)
-      seriesNav = {
-        prev: seriesPosts[idx - 1] ?? null,
-        next: seriesPosts[idx + 1] ?? null,
-      }
+  // series ごとに posts を事前グループ化して O(n log n) に最適化
+  type PostNav = { prev: CollectionEntry<'posts'> | null; next: CollectionEntry<'posts'> | null }
+  const seriesNavByPostId = new Map<string, PostNav>()
+  const seriesGroupMap = new Map<string, CollectionEntry<'posts'>[]>()
+
+  for (const post of posts) {
+    const seriesId = post.data.series
+    if (!seriesId || !seriesTitleMap.has(seriesId)) continue
+    const group = seriesGroupMap.get(seriesId) ?? []
+    group.push(post)
+    seriesGroupMap.set(seriesId, group)
+  }
+  for (const group of seriesGroupMap.values()) {
+    group.sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+    for (const [idx, p] of group.entries()) {
+      seriesNavByPostId.set(p.id, { prev: group[idx - 1] ?? null, next: group[idx + 1] ?? null })
     }
+  }
+
+  return posts.map((post) => {
+    const seriesNav =
+      post.data.series && seriesTitleMap.has(post.data.series)
+        ? (seriesNavByPostId.get(post.id) ?? { prev: null, next: null })
+        : null
 
     return {
       params: { slug: post.id },
@@ -101,7 +112,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
     {post.data.tags.length > 0 && (
       <span data-pagefind-meta={`tags:${post.data.tags.join(',')}`} hidden></span>
     )}
-    {post.data.series && (
+    {seriesTitle && (
       <span data-pagefind-meta={`series:${post.data.series}`} hidden></span>
     )}
 

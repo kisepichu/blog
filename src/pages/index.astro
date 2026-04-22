@@ -67,9 +67,9 @@ const allTags = [...new Set([
               </div>
             </div>
             <h3 class="post-card__title">{post.data.title}</h3>
-            {post.data.series && (
+            {post.data.series && seriesTitleMap.has(post.data.series) && (
               <div class="post-card__series">
-                シリーズ: {post.data.series} #{post.data.series_order}
+                シリーズ: {seriesTitleMap.get(post.data.series)} #{post.data.series_order}
               </div>
             )}
           </a>
