@@ -6,7 +6,7 @@
 
 ## ドメインモデル
 
-ドメインは **Post** と **Definition** の 2 種類のみ。
+ドメインは **Post**・**Definition**・**Series** の 3 種類。
 
 ### Definition
 
@@ -35,6 +35,23 @@ tags: [集合論]
 
 - `:::definition` ブロックが **definition_block**。hover preview・検索・一覧表示はすべてこれを対象とする。
 - definition_block の外の本文は補足説明として自由に記述できる。
+
+### Series
+
+1 ページ 1 シリーズ。`content/series/<slug>.md` に配置する。
+
+**frontmatter:**
+
+```yaml
+title: 型理論入門
+description: 単純型付きラムダ計算から依存型まで、型理論の基礎を丁寧に解説するシリーズ。 # 省略可
+status: published # published | draft | scrap
+```
+
+- slug (ファイル名) が Post の `series` フィールドのキーと対応する
+- `title` は home-page の series-card・post-page の series-banner・series-page で使用する
+- `description` は series-page のみで表示する
+- status は series 自体の公開状態。本番では published のみ `/series/[slug]` が生成される
 
 ### Post
 
@@ -145,10 +162,10 @@ $f : A \to B$ を...と定義する。
 | URL              | 内容                                               |
 | ---------------- | -------------------------------------------------- |
 | `/`              | ホーム。hero + 最新記事5件 (post-card with tags/series) + サイドバー (シリーズ一覧・最近の定義4件・タグ一覧)。詳細は `docs/features/home-page.md` |
-| `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・backlink (series nav は Phase 3) |
+| `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・series-nav (prev/next)・backlink |
 | `/defs/[id]`     | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]`    | タグ別記事・定義一覧                               |
-| `/series/[slug]` | シリーズ記事一覧・順序表示                         |
+| `/series/[slug]` | シリーズ記事一覧・順序表示。ローカルでは draft 記事も "準備中" バッジ付きで表示。詳細は `docs/features/series-page.md` |
 
 - Definition の URL は `/defs/[id]` のみ。aliases によるリダイレクトは設けない。
 - 記事ページ内の series ナビ (prev/next リンク) も表示する。

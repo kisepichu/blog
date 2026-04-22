@@ -1,5 +1,5 @@
 ---
-import { getCollection, render } from 'astro:content'
+import { getCollection, render, type CollectionEntry } from 'astro:content'
 import { buildAliasMap } from '@/lib/build/alias-map'
 import { getBacklinkGraph } from '@/lib/build/backlink-graph'
 import Layout from '@/components/Layout.astro'
@@ -10,6 +10,7 @@ import Backlinks from '@/components/Backlinks.astro'
 export async function getStaticPaths() {
   const allPosts = await getCollection('posts')
   const allDefs = await getCollection('defs')
+  const allSeries = await getCollection('series')
 
   const posts = import.meta.env.PROD
     ? allPosts.filter((p) => p.data.status === 'published')
@@ -29,13 +30,50 @@ export async function getStaticPaths() {
 
   const backlinkGraph = await getBacklinkGraph(entries, aliasMap)
 
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post, backlinks: backlinkGraph[post.id] ?? [] },
-  }))
+  const visibleSeries = import.meta.env.PROD
+    ? allSeries.filter((s) => s.data.status === 'published')
+    : allSeries
+  const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))
+
+  // series ごとに posts を事前グループ化して O(n log n) に最適化
+  type PostNav = { prev: CollectionEntry<'posts'> | null; next: CollectionEntry<'posts'> | null }
+  const seriesNavByPostId = new Map<string, PostNav>()
+  const seriesGroupMap = new Map<string, CollectionEntry<'posts'>[]>()
+
+  for (const post of posts) {
+    const seriesId = post.data.series
+    if (!seriesId || !seriesTitleMap.has(seriesId)) continue
+    const group = seriesGroupMap.get(seriesId) ?? []
+    group.push(post)
+    seriesGroupMap.set(seriesId, group)
+  }
+  for (const group of seriesGroupMap.values()) {
+    group.sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+    for (const [idx, p] of group.entries()) {
+      seriesNavByPostId.set(p.id, { prev: group[idx - 1] ?? null, next: group[idx + 1] ?? null })
+    }
+  }
+
+  return posts.map((post) => {
+    const seriesNav =
+      post.data.series && seriesTitleMap.has(post.data.series)
+        ? (seriesNavByPostId.get(post.id) ?? { prev: null, next: null })
+        : null
+
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        backlinks: backlinkGraph[post.id] ?? [],
+        // series が draft/未登録の場合は null にしてバナー非表示 (prod での 404 リンク防止)
+        seriesTitle: post.data.series ? (seriesTitleMap.get(post.data.series) ?? null) : null,
+        seriesNav,
+      },
+    }
+  })
 }
 
-const { post, backlinks } = Astro.props
+const { post, backlinks, seriesTitle, seriesNav } = Astro.props
 const { Content } = await render(post)
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 ---
@@ -48,10 +86,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       { label: post.data.title },
     ]} />
 
-    {post.data.series && (
+    {post.data.series && seriesTitle && (
       <div class="series-banner">
         <span>シリーズ:</span>
-        <a href={`${base}/series/${encodeURIComponent(post.data.series)}`}>{post.data.series}</a>
+        <a href={`${base}/series/${encodeURIComponent(post.data.series)}`}>{seriesTitle}</a>
         <span class="series-banner__order">#{post.data.series_order}</span>
       </div>
     )}
@@ -70,12 +108,11 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       </div>
     </header>
 
-    <!-- Pagefind メタデータ -->
     <span data-pagefind-meta="type:post" hidden></span>
     {post.data.tags.length > 0 && (
       <span data-pagefind-meta={`tags:${post.data.tags.join(',')}`} hidden></span>
     )}
-    {post.data.series && (
+    {seriesTitle && (
       <span data-pagefind-meta={`series:${post.data.series}`} hidden></span>
     )}
 
@@ -83,7 +120,20 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       <Content />
     </article>
 
-    {/* TODO: series-nav (Phase 3) */}
+    {seriesNav && (seriesNav.prev || seriesNav.next) && (
+      <nav class="series-nav" aria-label="シリーズナビゲーション">
+        {seriesNav.prev && (
+          <a class="series-nav__btn series-nav__btn--prev" href={`${base}/posts/${encodeURIComponent(seriesNav.prev.id)}`}>
+            <span>←</span><span>{seriesNav.prev.data.title}</span>
+          </a>
+        )}
+        {seriesNav.next && (
+          <a class="series-nav__btn series-nav__btn--next" href={`${base}/posts/${encodeURIComponent(seriesNav.next.id)}`}>
+            <span>{seriesNav.next.data.title}</span><span>→</span>
+          </a>
+        )}
+      </nav>
+    )}
 
     <div data-pagefind-ignore>
       <Backlinks items={backlinks} />

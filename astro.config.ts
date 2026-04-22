@@ -48,4 +48,5 @@ function contentPipelineIntegration(): AstroIntegration {
 // https://astro.build/config
 export default defineConfig({
   integrations: [react(), contentPipelineIntegration()],
+  devToolbar: { enabled: false },
 })

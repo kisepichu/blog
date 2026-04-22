@@ -1,0 +1,85 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '@/components/Layout.astro'
+import Breadcrumb from '@/components/Breadcrumb.astro'
+
+export async function getStaticPaths() {
+  const allSeries = await getCollection('series')
+  const allPosts  = await getCollection('posts')
+
+  const seriesList = import.meta.env.PROD
+    ? allSeries.filter((s) => s.data.status === 'published')
+    : allSeries
+
+  const posts = import.meta.env.PROD
+    ? allPosts.filter((p) => p.data.status === 'published')
+    : allPosts
+
+  const postsBySeries = new Map<string, typeof posts>()
+  for (const post of posts) {
+    if (!post.data.series) continue
+    const group = postsBySeries.get(post.data.series) ?? []
+    group.push(post)
+    postsBySeries.set(post.data.series, group)
+  }
+  for (const group of postsBySeries.values()) {
+    group.sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+  }
+
+  return seriesList.map((s) => ({
+    params: { slug: s.id },
+    props: { series: s, posts: postsBySeries.get(s.id) ?? [] },
+  }))
+}
+
+const { series, posts } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+---
+
+<Layout title={series.data.title} activePage="series">
+  <div class="container--narrow">
+    <Breadcrumb items={[
+      { label: 'Home', href: `${base}/` },
+      { label: 'Series' },
+      { label: series.data.title },
+    ]} />
+
+    <div class="series-page__label">シリーズ</div>
+    <h1 class="series-page__title">{series.data.title}</h1>
+    {series.data.description && (
+      <p class="series-description">{series.data.description}</p>
+    )}
+
+    <ol class="series-post-list">
+      {posts.map((post) => {
+        const isDraft = post.data.status !== 'published'
+        return isDraft ? (
+          <li class="series-post-item series-post-item--draft">
+            <span class="series-post-num">{String(post.data.series_order ?? 0).padStart(2, '0')}</span>
+            <span>
+              <span class="series-post-title">{post.data.title}</span>
+              <span class="upcoming-badge">準備中</span>
+            </span>
+          </li>
+        ) : (
+          <li>
+            <a class="series-post-item" href={`${base}/posts/${encodeURIComponent(post.id)}`}>
+              <span class="series-post-num">{String(post.data.series_order ?? 0).padStart(2, '0')}</span>
+              <span>
+                <span class="series-post-title">{post.data.title}</span>
+              </span>
+            </a>
+          </li>
+        )
+      })}
+    </ol>
+  </div>
+</Layout>
+
+<style>
+  .series-description {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+</style>

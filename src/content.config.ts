@@ -33,4 +33,13 @@ const defs = defineCollection({
   }),
 })
 
-export const collections = { posts, defs }
+const series = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './content/series' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    status: statusSchema.default('draft'),
+  }),
+})
+
+export const collections = { posts, defs, series }
