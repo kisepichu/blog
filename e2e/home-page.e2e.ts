@@ -88,8 +88,8 @@ test.describe('/ (ホームページ)', () => {
   })
 
   test('series あり post-card に .post-card__series が表示される', async ({ page }) => {
-    // test-series-post は date:2099-03-01 で常に最新2位以内に入る専用フィクスチャ
-    const postCard = page.locator('a.post-card[href="/posts/test-series-post"]')
+    // test-home-series は date:2099-03-01 で常に最新2位以内に入る home-page 専用フィクスチャ
+    const postCard = page.locator('a.post-card[href="/posts/test-home-series"]')
     const seriesInfo = postCard.locator('.post-card__series')
     await expect(seriesInfo).toBeVisible()
   })
