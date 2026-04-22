@@ -52,7 +52,7 @@ test.describe('/ (ホームページ)', () => {
     expect(count).toBeLessThanOrEqual(5)
   })
 
-  // test-home-extra-1 (date: 2099-01-01) は常に最新1位に入る e2e 専用フィクスチャ
+  // test-home-extra-1 (date: 2099-06-01) は常に最新1位に入る e2e 専用フィクスチャ
   test('e2e フィクスチャ post-card が /posts/test-home-extra-1 へのリンクになっている', async ({
     page,
   }) => {
