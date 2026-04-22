@@ -5,7 +5,7 @@
 `/posts` 記事一覧ページ。全記事を日付降順で10件ずつページネーション表示する。
 
 - **URL**: `/posts` (1ページ目), `/posts/page/[n]` (2ページ目以降)
-- **実装ブランチ**: feat/phase-3-posts-page (予定)
+- **実装ブランチ**: feat/phase-2-posts-page
 
 home-page の「最新記事5件」に対し、全記事を閲覧するための入口となる。
 
