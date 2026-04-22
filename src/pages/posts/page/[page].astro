@@ -3,21 +3,14 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import PostCard from '@/components/PostCard.astro'
+import { getVisiblePostsSorted } from '@/lib/posts'
 
 export async function getStaticPaths() {
   const PAGE_SIZE = 10
   const allPosts = await getCollection('posts')
   const allSeries = await getCollection('series')
 
-  const posts = (import.meta.env.PROD
-    ? allPosts.filter((p) => p.data.status === 'published')
-    : allPosts
-  ).sort((a, b) => {
-    if (!a.data.date && !b.data.date) return 0
-    if (!a.data.date) return 1
-    if (!b.data.date) return -1
-    return b.data.date.localeCompare(a.data.date)
-  })
+  const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
 
   const totalPages = Math.ceil(posts.length / PAGE_SIZE)
 
