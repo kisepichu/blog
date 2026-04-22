@@ -95,8 +95,7 @@ test.describe('/ (ホームページ)', () => {
   })
 
   // --- "すべての記事を見る" リンク ---
-  // dev content: 6件 (order-theory + test-posts-only-tag + test-series-post + test-home-extra-{1,2,3})
-  // posts.length (6) > 5 → view-all が表示される
+  // dev では posts.length > 5 のため view-all が表示される
 
   test('"すべての記事を見る" リンクが表示される (記事が6件以上)', async ({ page }) => {
     const viewAll = page.locator('a.view-all')
