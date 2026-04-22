@@ -52,7 +52,7 @@ const allTags = [...new Set([
       <div>
         <div class="section-title">最新記事</div>
         {recentPosts.map((post) => (
-          <a class="post-card" href={`${base}/posts/${post.id}`}>
+          <a class="post-card" href={`${base}/posts/${encodeURIComponent(post.id)}`}>
             <div class="post-card__meta">
               {post.data.date && <span class="post-card__date">{post.data.date}</span>}
               <div class="post-card__tags">
@@ -91,7 +91,7 @@ const allTags = [...new Set([
             <div class="section-title home-aside-section">最近の定義</div>
             <div class="def-compact">
               {recentDefs.map((def) => (
-                <a class="def-compact-item" href={`${base}/defs/${def.id}`}>
+                <a class="def-compact-item" href={`${base}/defs/${encodeURIComponent(def.id)}`}>
                   <span class="def-compact-item__title">{def.data.title}</span>
                   <span class="def-compact-item__id">{def.id}</span>
                 </a>

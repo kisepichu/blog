@@ -4,7 +4,7 @@ status: draft
 tags: [型理論]
 series: test-series
 series_order: 1
-date: 2025-01-01
+date: 2099-03-01
 ---
 
 テスト用のシリーズ記事。

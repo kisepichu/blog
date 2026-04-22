@@ -64,7 +64,7 @@ test.describe('/ (ホームページ)', () => {
     const postCard = page.locator('a.post-card[href="/posts/test-home-extra-1"]')
     const date = postCard.locator('.post-card__date')
     await expect(date).toBeVisible()
-    await expect(date).toContainText('2099-01-01')
+    await expect(date).toContainText('2099-06-01')
   })
 
   test('e2e フィクスチャ post-card にタグバッジが表示される', async ({ page }) => {
@@ -88,10 +88,10 @@ test.describe('/ (ホームページ)', () => {
   })
 
   test('series あり post-card に .post-card__series が表示される', async ({ page }) => {
-    // 表示範囲内 (最大5件) に series を持つ post-card が1件以上存在することを検証
-    const seriesInfos = page.locator('.post-card .post-card__series')
-    const count = await seriesInfos.count()
-    expect(count).toBeGreaterThanOrEqual(1)
+    // test-series-post は date:2099-03-01 で常に最新2位以内に入る専用フィクスチャ
+    const postCard = page.locator('a.post-card[href="/posts/test-series-post"]')
+    const seriesInfo = postCard.locator('.post-card__series')
+    await expect(seriesInfo).toBeVisible()
   })
 
   // --- "すべての記事を見る" リンク ---
