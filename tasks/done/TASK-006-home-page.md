@@ -31,7 +31,7 @@
 
 ## 完了条件
 
-- [x] pnpm test:e2e 全通過 (26/26)
+- [x] pnpm test:e2e 全通過 (27/27)
 - [x] pnpm astro check クリーン (0 errors)
 - [x] pnpm lint クリーン
 - [x] pnpm build 成功
