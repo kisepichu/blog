@@ -38,7 +38,7 @@ const series = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
-    status: statusSchema.default('published'),
+    status: statusSchema.default('draft'),
   }),
 })
 
