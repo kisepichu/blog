@@ -394,3 +394,82 @@ a:hover { color: var(--link-h); }
 .home-aside-section { margin-top: 2rem; }
 /* タグ一覧コンテナ */
 .home-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+/* ── SERIES PAGE ────────────────────────────────── */
+.series-page__label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--lav);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.series-page__title { font-size: 1.5rem; margin-bottom: 1.8rem; }
+
+.series-post-list { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+.series-post-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--border-l);
+  border-radius: var(--r-md);
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  text-decoration: none;
+  color: inherit;
+}
+.series-post-item:hover { border-color: var(--lav-b); }
+.series-post-item--draft { opacity: 0.5; cursor: default; }
+.series-post-item--draft:hover { border-color: var(--border-l); }
+
+.series-post-num {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  min-width: 2ch;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.series-post-title { font-family: var(--font-ui); font-size: 0.95rem; }
+
+.upcoming-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 0 5px;
+  vertical-align: middle;
+}
+
+/* ── SERIES NAV ─────────────────────────────────── */
+.series-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-l);
+  gap: 1rem;
+}
+.series-nav__btn {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border-l);
+  border-radius: var(--r-sm);
+  background: white;
+  transition: border-color 0.15s, color 0.15s;
+  max-width: 48%;
+}
+.series-nav__btn:hover { border-color: var(--accent-pale); color: var(--accent); }
+.series-nav__btn--next { margin-left: auto; text-align: right; }

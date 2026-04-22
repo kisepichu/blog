@@ -10,6 +10,7 @@ import Backlinks from '@/components/Backlinks.astro'
 export async function getStaticPaths() {
   const allPosts = await getCollection('posts')
   const allDefs = await getCollection('defs')
+  const allSeries = await getCollection('series')
 
   const posts = import.meta.env.PROD
     ? allPosts.filter((p) => p.data.status === 'published')
@@ -29,13 +30,39 @@ export async function getStaticPaths() {
 
   const backlinkGraph = await getBacklinkGraph(entries, aliasMap)
 
-  return posts.map((post) => ({
-    params: { slug: post.id },
-    props: { post, backlinks: backlinkGraph[post.id] ?? [] },
-  }))
+  const visibleSeries = import.meta.env.PROD
+    ? allSeries.filter((s) => s.data.status === 'published')
+    : allSeries
+  const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))
+
+  return posts.map((post) => {
+    let seriesNav: { prev: typeof posts[0] | null; next: typeof posts[0] | null } | null = null
+    // seriesNav は series が公開されている場合のみ生成 (draft series の構造を公開しない)
+    if (post.data.series && seriesTitleMap.has(post.data.series)) {
+      const seriesPosts = posts
+        .filter((p) => p.data.series === post.data.series)
+        .sort((a, b) => (a.data.series_order ?? 0) - (b.data.series_order ?? 0))
+      const idx = seriesPosts.findIndex((p) => p.id === post.id)
+      seriesNav = {
+        prev: seriesPosts[idx - 1] ?? null,
+        next: seriesPosts[idx + 1] ?? null,
+      }
+    }
+
+    return {
+      params: { slug: post.id },
+      props: {
+        post,
+        backlinks: backlinkGraph[post.id] ?? [],
+        // series が draft/未登録の場合は null にしてバナー非表示 (prod での 404 リンク防止)
+        seriesTitle: post.data.series ? (seriesTitleMap.get(post.data.series) ?? null) : null,
+        seriesNav,
+      },
+    }
+  })
 }
 
-const { post, backlinks } = Astro.props
+const { post, backlinks, seriesTitle, seriesNav } = Astro.props
 const { Content } = await render(post)
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 ---
@@ -48,10 +75,10 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       { label: post.data.title },
     ]} />
 
-    {post.data.series && (
+    {post.data.series && seriesTitle && (
       <div class="series-banner">
         <span>シリーズ:</span>
-        <a href={`${base}/series/${encodeURIComponent(post.data.series)}`}>{post.data.series}</a>
+        <a href={`${base}/series/${encodeURIComponent(post.data.series)}`}>{seriesTitle}</a>
         <span class="series-banner__order">#{post.data.series_order}</span>
       </div>
     )}
@@ -70,7 +97,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       </div>
     </header>
 
-    <!-- Pagefind メタデータ -->
     <span data-pagefind-meta="type:post" hidden></span>
     {post.data.tags.length > 0 && (
       <span data-pagefind-meta={`tags:${post.data.tags.join(',')}`} hidden></span>
@@ -83,7 +109,20 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       <Content />
     </article>
 
-    {/* TODO: series-nav (Phase 3) */}
+    {seriesNav && (seriesNav.prev || seriesNav.next) && (
+      <nav class="series-nav">
+        {seriesNav.prev && (
+          <a class="series-nav__btn series-nav__btn--prev" href={`${base}/posts/${seriesNav.prev.id}`}>
+            <span>←</span><span>{seriesNav.prev.data.title}</span>
+          </a>
+        )}
+        {seriesNav.next && (
+          <a class="series-nav__btn series-nav__btn--next" href={`${base}/posts/${seriesNav.next.id}`}>
+            <span>{seriesNav.next.data.title}</span><span>→</span>
+          </a>
+        )}
+      </nav>
+    )}
 
     <div data-pagefind-ignore>
       <Backlinks items={backlinks} />

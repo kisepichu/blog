@@ -25,6 +25,13 @@ for (const post of posts) {
   }
 }
 
+// シリーズタイトルマップ: 本番では published のみ (draft series のリンク生成を防ぐ)
+const allSeries = await getCollection('series')
+const visibleSeries = import.meta.env.PROD
+  ? allSeries.filter((s) => s.data.status === 'published')
+  : allSeries
+const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))
+
 // 定義: id のアルファベット順に最大4件
 const allDefs = await getCollection('defs')
 const defs = import.meta.env.PROD
@@ -74,17 +81,20 @@ const allTags = [...new Set([
 
       <!-- サイドバー -->
       <aside>
-        {seriesMap.size > 0 && (
-          <>
-            <div class="section-title">シリーズ</div>
-            {[...seriesMap.entries()].map(([slug, count]) => (
-              <a class="series-card" href={`${base}/series/${encodeURIComponent(slug)}`}>
-                <span class="series-card__title">{slug}</span>
-                <span class="series-card__count">{count} 記事</span>
-              </a>
-            ))}
-          </>
-        )}
+        {(() => {
+          const visibleSeriesEntries = [...seriesMap.entries()].filter(([slug]) => seriesTitleMap.has(slug))
+          return visibleSeriesEntries.length > 0 && (
+            <>
+              <div class="section-title">シリーズ</div>
+              {visibleSeriesEntries.map(([slug, count]) => (
+                <a class="series-card" href={`${base}/series/${encodeURIComponent(slug)}`}>
+                  <span class="series-card__title">{seriesTitleMap.get(slug)}</span>
+                  <span class="series-card__count">{count} 記事</span>
+                </a>
+              ))}
+            </>
+          )
+        })()}
 
         {recentDefs.length > 0 && (
           <>
