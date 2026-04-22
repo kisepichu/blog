@@ -5,7 +5,6 @@
 `/posts` 記事一覧ページ。全記事を日付降順で10件ずつページネーション表示する。
 
 - **URL**: `/posts` (1ページ目), `/posts/page/[n]` (2ページ目以降)
-- **実装ブランチ**: feat/phase-2-posts-page
 
 home-page の「最新記事5件」に対し、全記事を閲覧するための入口となる。
 
@@ -21,7 +20,7 @@ container--narrow (max-width: 720px, padding: 2.5rem 1.25rem)
   [Breadcrumb: Home › Posts]
     ※ "Posts" は plain text (現在のページ)
 
-  <div class="section-title">記事</div>   ← section-title スタイル
+  [h1: Posts]
 
   [post-card × 10]
     (post-card の構造は下記参照)
@@ -56,7 +55,7 @@ interface Props {
   <div class="post-card__meta">
     {date && <span class="post-card__date">{date}</span>}
     <div class="post-card__tags">
-      {tags.map((tag) => <TagBadge tag={tag} href={`${base}/tags/${tag}`} />)}
+      {tags.map((tag) => <TagBadge tag={tag} />)}
     </div>
   </div>
   <h3 class="post-card__title">{title}</h3>
@@ -190,7 +189,7 @@ export async function getStaticPaths() {
 ```
 
 ```astro
-<nav class="posts-pagination">
+<nav class="posts-pagination" aria-label="ページネーション">
   {currentPage > 1
     ? <a class="posts-pagination__btn" href={prevHref}>← 前のページ</a>
     : <span class="posts-pagination__btn posts-pagination__btn--disabled">← 前のページ</span>

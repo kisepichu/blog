@@ -70,14 +70,14 @@ const nextHref = currentPage < totalPages ? `${base}/posts/page/${currentPage + 
       />
     ))}
 
-    <div class="posts-pagination">
+    <nav class="posts-pagination" aria-label="ページネーション">
       <a class="posts-pagination__btn" href={prevHref}>← 前のページ</a>
       <span class="posts-pagination__info">{currentPage} / {totalPages}</span>
       {nextHref
         ? <a class="posts-pagination__btn" href={nextHref}>次のページ →</a>
         : <span class="posts-pagination__btn posts-pagination__btn--disabled">次のページ →</span>
       }
-    </div>
+    </nav>
   </div>
 </Layout>
 

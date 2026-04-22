@@ -51,11 +51,11 @@ const pagePosts = posts.slice(0, PAGE_SIZE)
     ))}
 
     {totalPages > 1 && (
-      <div class="posts-pagination">
+      <nav class="posts-pagination" aria-label="ページネーション">
         <span class="posts-pagination__btn posts-pagination__btn--disabled">← 前のページ</span>
         <span class="posts-pagination__info">1 / {totalPages}</span>
         <a class="posts-pagination__btn" href={`${base}/posts/page/2`}>次のページ →</a>
-      </div>
+      </nav>
     )}
   </div>
 </Layout>
