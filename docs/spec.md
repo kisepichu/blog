@@ -162,6 +162,8 @@ $f : A \to B$ を...と定義する。
 | URL              | 内容                                               |
 | ---------------- | -------------------------------------------------- |
 | `/`              | ホーム。hero + 最新記事5件 (post-card with tags/series) + サイドバー (シリーズ一覧・最近の定義4件・タグ一覧)。詳細は `docs/features/home-page.md` |
+| `/posts`         | 記事一覧。全記事を日付降順・10件/ページでページネーション表示。詳細は `docs/features/posts.md` |
+| `/posts/page/[n]`| 記事一覧 2ページ目以降 (`n` ≥ 2)                  |
 | `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・series-nav (prev/next)・backlink |
 | `/defs/[id]`     | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]`    | タグ別記事・定義一覧                               |
@@ -299,6 +301,7 @@ const visible = import.meta.env.PROD
 ## 未決事項 (Q リスト)
 
 - ~~ホームページの詳細レイアウト~~ → 確定: 最新5件・サイドバー形式 (`docs/features/home-page.md`)
+- ~~記事一覧ページ (`/posts`) の要否~~ → 確定: 実装する。10件/ページ、日付降順 (`docs/features/posts.md`)
 - Definition 一覧ページ (`/defs`) の要否
 - タグ一覧ページ (`/tags`) の要否
 - 本番ブランチ運用 (develop 以外のブランチでの執筆フロー詳細)

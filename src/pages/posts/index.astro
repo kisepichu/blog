@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content'
+import Layout from '@/components/Layout.astro'
+import Breadcrumb from '@/components/Breadcrumb.astro'
+import PostCard from '@/components/PostCard.astro'
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const PAGE_SIZE = 10
+
+const allPosts = await getCollection('posts')
+const allSeries = await getCollection('series')
+
+const posts = (import.meta.env.PROD
+  ? allPosts.filter((p) => p.data.status === 'published')
+  : allPosts
+).sort((a, b) => {
+  if (!a.data.date && !b.data.date) return 0
+  if (!a.data.date) return 1
+  if (!b.data.date) return -1
+  return b.data.date.localeCompare(a.data.date)
+})
+
+const visibleSeries = import.meta.env.PROD
+  ? allSeries.filter((s) => s.data.status === 'published')
+  : allSeries
+const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))
+
+const totalPages = Math.ceil(posts.length / PAGE_SIZE)
+const pagePosts = posts.slice(0, PAGE_SIZE)
+---
+
+<Layout title="Posts" activePage="post">
+  <div class="container--narrow" data-pagefind-ignore>
+    <Breadcrumb items={[
+      { label: 'Home', href: `${base}/` },
+      { label: 'Posts' },
+    ]} />
+
+    <h1 class="posts-heading">Posts</h1>
+
+    {pagePosts.map((post) => (
+      <PostCard
+        title={post.data.title}
+        href={`${base}/posts/${encodeURIComponent(post.id)}`}
+        date={post.data.date}
+        tags={post.data.tags}
+        series={post.data.series && seriesTitleMap.has(post.data.series) ? seriesTitleMap.get(post.data.series) : undefined}
+        seriesOrder={post.data.series_order}
+      />
+    ))}
+
+    {totalPages > 1 && (
+      <div class="posts-pagination">
+        <span class="posts-pagination__btn posts-pagination__btn--disabled">← 前のページ</span>
+        <span class="posts-pagination__info">1 / {totalPages}</span>
+        <a class="posts-pagination__btn" href={`${base}/posts/page/2`}>次のページ →</a>
+      </div>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .posts-heading {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+    font-family: var(--font-ui);
+  }
+</style>

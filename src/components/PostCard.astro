@@ -1,0 +1,29 @@
+---
+import TagBadge from '@/components/TagBadge.astro'
+
+interface Props {
+  title: string
+  href: string
+  date?: string
+  tags: string[]
+  series?: string
+  seriesOrder?: number
+}
+
+const { title, href, date, tags, series, seriesOrder } = Astro.props
+---
+
+<a class="post-card" href={href}>
+  <div class="post-card__meta">
+    {date && <span class="post-card__date">{date}</span>}
+    <div class="post-card__tags">
+      {tags.map((tag) => <TagBadge tag={tag} />)}
+    </div>
+  </div>
+  <h3 class="post-card__title">{title}</h3>
+  {series && (
+    <div class="post-card__series">
+      シリーズ: {series} #{seriesOrder}
+    </div>
+  )}
+</a>
