@@ -17,8 +17,10 @@ home-page の「最新記事5件」に対し、全記事を閲覧するための
                                     ↑ active
 
 container--narrow (max-width: 720px, padding: 2.5rem 1.25rem)
-  [Breadcrumb: Home › Posts]
+  [Breadcrumb: Home › Posts]               // `/posts` (1ページ目)
     ※ "Posts" は plain text (現在のページ)
+  [Breadcrumb: Home › Posts › n ページ目]  // `/posts/page/[n]` (2ページ目以降)
+    ※ "Posts" は `/posts` へのリンク、"n ページ目" は plain text (現在のページ)
 
   [h1: Posts]
 

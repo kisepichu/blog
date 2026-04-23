@@ -6,7 +6,8 @@ test.describe('/posts 記事一覧ページ 基本表示', () => {
   })
 
   test('/posts にアクセスして何か visible になる (HTTP 200)', async ({ page }) => {
-    // locator が見えれば 200 相当
+    const response = await page.goto('/posts')
+    expect(response?.status()).toBe(200)
     await expect(page.locator('body')).toBeVisible()
   })
 

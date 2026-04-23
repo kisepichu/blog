@@ -475,6 +475,12 @@ a:hover { color: var(--link-h); }
 .series-nav__btn--next { margin-left: auto; text-align: right; }
 
 /* ── POSTS PAGINATION ──────────────────────────── */
+.posts-heading {
+  font-family: var(--font-ui);
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
 .posts-pagination {
   display: flex;
   align-items: center;
