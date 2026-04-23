@@ -153,28 +153,30 @@ const sorted = allPosts.sort((a, b) => {
 `getStaticPaths` 不要。直接データを取得してスライス。
 
 ```ts
-const PAGE_SIZE = 10
+import { getVisiblePostsSorted, POSTS_PAGE_SIZE } from '@/lib/posts'
+
 const allPosts = await getCollection('posts')
-const posts = filterAndSort(allPosts)   // status フィルタ + 日付ソート
-const totalPages = Math.ceil(posts.length / PAGE_SIZE)
-const pagePosts = posts.slice(0, PAGE_SIZE)
+const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
+const totalPages = Math.ceil(posts.length / POSTS_PAGE_SIZE)
+const pagePosts = posts.slice(0, POSTS_PAGE_SIZE)
 ```
 
 ### page/[page].astro (2ページ目以降)
 
 ```ts
+import { getVisiblePostsSorted, POSTS_PAGE_SIZE } from '@/lib/posts'
+
 export async function getStaticPaths() {
-  const PAGE_SIZE = 10
   const allPosts = await getCollection('posts')
-  const posts = filterAndSort(allPosts)
-  const totalPages = Math.ceil(posts.length / PAGE_SIZE)
+  const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
+  const totalPages = Math.ceil(posts.length / POSTS_PAGE_SIZE)
 
   return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => {
     const page = i + 2
     return {
       params: { page: String(page) },
       props: {
-        posts: posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+        posts: posts.slice((page - 1) * POSTS_PAGE_SIZE, page * POSTS_PAGE_SIZE),
         currentPage: page,
         totalPages,
       },
@@ -237,7 +239,10 @@ const nextHref = `${base}/posts/page/${currentPage + 1}`
   background: white;
   transition: border-color 0.15s, color 0.15s;
 }
-.posts-pagination__btn:hover { border-color: var(--accent-pale); color: var(--accent); }
+.posts-pagination__btn:not(.posts-pagination__btn--disabled):hover {
+  border-color: var(--accent-pale);
+  color: var(--accent);
+}
 .posts-pagination__btn--disabled {
   color: var(--text-faint);
   border-color: var(--border-l);

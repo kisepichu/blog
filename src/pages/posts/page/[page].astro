@@ -3,31 +3,29 @@ import { getCollection, type CollectionEntry } from 'astro:content'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import PostCard from '@/components/PostCard.astro'
-import { getVisiblePostsSorted } from '@/lib/posts'
+import { getVisiblePostsSorted, POSTS_PAGE_SIZE } from '@/lib/posts'
 
 export async function getStaticPaths() {
-  const PAGE_SIZE = 10
   const allPosts = await getCollection('posts')
   const allSeries = await getCollection('series')
 
   const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
+  const visibleSeries = import.meta.env.PROD
+    ? allSeries.filter((series) => series.data.status === 'published')
+    : allSeries
+  const seriesTitleMap = Object.fromEntries(visibleSeries.map((series) => [series.id, series.data.title]))
 
-  const totalPages = Math.ceil(posts.length / PAGE_SIZE)
+  const totalPages = Math.ceil(posts.length / POSTS_PAGE_SIZE)
 
   return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => {
     const page = i + 2
     return {
       params: { page: String(page) },
       props: {
-        posts: posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+        posts: posts.slice((page - 1) * POSTS_PAGE_SIZE, page * POSTS_PAGE_SIZE),
         currentPage: page,
         totalPages,
-        seriesTitleMap: Object.fromEntries(
-          (import.meta.env.PROD
-            ? allSeries.filter((s) => s.data.status === 'published')
-            : allSeries
-          ).map((s) => [s.id, s.data.title])
-        ),
+        seriesTitleMap,
       },
     }
   })

@@ -5,6 +5,8 @@ interface PostLike {
   }
 }
 
+export const POSTS_PAGE_SIZE = 10
+
 export function comparePostsByDateDesc<T extends PostLike>(a: T, b: T) {
   if (!a.data.date && !b.data.date) return 0
   if (!a.data.date) return 1
