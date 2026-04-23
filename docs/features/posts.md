@@ -61,7 +61,7 @@ interface Props {
   <h3 class="post-card__title">{title}</h3>
   {series && (
     <div class="post-card__series">
-      シリーズ: {series} #{seriesOrder}
+      シリーズ: {series}{seriesOrder !== undefined && ` #${seriesOrder}`}
     </div>
   )}
 </a>
