@@ -495,7 +495,10 @@ a:hover { color: var(--link-h); }
   background: white;
   transition: border-color 0.15s, color 0.15s;
 }
-.posts-pagination__btn:hover { border-color: var(--accent-pale); color: var(--accent); }
+.posts-pagination__btn:not(.posts-pagination__btn--disabled):hover {
+  border-color: var(--accent-pale);
+  color: var(--accent);
+}
 .posts-pagination__btn--disabled {
   color: var(--text-faint);
   border-color: var(--border-l);
