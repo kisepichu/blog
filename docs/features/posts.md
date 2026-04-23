@@ -37,7 +37,7 @@ container--narrow (max-width: 720px, padding: 2.5rem 1.25rem)
 
 ## PostCard
 
-プロトタイプの `.post-card` をそのまま踏襲。home-page・tag-page でも同一デザインを使うため
+プロトタイプの `.post-card` をそのまま踏襲。home-page と posts 一覧で同一デザインを使うため
 `src/components/PostCard.astro` として共通コンポーネント化する。
 
 ```astro

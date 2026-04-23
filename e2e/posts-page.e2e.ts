@@ -1,12 +1,13 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('/posts 記事一覧ページ 基本表示', () => {
+  let response: Awaited<ReturnType<typeof page.goto>>
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/posts')
+    response = await page.goto('/posts')
   })
 
   test('/posts にアクセスして何か visible になる (HTTP 200)', async ({ page }) => {
-    const response = await page.goto('/posts')
     expect(response?.status()).toBe(200)
     await expect(page.locator('body')).toBeVisible()
   })

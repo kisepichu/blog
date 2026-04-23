@@ -163,7 +163,7 @@ $f : A \to B$ を...と定義する。
 | ---------------- | -------------------------------------------------- |
 | `/`              | ホーム。hero + 最新記事5件 (post-card with tags/series) + サイドバー (シリーズ一覧・最近の定義4件・タグ一覧)。詳細は `docs/features/home-page.md` |
 | `/posts`         | 記事一覧。全記事を日付降順・10件/ページでページネーション表示。詳細は `docs/features/posts.md` |
-| `/posts/page/[n]`| 記事一覧 2ページ目以降 (`n` ≥ 2)                  |
+| `/posts/page/[n]` | 記事一覧 2ページ目以降 (`n` ≥ 2)                  |
 | `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・series-nav (prev/next)・backlink |
 | `/defs/[id]`     | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]`    | タグ別記事・定義一覧                               |
