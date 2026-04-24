@@ -23,8 +23,8 @@ definition_block の HTML をポップアップで表示する React island。
 <HoverPreview client:load baseUrl={import.meta.env.BASE_URL} />
 ```
 
-- ページ全体の `.concept-link[data-term]` / `.concept-link--local[data-local-id]` に対してイベントリスナーをアタッチ
-- concept-link が存在しないページでは何もしない
+- `document.body` に対してイベントを委譲 (capture phase) し、`.concept-link[data-term]` / `.concept-link--local[data-local-id]` 要素への操作を処理する
+- `preview-index.json` の fetch とイベントリスナーの登録は常時行う (concept-link の有無によらず)
 - popup は `document.body` に portal 描画する
 
 ### データソース
@@ -197,13 +197,13 @@ popup 高さは DOM 挿入後に `getBoundingClientRect()` で取得して調整
 
 | ケース | 挙動 |
 |--------|------|
-| `preview-index.json` の fetch 失敗 | コンソール warn のみ。hover preview は無効化 |
+| `preview-index.json` の fetch 失敗 | ログなしで hover preview を無効化 |
 | `data-term` が `preview-index.json` に存在しない | ポップアップを表示しない |
 | `data-local-id` の id に対応する DOM 要素がない | ポップアップを表示しない |
 | ポップアップが viewport 外にはみ出る (下) | リンクの上に表示 |
 | ポップアップが viewport 外にはみ出る (上も下も無理) | `top: 8px` に固定 |
 | 同じ concept-link を連続ホバー | 既存ポップアップを再利用 (新規作成しない) |
-| concept-link が存在しないページ | fetch・イベントリスナーを登録しない (lazy init) |
+| concept-link が存在しないページ | fetch・イベントリスナーは常時登録。popup は開かれない |
 
 ---
 
