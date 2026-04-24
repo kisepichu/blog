@@ -10,12 +10,12 @@ import { test, expect } from '@playwright/test'
 
 test.describe('HoverPreview — /posts/order-theory', () => {
   test.beforeEach(async ({ page }) => {
+    // preview-index.json の fetch 完了を待ってから各テストを開始する
+    const indexResponse = page.waitForResponse(
+      (resp) => resp.url().includes('preview-index.json') && resp.status() === 200,
+    )
     await page.goto('/posts/order-theory')
-    // React island (client:load) の hydration が完了するまで待つ。
-    // HoverPreview は mount 時に preview-index.json を非同期 fetch するため、
-    // fetch が完了する十分な時間を確保する。
-    await page.waitForLoadState('networkidle')
-    await page.waitForTimeout(500)
+    await indexResponse
   })
 
   test('concept-link にホバーすると .hover-preview popup が表示される', async ({ page }) => {
@@ -53,10 +53,8 @@ test.describe('HoverPreview — /posts/order-theory', () => {
     // popup から離れた安全な場所 (h1 など) にマウスを移動
     await page.locator('h1').hover()
 
-    // 180ms の scheduleClose + アニメーション余裕を見て 500ms 待つ
-    await page.waitForTimeout(500)
-
-    await expect(page.locator('.hover-preview')).toHaveCount(0)
+    // scheduleClose の 180ms + React 再描画を待つ
+    await expect(page.locator('.hover-preview')).toHaveCount(0, { timeout: 1000 })
   })
 
   test('popup 内の concept-link にホバーすると子 popup が追加表示される（親は残る）', async ({

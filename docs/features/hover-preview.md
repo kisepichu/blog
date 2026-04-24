@@ -74,7 +74,7 @@ definition_block の HTML をポップアップで表示する React island。
 - border-radius: `var(--r-md)`
 - フォントサイズ: `0.85rem`、line-height: `1.75`
 - `pointer-events: auto` (ポップアップ上でのホバー操作を受け付ける)
-- z-index: ベース `9000` + ネスト深さ × 1 (`9000`, `9001`, `9002`, ...)
+- z-index: ベース `9000` + popup 生成順の id (hover 回数に応じて増加。ネスト深さとは必ずしも一致しない)
 
 ### 位置計算
 
@@ -203,7 +203,7 @@ popup 高さは DOM 挿入後に `getBoundingClientRect()` で取得して調整
 | ポップアップが viewport 外にはみ出る (下) | リンクの上に表示 |
 | ポップアップが viewport 外にはみ出る (上も下も無理) | `top: 8px` に固定 |
 | 同じ concept-link を連続ホバー | 既存ポップアップを再利用 (新規作成しない) |
-| ポップアップ内で同じ term のリンクを再ホバー | そのポップアップより深い子孫を閉じて再表示しない (同一 term は無視) |
+| concept-link が存在しないページ | fetch・イベントリスナーを登録しない (lazy init) |
 
 ---
 

@@ -30,6 +30,9 @@ function nextPopupId(): number {
   return ++_popupIdCounter
 }
 
+const CONCEPT_LINK_SELECTOR =
+  '.concept-link[data-term], [data-local-id].concept-link--local'
+
 export default function HoverPreview({ baseUrl = '/' }: Props) {
   const [popups, setPopups] = useState<PopupState[]>([])
   // popup id → setTimeout handle
@@ -165,16 +168,22 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         const target = document.getElementById(localId)
         if (!target) return null
         title = localId
+        // preview-index.json と異なり、DOM から取得した HTML は remark/rehype パイプラインで
+        // 生成された著者コンテンツ (MathJax 処理済み) なので既にレンダリング済み。
+        // ユーザー入力は含まれない (XSS リスクなし)。
         html = target.innerHTML
-        isLocal = true // DOM から取得した local 定義: 既に MathJax レンダリング済み
+        isLocal = true // DOM から取得: 既に MathJax レンダリング済みのため再実行不要
       } else {
         return null
       }
 
       const rect = linkEl.getBoundingClientRect()
-      const left = Math.max(8, Math.min(rect.left, window.innerWidth - 338))
+      const viewportPadding = 8
+      const maxLeft = Math.max(viewportPadding, window.innerWidth - 338 - viewportPadding)
+      const left = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
       const top = rect.bottom + 8
       const id = nextPopupId()
+      // z-index: ベース 9000 + popup 生成順の id (hover 回数に応じて増加)
       const zIndex = 9000 + id
 
       // 親とその祖先のタイマーをキャンセル
@@ -198,9 +207,7 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
   useEffect(() => {
     function getClosestConceptLink(target: EventTarget | null): HTMLElement | null {
       if (!target || !(target instanceof Element)) return null
-      return target.closest(
-        '.concept-link[data-term], [data-local-id].concept-link--local',
-      ) as HTMLElement | null
+      return target.closest(CONCEPT_LINK_SELECTOR) as HTMLElement | null
     }
 
     function getClosestPopup(target: EventTarget | null): HTMLElement | null {
@@ -271,6 +278,12 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
     function onTouchStart(e: TouchEvent) {
       const linkEl = getClosestConceptLink(e.target)
       if (!linkEl) return
+      // 既存タイマーをクリアしてから新しくセット
+      if (longPressTimerRef.current !== null) {
+        clearTimeout(longPressTimerRef.current)
+        longPressTimerRef.current = null
+        longPressActiveRef.current = false
+      }
       longPressTimerRef.current = setTimeout(() => {
         longPressActiveRef.current = true
         tryShowLink(linkEl)
@@ -353,6 +366,10 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       // unmount 時に全タイマーをクリア
       timersRef.current.forEach((t) => clearTimeout(t))
       timersRef.current.clear()
+      if (longPressTimerRef.current !== null) {
+        clearTimeout(longPressTimerRef.current)
+        longPressTimerRef.current = null
+      }
     }
   }, [showPopupForLink, cancelTimer, scheduleClose, getAncestorIds, closeAll])
 
@@ -416,6 +433,7 @@ function PopupItem({ popup }: PopupItemProps) {
       }}
     >
       <div className={`hover-preview__title ${styles.title}`}>{popup.title}</div>
+      {/* popup.html は remark/rehype パイプラインで生成された著者コンテンツ。ユーザー入力を含まない。 */}
       <div
         ref={bodyRef}
         className="hover-preview__body"

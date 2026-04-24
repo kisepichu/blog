@@ -1,6 +1,7 @@
 .popup {
   position: fixed;
   width: 330px;
+  max-width: calc(100vw - 16px);
   background: white;
   border: 1.5px solid var(--def-border, var(--border));
   border-radius: var(--r-md);

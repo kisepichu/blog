@@ -23,7 +23,7 @@
 
 ## 完了条件
 
-- [x] pnpm test 全通過 (112 tests)
+- [x] pnpm test 全通過 (115 tests)
 - [x] pnpm lint クリーン
 - [x] pnpm build 成功
 - [x] pnpm test:e2e 全通過 (4 tests)
