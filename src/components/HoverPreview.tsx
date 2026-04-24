@@ -410,18 +410,48 @@ function PopupItem({ popup }: PopupItemProps) {
   }, [popup.top, popup.anchorTop])
 
   // global popup のみ MathJax を再実行 (local は DOM から取得した既レンダリング済みの HTML)
+  // MathJax が async ロードで未初期化の場合があるため、最大 2 秒 (100ms × 20) ポーリングする
   useEffect(() => {
     if (popup.isLocal) return
-    const body = bodyRef.current
-    if (!body) return
-    const w = window as unknown as Record<string, unknown>
-    const MathJax = w.MathJax as
-      | { typesetPromise?: (els: Element[]) => Promise<void> }
-      | undefined
-    if (MathJax?.typesetPromise) {
-      MathJax.typesetPromise([body])
+
+    type MathJaxLike = {
+      startup?: { promise?: Promise<unknown> }
+      typesetPromise?: (els: Element[]) => Promise<void>
     }
-  }, [popup.isLocal])
+
+    let cancelled = false
+
+    const sleep = (ms: number) =>
+      new Promise<void>((resolve) => {
+        window.setTimeout(resolve, ms)
+      })
+
+    const typesetWhenReady = async () => {
+      const body = bodyRef.current
+      if (!body) return
+
+      for (let attempt = 0; attempt < 20 && !cancelled; attempt += 1) {
+        const w = window as typeof window & { MathJax?: MathJaxLike }
+        const mathJax = w.MathJax
+
+        if (mathJax?.typesetPromise) {
+          await mathJax.startup?.promise
+          if (!cancelled) {
+            await mathJax.typesetPromise([body])
+          }
+          return
+        }
+
+        await sleep(100)
+      }
+    }
+
+    void typesetWhenReady()
+
+    return () => {
+      cancelled = true
+    }
+  }, [popup.isLocal, popup.html])
 
   return (
     <div
