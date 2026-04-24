@@ -135,4 +135,20 @@ describe('remarkConceptLink localIds 対応', () => {
     expect(html).toContain('unknown')
     consoleSpy.mockRestore()
   })
+
+  it('[[#id]] かつ localIds に id がある場合 data-local-id 属性が付与される', () => {
+    const localIds = new Set(['local-f'])
+    const html = processWithLocalIds('[[#local-f]] を参照。', localIds)
+    expect(html).toContain('data-local-id="local-f"')
+    expect(html).toContain('href="#local-f"')
+    expect(html).toContain('concept-link--local')
+  })
+
+  it('[[term]] かつ localIds に term がある場合 data-local-id 属性が付与される', () => {
+    const localIds = new Set(['local-f'])
+    const html = processWithLocalIds('[[local-f]] について。', localIds)
+    expect(html).toContain('data-local-id="local-f"')
+    expect(html).toContain('href="#local-f"')
+    expect(html).toContain('concept-link--local')
+  })
 })
