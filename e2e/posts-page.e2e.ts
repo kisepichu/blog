@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('/posts 記事一覧ページ 基本表示', () => {
-  let response: Awaited<ReturnType<typeof page.goto>>
+  let response: { status(): number } | null
 
   test.beforeEach(async ({ page }) => {
     response = await page.goto('/posts')
