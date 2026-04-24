@@ -4,8 +4,7 @@ import { fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import React from 'react'
 
-// HoverPreview はまだ存在しないためインポートは意図的に失敗する
-// テストが「コンポーネントが存在しない」ことで FAIL することを確認するためのもの
+// HoverPreview コンポーネントをテスト対象としてインポート
 import HoverPreview from '../HoverPreview'
 
 // preview-index.json のモック
@@ -41,7 +40,7 @@ async function renderAndSettle(props: { baseUrl?: string } = {}) {
     await Promise.resolve()
     await Promise.resolve()
   })
-  return result as ReturnType<typeof renderHoverPreview>
+  return result as ReturnType<typeof render>
 }
 
 // ページ上に concept-link 要素を追加するヘルパー
@@ -325,6 +324,33 @@ describe('HoverPreview', () => {
       // 子 popup に upper-bound のタイトルが含まれる
       const bodyEl = within(document.body)
       expect(bodyEl.getByText('上界')).toBeInTheDocument()
+    })
+
+    it('Escape キーで全ての popup が閉じる', async () => {
+      await renderAndSettle()
+      const link = addGlobalConceptLink('poset')
+
+      await act(async () => {
+        fireEvent.mouseEnter(link)
+        await Promise.resolve()
+      })
+      expect(document.body.querySelector('.hover-preview')).not.toBeNull()
+
+      await act(async () => {
+        fireEvent.keyDown(document.body, { key: 'Escape' })
+      })
+      expect(document.body.querySelector('.hover-preview')).toBeNull()
+    })
+
+    it('concept-link に focus すると popup が表示される', async () => {
+      await renderAndSettle()
+      const link = addGlobalConceptLink('poset')
+
+      await act(async () => {
+        fireEvent.focus(link)
+        await Promise.resolve()
+      })
+      expect(document.body.querySelector('.hover-preview')).not.toBeNull()
     })
 
     it('子 popup から mouseleave すると子のみ閉じる (親は残る)', async () => {
