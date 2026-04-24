@@ -226,6 +226,32 @@ describe('HoverPreview', () => {
       expect(document.body.querySelector('.hover-preview')).not.toBeNull()
     })
 
+    it('popup が閉じた後に同じ concept-link を再 hover すると popup が再表示される', async () => {
+      await renderAndSettle()
+      const link = addGlobalConceptLink('poset')
+
+      // 1回目 hover → popup 表示
+      await act(async () => {
+        fireEvent.mouseEnter(link)
+        await Promise.resolve()
+      })
+      expect(document.body.querySelector('.hover-preview')).not.toBeNull()
+
+      // mouseleave → 180ms 後に popup 消える
+      await act(async () => {
+        fireEvent.mouseLeave(link)
+        vi.advanceTimersByTime(200)
+      })
+      expect(document.body.querySelector('.hover-preview')).toBeNull()
+
+      // 2回目 hover → popup が再表示される
+      await act(async () => {
+        fireEvent.mouseEnter(link)
+        await Promise.resolve()
+      })
+      expect(document.body.querySelector('.hover-preview')).not.toBeNull()
+    })
+
     it('popup に mouseenter するとタイマーがキャンセルされ popup が残る', async () => {
       await renderAndSettle()
       const link = addGlobalConceptLink('poset')

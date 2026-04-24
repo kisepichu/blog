@@ -206,10 +206,16 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         // このリンクが既に popup を持っているかチェック (重複防止)
         const existingId = linkPopupMapRef.current.get(linkEl)
         if (existingId !== undefined) {
-          cancelTimer(existingId)
-          const ancestors = getAncestorIds(existingId, popupsRef.current)
-          ancestors.forEach((aid) => cancelTimer(aid))
-          return
+          const popupStillExists = popupsRef.current.some((p) => p.id === existingId)
+          if (popupStillExists) {
+            // popup が生きている: タイマーをキャンセルするだけ
+            cancelTimer(existingId)
+            const ancestors = getAncestorIds(existingId, popupsRef.current)
+            ancestors.forEach((aid) => cancelTimer(aid))
+            return
+          }
+          // popup は既に閉じている: 古いマッピングを削除して新規表示へ
+          linkPopupMapRef.current.delete(linkEl)
         }
         const parentPopupId = getParentPopupId(linkEl)
         showPopupForLink(linkEl, parentPopupId)
