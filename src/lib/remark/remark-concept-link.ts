@@ -34,10 +34,14 @@ function makeConceptLinkNode(
   classNames: string[],
   term: string,
   canonicalId?: string,
+  localId?: string,
 ): ConceptLinkNode {
   const hProperties: Record<string, unknown> = {
     className: classNames,
     href: url,
+  }
+  if (localId !== undefined) {
+    hProperties['data-local-id'] = localId
   }
   if (canonicalId !== undefined) {
     hProperties['data-term'] = canonicalId
@@ -93,7 +97,7 @@ function splitByConceptLinks(
           parts.push({ type: 'text', value: value.slice(lastIndex, start) })
         }
         const localHref = `#${id}`
-        parts.push(makeConceptLinkNode(localHref, ['concept-link', 'concept-link--local'], id) as unknown as PhrasingContent)
+        parts.push(makeConceptLinkNode(localHref, ['concept-link', 'concept-link--local'], id, undefined, id) as unknown as PhrasingContent)
         lastIndex = end
       } else {
         // localIds にない: unresolved (dev) or plain text (prod)
@@ -119,7 +123,7 @@ function splitByConceptLinks(
         parts.push({ type: 'text', value: value.slice(lastIndex, start) })
       }
       const localHref = `#${term}`
-      parts.push(makeConceptLinkNode(localHref, ['concept-link', 'concept-link--local'], term) as unknown as PhrasingContent)
+      parts.push(makeConceptLinkNode(localHref, ['concept-link', 'concept-link--local'], term, undefined, term) as unknown as PhrasingContent)
       lastIndex = end
       continue
     }
