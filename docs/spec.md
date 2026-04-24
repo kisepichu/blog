@@ -248,9 +248,14 @@ config.markdown.remarkPlugins.push(
 
 ### 検索インデックス
 
-Pagefind を使用。ビルド後に自動生成。各ページに `data-pagefind-meta` で `type` (post/definition)・`tags`・`series`・`aliases` を付与し、フィルタリングに対応する。
+Pagefind を使用。`pnpm build` (`astro build && pagefind --site dist`) でインデックスを生成。詳細仕様: `docs/features/search.md`
 
-Definition ページでは `data-pagefind-body` を definition_block にのみ付与し、補足本文には `data-pagefind-ignore` を付けてインデックス対象を definition_block に限定する。
+- **ヘッダー検索ボックス**: `Layout.astro` のナビ内。Enter で `/search?q=<query>` に遷移
+- **`/search` ページ**: React island `SearchInterface` が Pagefind JS API を動的インポートして検索・結果表示
+- **prefix filter**: `#tag` でタグ候補ドロップダウン、`@` で type 候補 (post / definition) — Pagefind の `filters()` API を利用
+- **フィルタ属性**: `data-pagefind-filter` (フィルタ用) + `data-pagefind-meta` (表示メタ用) を各ページに付与
+  - タグは `<span data-pagefind-filter="tags:{tag}">` を 1 タグ 1 要素で付与 (カンマ区切りにしない)
+- **Definition ページ**: `data-pagefind-body` を definition_block にのみ付与 (`remark-definition-block.ts` で生成する div に属性追加)。補足本文は `data-pagefind-body` の外になるため自動的にインデックス対象外となる
 
 ---
 

@@ -5,7 +5,7 @@ import HoverPreview from '@/components/HoverPreview'
 interface Props {
   title: string
   siteTitle?: string
-  activePage?: 'home' | 'post' | 'def' | 'series'
+  activePage?: 'home' | 'post' | 'def' | 'series' | 'search'
 }
 
 const { title, siteTitle = 'kise.dev', activePage } = Astro.props
@@ -75,6 +75,16 @@ const navItems = [
               </a>
             ))}
           </nav>
+          <form action={`${base}/search`} method="get" class="header-search">
+            <input
+              type="search"
+              name="q"
+              placeholder="search..."
+              class="header-search__input"
+              aria-label="検索"
+              autocomplete="off"
+            />
+          </form>
         </div>
       </header>
 
@@ -90,5 +100,15 @@ const navItems = [
       </footer>
     </div>
     <HoverPreview client:load baseUrl={import.meta.env.BASE_URL} />
+    <!-- ヘッダー検索フォームに URL の q パラメータを反映 -->
+    <script is:inline>
+      ;(function () {
+        var q = new URLSearchParams(location.search).get('q')
+        if (q) {
+          var input = document.querySelector('form.header-search input[name="q"]')
+          if (input) input.value = q
+        }
+      })()
+    </script>
   </body>
 </html>

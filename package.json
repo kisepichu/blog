@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "astro sync",
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
@@ -44,6 +44,7 @@
     "eslint-plugin-astro": "^1.0.0",
     "jsdom": "^29.0.2",
     "mdast-util-directive": "^3.1.0",
+    "pagefind": "^1.5.2",
     "rehype-stringify": "^10.0.1",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",

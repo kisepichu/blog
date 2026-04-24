@@ -87,7 +87,13 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
       </div>
     </header>
 
-    <!-- Pagefind メタデータ (各要素に1つ) -->
+    <!-- Pagefind フィルタ用 (1 タグ 1 span) -->
+    <span data-pagefind-filter="type:definition" hidden></span>
+    {def.data.tags.map(t => (
+      <span data-pagefind-filter={`tags:${t}`} hidden></span>
+    ))}
+
+    <!-- Pagefind 表示メタ用 -->
     <span data-pagefind-meta="type:definition" hidden></span>
     {def.data.tags.length > 0 && (
       <span data-pagefind-meta={`tags:${def.data.tags.join(',')}`} hidden></span>
@@ -96,7 +102,7 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
       <span data-pagefind-meta={`aliases:${def.data.aliases.join(',')}`} hidden></span>
     )}
 
-    <div class="def-content prose" data-pagefind-body>
+    <div class="def-content prose">
       <Content />
     </div>
 
