@@ -19,9 +19,10 @@ interface PopupState {
   title: string
   html: string
   left: number
-  top: number
+  top: number       // link.bottom + 8 (初期値。viewport 下端超えの場合は PopupItem 側で調整)
+  anchorTop: number // link.top (viewport 下端超え時の反転計算に使用)
   zIndex: number
-  isLocal: boolean // ローカル定義の場合 true → MathJax を再実行しない
+  isLocal: boolean  // ローカル定義の場合 true → MathJax を再実行しない
 }
 
 let _popupIdCounter = 0
@@ -178,10 +179,12 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       }
 
       const rect = linkEl.getBoundingClientRect()
+      const popupWidth = 330
       const viewportPadding = 8
-      const maxLeft = Math.max(viewportPadding, window.innerWidth - 338 - viewportPadding)
+      const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding)
       const left = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
       const top = rect.bottom + 8
+      const anchorTop = rect.top
       const id = nextPopupId()
       // z-index: ベース 9000 + popup 生成順の id (hover 回数に応じて増加)
       const zIndex = 9000 + id
@@ -194,7 +197,7 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
 
       setPopups((prev) => [
         ...prev,
-        { id, parentId: parentPopupId, title, html, left, top, zIndex, isLocal },
+        { id, parentId: parentPopupId, title, html, left, top, anchorTop, zIndex, isLocal },
       ])
       linkPopupMapRef.current.set(linkEl, id)
 
@@ -401,10 +404,10 @@ function PopupItem({ popup }: PopupItemProps) {
     if (!el) return
     const rect = el.getBoundingClientRect()
     if (rect.bottom > window.innerHeight) {
-      // popup.top = link.bottom + 8 なので、反転: link.bottom + 8 - height - 16 ≈ link.top - 8
-      setTop(Math.max(8, popup.top - rect.height - 16))
+      // anchorTop = link.top なので、popup をリンクの上に表示: link.top - popup高さ - 8px gap
+      setTop(Math.max(8, popup.anchorTop - rect.height - 8))
     }
-  }, [popup.top])
+  }, [popup.top, popup.anchorTop])
 
   // global popup のみ MathJax を再実行 (local は DOM から取得した既レンダリング済みの HTML)
   useEffect(() => {

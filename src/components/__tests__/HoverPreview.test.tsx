@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, within, act } from '@testing-library/react'
 import { fireEvent } from '@testing-library/react'
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 import React from 'react'
 
 // HoverPreview コンポーネントをテスト対象としてインポート
