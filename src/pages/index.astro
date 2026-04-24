@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content'
 import Layout from '@/components/Layout.astro'
 import TagBadge from '@/components/TagBadge.astro'
+import PostCard from '@/components/PostCard.astro'
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
@@ -59,20 +60,14 @@ const allTags = [...new Set([
       <div>
         <div class="section-title">最新記事</div>
         {recentPosts.map((post) => (
-          <a class="post-card" href={`${base}/posts/${encodeURIComponent(post.id)}`}>
-            <div class="post-card__meta">
-              {post.data.date && <span class="post-card__date">{post.data.date}</span>}
-              <div class="post-card__tags">
-                {post.data.tags.map((tag) => <TagBadge tag={tag} />)}
-              </div>
-            </div>
-            <h3 class="post-card__title">{post.data.title}</h3>
-            {post.data.series && seriesTitleMap.has(post.data.series) && (
-              <div class="post-card__series">
-                シリーズ: {seriesTitleMap.get(post.data.series)} #{post.data.series_order}
-              </div>
-            )}
-          </a>
+          <PostCard
+            title={post.data.title}
+            href={`${base}/posts/${encodeURIComponent(post.id)}`}
+            date={post.data.date}
+            tags={post.data.tags}
+            series={post.data.series && seriesTitleMap.has(post.data.series) ? seriesTitleMap.get(post.data.series) : undefined}
+            seriesOrder={post.data.series_order}
+          />
         ))}
         {posts.length > 5 && (
           <a class="view-all" href={`${base}/posts`}>すべての記事を見る →</a>

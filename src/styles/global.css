@@ -473,3 +473,42 @@ a:hover { color: var(--link-h); }
 }
 .series-nav__btn:hover { border-color: var(--accent-pale); color: var(--accent); }
 .series-nav__btn--next { margin-left: auto; text-align: right; }
+
+/* ── POSTS PAGINATION ──────────────────────────── */
+.posts-heading {
+  font-family: var(--font-ui);
+  font-size: 1.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.posts-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-l);
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+}
+.posts-pagination__btn {
+  color: var(--text-muted);
+  text-decoration: none;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-l);
+  border-radius: var(--r-sm);
+  background: white;
+  transition: border-color 0.15s, color 0.15s;
+}
+.posts-pagination__btn:not(.posts-pagination__btn--disabled):hover {
+  border-color: var(--accent-pale);
+  color: var(--accent);
+}
+.posts-pagination__btn--disabled {
+  color: var(--text-faint);
+  border-color: var(--border-l);
+  cursor: default;
+  opacity: 0.5;
+}
+.posts-pagination__info { color: var(--text-faint); }

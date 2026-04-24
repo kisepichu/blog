@@ -1,0 +1,73 @@
+---
+import { getCollection, type CollectionEntry } from 'astro:content'
+import Layout from '@/components/Layout.astro'
+import Breadcrumb from '@/components/Breadcrumb.astro'
+import PostCard from '@/components/PostCard.astro'
+import { getVisiblePostsSorted, POSTS_PAGE_SIZE } from '@/lib/posts'
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts')
+  const allSeries = await getCollection('series')
+
+  const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
+  const visibleSeries = import.meta.env.PROD
+    ? allSeries.filter((series) => series.data.status === 'published')
+    : allSeries
+  const seriesTitleMap = Object.fromEntries(visibleSeries.map((series) => [series.id, series.data.title]))
+
+  const totalPages = Math.ceil(posts.length / POSTS_PAGE_SIZE)
+
+  return Array.from({ length: Math.max(0, totalPages - 1) }, (_, i) => {
+    const page = i + 2
+    return {
+      params: { page: String(page) },
+      props: {
+        posts: posts.slice((page - 1) * POSTS_PAGE_SIZE, page * POSTS_PAGE_SIZE),
+        currentPage: page,
+        totalPages,
+        seriesTitleMap,
+      },
+    }
+  })
+}
+
+const { posts, currentPage, totalPages, seriesTitleMap: seriesTitleRecord } = Astro.props
+const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+
+const seriesTitleMap = new Map<string, string>(Object.entries(seriesTitleRecord))
+
+const prevHref = currentPage === 2 ? `${base}/posts` : `${base}/posts/page/${currentPage - 1}`
+const nextHref = currentPage < totalPages ? `${base}/posts/page/${currentPage + 1}` : null
+---
+
+<Layout title={`Posts — ${currentPage} ページ目`} activePage="post">
+  <div class="container--narrow" data-pagefind-ignore>
+    <Breadcrumb items={[
+      { label: 'Home', href: `${base}/` },
+      { label: 'Posts', href: `${base}/posts` },
+      { label: `${currentPage} ページ目` },
+    ]} />
+
+    <h1 class="posts-heading">Posts</h1>
+
+    {(posts as CollectionEntry<'posts'>[]).map((post) => (
+      <PostCard
+        title={post.data.title}
+        href={`${base}/posts/${encodeURIComponent(post.id)}`}
+        date={post.data.date}
+        tags={post.data.tags}
+        series={post.data.series && seriesTitleMap.has(post.data.series) ? seriesTitleMap.get(post.data.series) : undefined}
+        seriesOrder={post.data.series_order}
+      />
+    ))}
+
+    <nav class="posts-pagination" aria-label="ページネーション">
+      <a class="posts-pagination__btn" href={prevHref}>← 前のページ</a>
+      <span class="posts-pagination__info">{currentPage} / {totalPages}</span>
+      {nextHref
+        ? <a class="posts-pagination__btn" href={nextHref}>次のページ →</a>
+        : <span class="posts-pagination__btn posts-pagination__btn--disabled">次のページ →</span>
+      }
+    </nav>
+  </div>
+</Layout>
