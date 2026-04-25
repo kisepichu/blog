@@ -97,7 +97,8 @@
   color: var(--text);
 }
 
-.dropdownItem:hover {
+.dropdownItem:hover,
+.dropdownItemActive {
   background: var(--surface);
   color: var(--accent);
 }

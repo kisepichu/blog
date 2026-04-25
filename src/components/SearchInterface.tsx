@@ -60,6 +60,7 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
   const [chips, setChips] = useState<FilterChip[]>(initialChips)
   const [dropdown, setDropdown] = useState<string[] | null>(null)
   const [dropdownKind, setDropdownKind] = useState<'tag' | 'type' | null>(null)
+  const [dropdownIndex, setDropdownIndex] = useState<number>(-1)
   const [results, setResults] = useState<PagefindResult[] | null>(null)
   const [loading, setLoading] = useState(false)
   const [pagefindError, setPagefindError] = useState(false)
@@ -69,6 +70,8 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
   const allFiltersRef = useRef<PagefindFilters | null>(null)
   // race condition 防止: 非同期 getFilters 完了時に入力値が変わっていないか照合する
   const inputValueRef = useRef(initialText)
+  // chip 選択後に input に残すテキスト (inline prefix: "poset #型" → prefix = "poset")
+  const dropdownPrefixRef = useRef<string>('')
 
   // 静的サイトでは Astro.url.searchParams がビルド時に空のため、
   // マウント時に window.location.search から初期クエリを読み取る
@@ -132,14 +135,21 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
   }, [getPagefind])
 
   // 入力変化でドロップダウン制御
+  // "poset #型" のように検索ワードの後に inline で # / @ を入力した場合も対応する
   const handleInputChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const val = e.target.value
       setInputValue(val)
       inputValueRef.current = val
 
-      if (val.startsWith('#')) {
-        const partial = val.slice(1)
+      // 末尾に #<partial> または @<partial> が続くパターンを検出
+      const tagMatch = val.match(/^(.*?)#(\S*)$/)
+      const typeMatch = !tagMatch && val.match(/^(.*?)@(\S*)$/)
+
+      if (tagMatch) {
+        const prefix = tagMatch[1].trimEnd()
+        const partial = tagMatch[2]
+        dropdownPrefixRef.current = prefix
         const allFilters = await getFilters()
         // 非同期完了後に入力値が変わっていれば破棄 (race condition 防止)
         if (inputValueRef.current !== val) return
@@ -147,13 +157,18 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         const filtered = partial === '' ? tags : tags.filter((t) => t.includes(partial))
         setDropdown(filtered)
         setDropdownKind('tag')
-      } else if (val.startsWith('@')) {
+      } else if (typeMatch) {
+        const prefix = typeMatch[1].trimEnd()
+        const partial = typeMatch[2]
+        dropdownPrefixRef.current = prefix
         const allFilters = await getFilters()
         if (inputValueRef.current !== val) return
         const types = allFilters?.type ? Object.keys(allFilters.type) : []
-        setDropdown(types)
+        const filtered = partial === '' ? types : types.filter((t) => t.includes(partial))
+        setDropdown(filtered)
         setDropdownKind('type')
       } else {
+        dropdownPrefixRef.current = ''
         setDropdown(null)
         setDropdownKind(null)
       }
@@ -173,23 +188,54 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         if (prev.some((c) => c.kind === 'tag' && c.value === value)) return prev
         return [...prev, { kind: 'tag', value }]
       })
-      setInputValue('')
-      inputValueRef.current = ''  // stale な非同期ドロップダウン更新を破棄させる
+      const prefix = dropdownPrefixRef.current
+      dropdownPrefixRef.current = ''
+      setInputValue(prefix)
+      inputValueRef.current = prefix  // stale な非同期ドロップダウン更新を破棄させる
       setDropdown(null)
       setDropdownKind(null)
+      setDropdownIndex(-1)
     },
     [],
   )
 
-  // ドロップダウン表示中に Enter で先頭候補を確定
+  // dropdown 変化時にアクティブインデックスをリセット
+  useEffect(() => {
+    setDropdownIndex(-1)
+  }, [dropdown])
+
+  // キーボード操作: ArrowDown/Up で候補選択、Enter で確定、Backspace で chip 削除
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter' && dropdown && dropdown.length > 0 && dropdownKind) {
-        e.preventDefault()
-        handleCandidateClick(dropdown[0], dropdownKind)
+      if (dropdown && dropdown.length > 0) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          setDropdownIndex((i) => (i + 1) % dropdown.length)
+          return
+        }
+        if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          setDropdownIndex((i) => (i <= 0 ? dropdown.length - 1 : i - 1))
+          return
+        }
+        if (e.key === 'Enter' && dropdownKind) {
+          e.preventDefault()
+          const selected = dropdownIndex >= 0 ? dropdown[dropdownIndex] : dropdown[0]
+          handleCandidateClick(selected, dropdownKind)
+          return
+        }
+      }
+      // input が空、またはカーソルが先頭にある状態で Backspace を押すと末尾 chip を削除
+      if (
+        e.key === 'Backspace' &&
+        chips.length > 0 &&
+        e.currentTarget.selectionStart === 0 &&
+        e.currentTarget.selectionEnd === 0
+      ) {
+        setChips((prev) => prev.slice(0, -1))
       }
     },
-    [dropdown, dropdownKind, handleCandidateClick],
+    [dropdown, dropdownIndex, dropdownKind, handleCandidateClick, inputValue, chips],
   )
 
   // chip 削除
@@ -199,7 +245,13 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
 
   // 検索実行 (300ms デバウンス付き)
   useEffect(() => {
-    const queryText = inputValue.startsWith('#') || inputValue.startsWith('@') ? '' : inputValue
+    const tagMatch = inputValue.match(/^(.*?)#\S*$/)
+    const typeMatch = !tagMatch && inputValue.match(/^(.*?)@\S*$/)
+    const queryText = tagMatch
+      ? tagMatch[1].trimEnd()
+      : typeMatch
+        ? typeMatch[1].trimEnd()
+        : inputValue
     const typeFilter = chips.find((c) => c.kind === 'type')?.value ?? null
     const tagFilters = chips.filter((c) => c.kind === 'tag').map((c) => c.value)
 
@@ -249,7 +301,13 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
     )
   }
 
-  const queryText = inputValue.startsWith('#') || inputValue.startsWith('@') ? '' : inputValue
+  const renderTagMatch = inputValue.match(/^(.*?)#\S*$/)
+  const renderTypeMatch = !renderTagMatch && inputValue.match(/^(.*?)@\S*$/)
+  const queryText = renderTagMatch
+    ? renderTagMatch[1].trimEnd()
+    : renderTypeMatch
+      ? renderTypeMatch[1].trimEnd()
+      : inputValue
   const typeFilter = chips.find((c) => c.kind === 'type')?.value ?? null
   const tagFilters = chips.filter((c) => c.kind === 'tag').map((c) => c.value)
 
@@ -295,12 +353,17 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         {/* ドロップダウン */}
         {dropdown !== null && dropdown.length > 0 && (
           <ul data-dropdown className={styles.dropdown}>
-            {dropdown.map((item) => (
+            {dropdown.map((item, idx) => (
               <li key={item}>
                 <button
                   type="button"
-                  className={styles.dropdownItem}
+                  className={
+                    idx === dropdownIndex
+                      ? `${styles.dropdownItem} ${styles.dropdownItemActive}`
+                      : styles.dropdownItem
+                  }
                   onClick={() => handleCandidateClick(item, dropdownKind!)}
+                  aria-selected={idx === dropdownIndex}
                 >
                   {item}
                 </button>

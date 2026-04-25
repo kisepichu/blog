@@ -320,6 +320,200 @@ describe('SearchInterface', () => {
     })
   })
 
+  describe('検索ワード + inline prefix filter', () => {
+    it('検索ワードの後に # を入力すると全タグ候補が表示される', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox')
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'poset #' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('集合論')).toBeInTheDocument()
+        expect(screen.getByText('型理論')).toBeInTheDocument()
+      })
+    })
+
+    it('検索ワードの後に #部分文字列 を入力すると部分一致するタグ候補のみ表示される', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox')
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'poset #型' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('型理論')).toBeInTheDocument()
+        expect(screen.queryByText('集合論')).not.toBeInTheDocument()
+      })
+    })
+
+    it('検索ワードの後にタグを選択すると chip になり、検索ワードは input に残る', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox') as HTMLInputElement
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'poset #型' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => expect(screen.getByText('型理論')).toBeInTheDocument())
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('型理論'))
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(input.value).toBe('poset')
+        const chips = document.querySelectorAll('[data-filter-chip]')
+        expect(chips.length).toBe(1)
+        expect(chips[0].textContent).toContain('型理論')
+      })
+    })
+  })
+
+  describe('@type prefix — 部分一致フィルタ', () => {
+    it('`@p` を入力したとき、"p" を含む type 候補のみ表示される', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox')
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '@p' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('post')).toBeInTheDocument()
+        expect(screen.queryByText('definition')).not.toBeInTheDocument()
+      })
+    })
+
+    it('`@d` を入力したとき、"d" を含む type 候補のみ表示される', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox')
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '@d' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('definition')).toBeInTheDocument()
+        expect(screen.queryByText('post')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('キーボード操作', () => {
+    it('ArrowDown でドロップダウンの次候補がアクティブになり Enter で確定される', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox')
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '#' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('集合論')).toBeInTheDocument()
+      })
+
+      // ArrowDown × 2 で 2 番目の候補 (型理論) を選択 (state 更新を act ごとにフラッシュ)
+      await act(async () => { fireEvent.keyDown(input, { key: 'ArrowDown' }) })
+      await act(async () => { fireEvent.keyDown(input, { key: 'ArrowDown' }) })
+      await act(async () => { fireEvent.keyDown(input, { key: 'Enter' }) })
+
+      await waitFor(() => {
+        const chips = document.querySelectorAll('[data-filter-chip]')
+        expect(chips.length).toBeGreaterThanOrEqual(1)
+        // 2番目の候補が chip として追加されている
+        const chipTexts = Array.from(chips).map((c) => c.textContent ?? '')
+        expect(chipTexts.some((t) => t.includes('型理論'))).toBe(true)
+      })
+    })
+
+    it('input に文字列があり、カーソルが先頭にある状態で Backspace を押すと末尾の chip が削除され、文字列は変わらない', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox') as HTMLInputElement
+
+      // chip を追加
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '#' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+      await waitFor(() => expect(screen.getByText('集合論')).toBeInTheDocument())
+      await act(async () => {
+        fireEvent.click(screen.getByText('集合論'))
+        await Promise.resolve()
+      })
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-filter-chip]').length).toBe(1)
+      })
+
+      // input にテキストを入力してからカーソルを先頭へ
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'poset' } })
+        await Promise.resolve()
+      })
+      input.setSelectionRange(0, 0)
+
+      // Backspace → chip が削除され、テキストは残る
+      await act(async () => {
+        fireEvent.keyDown(input, { key: 'Backspace' })
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-filter-chip]').length).toBe(0)
+        expect(input.value).toBe('poset')
+      })
+    })
+
+    it('input が空のとき Backspace で末尾の chip が削除される', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('textbox')
+
+      // chip を追加
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '#' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => expect(screen.getByText('集合論')).toBeInTheDocument())
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('集合論'))
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-filter-chip]').length).toBe(1)
+      })
+
+      // input が空の状態で Backspace
+      await act(async () => {
+        fireEvent.keyDown(input, { key: 'Backspace' })
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(document.querySelectorAll('[data-filter-chip]').length).toBe(0)
+      })
+    })
+  })
+
   describe('通常テキスト入力', () => {
     it('`poset` と入力してもドロップダウンが表示されない', async () => {
       await renderAndSettle()
