@@ -20,7 +20,8 @@ describe('remarkDefinitionBlock', () => {
   it(':::definition ブロックを definition-block クラスの div に変換する', () => {
     const md = `:::definition\n半順序集合とは集合 P と関係の組である。\n:::`
     const html = process(md)
-    expect(html).toContain('class="definition-block"')
+    // class="definition-block" の完全一致 (definition-block--extra に誤マッチしない)
+    expect(html).toMatch(/<div\b[^>]*\bclass="definition-block"[^>]*>/)
     expect(html).toContain('半順序集合とは集合 P と関係の組である。')
     expect(html).toContain('</div>')
   })
@@ -28,7 +29,7 @@ describe('remarkDefinitionBlock', () => {
   it(':::definition{#id} は変換をスキップする (ID 付きは local-definition が処理する)', () => {
     const md = `:::definition{#poset}\n半順序集合の定義。\n:::`
     const html = process(md)
-    expect(html).not.toContain('class="definition-block"')
+    expect(html).not.toMatch(/<div\b[^>]*\bclass="definition-block"[^>]*>/)
   })
 
   it('複数の :::definition がある場合、先頭は definition-block、2つ目以降は definition-block--extra になる', () => {

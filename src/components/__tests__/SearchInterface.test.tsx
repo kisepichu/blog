@@ -41,7 +41,10 @@ beforeEach(() => {
   mockInit.mockResolvedValue(undefined)
 })
 
-afterEach(() => {
+afterEach(async () => {
+  // React 19 の scheduler (setImmediate) がテスト環境破棄後に発火するのを防ぐため、
+  // cleanup 前に pending な React 作業をフラッシュする
+  await act(async () => {})
   vi.restoreAllMocks()
   document.body.innerHTML = ''
 })

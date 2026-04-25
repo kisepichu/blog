@@ -419,7 +419,9 @@ function SearchResultPost({ result }: ResultProps) {
         <span className={styles.resultDate}>{result.meta.date}</span>
       )}
       {result.meta?.tags && (
-        <span className={styles.resultTags}>{result.meta.tags}</span>
+        <span className={styles.resultTags}>
+          {result.meta.tags.split(',').filter(Boolean).map((t) => `#${t}`).join('  ')}
+        </span>
       )}
       <div
         className={styles.resultExcerpt}
@@ -435,6 +437,11 @@ function SearchResultDef({ result }: ResultProps) {
       <a href={result.url} className={styles.resultTitle}>
         {result.meta?.title ?? '(無題)'}
       </a>
+      {result.meta?.tags && (
+        <span className={styles.resultTags}>
+          {result.meta.tags.split(',').filter(Boolean).map((t) => `#${t}`).join('  ')}
+        </span>
+      )}
       {result.meta?.aliases && (
         <span className={styles.resultAliases}>{result.meta.aliases}</span>
       )}
