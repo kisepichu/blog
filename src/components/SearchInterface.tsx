@@ -83,22 +83,30 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
 
   // Pagefind の初期化
   useEffect(() => {
+    let cancelled = false
     const load = async (): Promise<PagefindModule | null> => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mod = (await import(/* @vite-ignore */ `${base}pagefind/pagefind.js`)) as any
         const pf: PagefindModule = mod.default ?? mod
         await pf.init()
-        pagefindRef.current = pf
+        if (!cancelled) {
+          pagefindRef.current = pf
+        }
         return pf
       } catch {
-        setPagefindError(true)
+        if (!cancelled) {
+          setPagefindError(true)
+        }
         return null
       }
     }
     const promise = load()
     pagefindPromiseRef.current = promise
     void promise
+    return () => {
+      cancelled = true
+    }
   }, [baseUrl])
 
   // pagefind モジュールを取得する (初期化完了を待つ)
