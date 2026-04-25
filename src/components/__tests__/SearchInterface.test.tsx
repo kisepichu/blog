@@ -50,7 +50,7 @@ afterEach(() => {
  * SearchInterface を描画し、Pagefind 初期化の非同期処理を待つ
  */
 async function renderAndSettle(props: { initialQuery?: string; baseUrl?: string } = {}) {
-  let result: ReturnType<typeof render>
+  let result: ReturnType<typeof render> | undefined
   await act(async () => {
     result = render(
       <SearchInterface
