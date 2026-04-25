@@ -52,6 +52,9 @@ function parseInitialQuery(q: string): { chips: FilterChip[]; text: string } {
 }
 
 export default function SearchInterface({ initialQuery, baseUrl }: Props) {
+  // HoverPreview と同様にトレイリングスラッシュを正規化する
+  const base = baseUrl.endsWith('/') ? baseUrl : `${baseUrl}/`
+
   const { chips: initialChips, text: initialText } = parseInitialQuery(initialQuery)
   const [inputValue, setInputValue] = useState(initialText)
   const [chips, setChips] = useState<FilterChip[]>(initialChips)
@@ -72,7 +75,7 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
     const load = async (): Promise<PagefindModule | null> => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const mod = (await import(/* @vite-ignore */ `${baseUrl}pagefind/pagefind.js`)) as any
+        const mod = (await import(/* @vite-ignore */ `${base}pagefind/pagefind.js`)) as any
         const pf: PagefindModule = mod.default ?? mod
         await pf.init()
         pagefindRef.current = pf
@@ -175,7 +178,7 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
     setChips((prev) => prev.filter((_, i) => i !== index))
   }, [])
 
-  // 検索実行
+  // 検索実行 (300ms デバウンス付き)
   useEffect(() => {
     const queryText = inputValue.startsWith('#') || inputValue.startsWith('@') ? '' : inputValue
     const typeFilter = chips.find((c) => c.kind === 'type')?.value ?? null
@@ -211,9 +214,10 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         if (!cancelled) setLoading(false)
       }
     }
-    void run()
+    const timer = setTimeout(() => { void run() }, 300)
     return () => {
       cancelled = true
+      clearTimeout(timer)
     }
   }, [inputValue, chips, getPagefind])
 

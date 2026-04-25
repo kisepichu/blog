@@ -137,7 +137,7 @@ test.describe('Layout ヘッダー検索ボックス', () => {
     await page.goto('/')
     const form = page.locator('form.header-search')
     const action = await form.getAttribute('action')
-    expect(action).toMatch(/\/search$|\/search$/)
+    expect(action).toMatch(/\/search$/)
   })
 })
 
