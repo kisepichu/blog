@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, screen, act, waitFor, cleanup } from '@testing-library/react'
 import { fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import React from 'react'
@@ -42,11 +42,12 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-  // React 19 の scheduler (setImmediate) がテスト環境破棄後に発火するのを防ぐため、
-  // cleanup 前に pending な React 作業をフラッシュする
-  await act(async () => {})
+  // cleanup() で React ツリーを proper unmount し useEffect cleanup (clearTimeout) を発火させる。
+  // document.body.innerHTML = '' では React cleanup が走らず debounce timer が残るため使用しない。
+  await act(async () => {
+    cleanup()
+  })
   vi.restoreAllMocks()
-  document.body.innerHTML = ''
 })
 
 /**
@@ -76,7 +77,7 @@ describe('SearchInterface', () => {
     it('`#` を入力したとき、pagefind.filters() から取得した全タグ候補がドロップダウンに表示される', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '#' } })
@@ -94,7 +95,7 @@ describe('SearchInterface', () => {
     it('`#型` を入力したとき、「型理論」のみ候補に表示される (部分一致)', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '#型' } })
@@ -113,7 +114,7 @@ describe('SearchInterface', () => {
     it('`@` を入力したとき、`post` / `definition` の候補がドロップダウンに表示される', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '@' } })
@@ -132,7 +133,7 @@ describe('SearchInterface', () => {
     it('タグ候補をクリックすると filter chip が追加され、input がクリアされる', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '#' } })
@@ -163,7 +164,7 @@ describe('SearchInterface', () => {
     it('type 候補を選択すると type chip が追加される', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '@' } })
@@ -190,7 +191,7 @@ describe('SearchInterface', () => {
     it('type chip を再度選択すると上書きされ、type chip は最大 1 つ', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       // 1つ目の type chip を追加
       await act(async () => {
@@ -237,7 +238,7 @@ describe('SearchInterface', () => {
     it('chip の × ボタンをクリックすると chip が削除される', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       // タグ chip を追加
       await act(async () => {
@@ -286,7 +287,7 @@ describe('SearchInterface', () => {
         expect(chip?.textContent).toContain('集合論')
       })
 
-      const input = screen.getByRole('textbox') as HTMLInputElement
+      const input = screen.getByRole('combobox') as HTMLInputElement
       expect(input.value).toBe('')
     })
 
@@ -299,14 +300,14 @@ describe('SearchInterface', () => {
         expect(chip?.textContent).toContain('post')
       })
 
-      const input = screen.getByRole('textbox') as HTMLInputElement
+      const input = screen.getByRole('combobox') as HTMLInputElement
       expect(input.value).toBe('')
     })
 
     it('initialQuery が通常テキストのとき、input に入る', async () => {
       await renderAndSettle({ initialQuery: 'poset' })
 
-      const input = screen.getByRole('textbox') as HTMLInputElement
+      const input = screen.getByRole('combobox') as HTMLInputElement
       expect(input.value).toBe('poset')
       expect(document.querySelectorAll('[data-filter-chip]').length).toBe(0)
     })
@@ -315,7 +316,7 @@ describe('SearchInterface', () => {
       window.history.pushState({}, '', '/search?q=poset')
       try {
         await renderAndSettle({ initialQuery: '' })
-        const input = screen.getByRole('textbox') as HTMLInputElement
+        const input = screen.getByRole('combobox') as HTMLInputElement
         expect(input.value).toBe('poset')
       } finally {
         window.history.pushState({}, '', '/')
@@ -326,7 +327,7 @@ describe('SearchInterface', () => {
   describe('検索ワード + inline prefix filter', () => {
     it('検索ワードの後に # を入力すると全タグ候補が表示される', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: 'poset #' } })
@@ -342,7 +343,7 @@ describe('SearchInterface', () => {
 
     it('検索ワードの後に #部分文字列 を入力すると部分一致するタグ候補のみ表示される', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: 'poset #型' } })
@@ -358,7 +359,7 @@ describe('SearchInterface', () => {
 
     it('検索ワードの後にタグを選択すると chip になり、検索ワードは input に残る', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox') as HTMLInputElement
+      const input = screen.getByRole('combobox') as HTMLInputElement
 
       await act(async () => {
         fireEvent.change(input, { target: { value: 'poset #型' } })
@@ -385,7 +386,7 @@ describe('SearchInterface', () => {
   describe('@type prefix — 部分一致フィルタ', () => {
     it('`@p` を入力したとき、"p" を含む type 候補のみ表示される', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '@p' } })
@@ -401,7 +402,7 @@ describe('SearchInterface', () => {
 
     it('`@d` を入力したとき、"d" を含む type 候補のみ表示される', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '@d' } })
@@ -419,7 +420,7 @@ describe('SearchInterface', () => {
   describe('キーボード操作', () => {
     it('ArrowDown でドロップダウンの次候補がアクティブになり Enter で確定される', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: '#' } })
@@ -447,7 +448,7 @@ describe('SearchInterface', () => {
 
     it('input に文字列があり、カーソルが先頭にある状態で Backspace を押すと末尾の chip が削除され、文字列は変わらない', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox') as HTMLInputElement
+      const input = screen.getByRole('combobox') as HTMLInputElement
 
       // chip を追加
       await act(async () => {
@@ -485,7 +486,7 @@ describe('SearchInterface', () => {
 
     it('input が空のとき Backspace で末尾の chip が削除される', async () => {
       await renderAndSettle()
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       // chip を追加
       await act(async () => {
@@ -521,7 +522,7 @@ describe('SearchInterface', () => {
     it('`poset` と入力してもドロップダウンが表示されない', async () => {
       await renderAndSettle()
 
-      const input = screen.getByRole('textbox')
+      const input = screen.getByRole('combobox')
 
       await act(async () => {
         fireEvent.change(input, { target: { value: 'poset' } })

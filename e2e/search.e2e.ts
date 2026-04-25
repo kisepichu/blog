@@ -170,15 +170,10 @@ test.describe('/search ページ', () => {
     const input = searchInterface.locator('input[data-search-input]')
     const errorMsg = page.locator('text=検索インデックスが見つかりません')
 
-    const inputVisible = await input.isVisible().catch(() => false)
-    const errorVisible = await errorMsg.isVisible().catch(() => false)
-
-    if (inputVisible) {
-      const value = await input.inputValue()
-      expect(value).toBe('poset')
-    } else {
-      // フォールバック: エラーメッセージが表示される
-      expect(errorVisible).toBe(true)
-    }
+    // useEffect による URL 読み取りが非同期のため、値の更新を待つ
+    await Promise.race([
+      input.waitFor({ state: 'visible' }).then(() => expect(input).toHaveValue('poset')),
+      errorMsg.waitFor({ state: 'visible' }),
+    ])
   })
 })

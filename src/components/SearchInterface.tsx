@@ -340,6 +340,7 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
       {/* 入力欄 + ドロップダウン (ドロップダウンを input 直下に配置するためラップ) */}
       <div className={styles.inputWrapper}>
         <input
+          role="combobox"
           type="text"
           className={styles.input}
           value={inputValue}
@@ -347,15 +348,29 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
           onKeyDown={handleKeyDown}
           placeholder="検索… (#タグ, @type, またはフリーワード)"
           aria-label="検索"
+          aria-autocomplete="list"
+          aria-expanded={dropdown !== null && dropdown.length > 0}
+          aria-controls="search-interface-listbox"
+          aria-activedescendant={
+            dropdown !== null && dropdown.length > 0 && dropdownIndex >= 0
+              ? `search-interface-option-${encodeURIComponent(dropdown[dropdownIndex])}`
+              : undefined
+          }
           data-search-input
         />
 
-        {/* ドロップダウン (listbox パターン: ul=listbox, li=option) */}
+        {/* ドロップダウン (combobox + listbox パターン) */}
         {dropdown !== null && dropdown.length > 0 && (
-          <ul data-dropdown className={styles.dropdown} role="listbox">
+          <ul
+            id="search-interface-listbox"
+            data-dropdown
+            className={styles.dropdown}
+            role="listbox"
+          >
             {dropdown.map((item, idx) => (
               <li
                 key={item}
+                id={`search-interface-option-${encodeURIComponent(item)}`}
                 role="option"
                 aria-selected={idx === dropdownIndex}
                 className={

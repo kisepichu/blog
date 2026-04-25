@@ -43,14 +43,14 @@ describe('remarkDefinitionBlock', () => {
       ':::',
     ].join('\n')
     const html = process(md)
-    expect(html).toContain('class="definition-block"')
+    expect(html).toMatch(/<div\b[^>]*\bclass="definition-block"[^>]*>/)
     expect(html).toContain('<div class="definition-block--extra">')
   })
 
   it('内部に $x + y$ を含む数式はそのまま HTML に含まれる', () => {
     const md = `:::definition\n$x + y$ は加算を表す。\n:::`
     const html = process(md)
-    expect(html).toContain('class="definition-block"')
+    expect(html).toMatch(/<div\b[^>]*\bclass="definition-block"[^>]*>/)
     expect(html).toContain('$x + y$')
   })
 
