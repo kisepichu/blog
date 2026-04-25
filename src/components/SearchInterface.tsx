@@ -185,6 +185,7 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
     const tagFilters = chips.filter((c) => c.kind === 'tag').map((c) => c.value)
 
     if (queryText === '' && !typeFilter && tagFilters.length === 0) {
+      setLoading(false)
       setResults(null)
       return
     }
