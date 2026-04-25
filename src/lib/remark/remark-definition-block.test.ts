@@ -62,8 +62,13 @@ describe('remarkDefinitionBlock', () => {
   it('最初の :::definition の div に data-pagefind-body 属性が付く', () => {
     const md = `:::definition\n半順序集合とは集合 P と関係の組である。\n:::`
     const html = process(md)
-    expect(html).toContain('data-pagefind-body')
-    expect(html).toMatch(/<div[^>]*class="definition-block"[^>]*data-pagefind-body/)
+    // 属性順に依存しない: class と data-pagefind-body が同一 div タグに含まれることを確認
+    expect(html).toMatch(/<div\b[^>]*\bclass="definition-block"[^>]*>/)
+    expect(html).toMatch(/<div\b[^>]*\bdata-pagefind-body\b[^>]*>/)
+    // 同一要素に両属性が存在することを確認 (どちらの順でも通る 2 パターン)
+    const hasClassFirst = /<div\b[^>]*\bclass="definition-block"[^>]*\bdata-pagefind-body\b/.test(html)
+    const hasBodyFirst  = /<div\b[^>]*\bdata-pagefind-body\b[^>]*\bclass="definition-block"/.test(html)
+    expect(hasClassFirst || hasBodyFirst).toBe(true)
   })
 
   it('複数の :::definition がある場合、最初の div のみ data-pagefind-body を持ち、2つ目は持たない', () => {
@@ -77,11 +82,13 @@ describe('remarkDefinitionBlock', () => {
       ':::',
     ].join('\n')
     const html = process(md)
-    // 最初のブロックは data-pagefind-body を持つ
-    expect(html).toMatch(/<div[^>]*class="definition-block"[^>]*data-pagefind-body/)
-    // 2つ目のブロック (definition-block--extra) は data-pagefind-body を持たない
-    expect(html).not.toMatch(/<div[^>]*class="definition-block--extra"[^>]*data-pagefind-body/)
-    expect(html).not.toMatch(/data-pagefind-body[^>]*class="definition-block--extra"/)
+    // 最初のブロックに data-pagefind-body が存在する (属性順不問)
+    const firstHasBodyFirst  = /<div\b[^>]*\bdata-pagefind-body\b[^>]*\bclass="definition-block"/.test(html)
+    const firstHasClassFirst = /<div\b[^>]*\bclass="definition-block"[^>]*\bdata-pagefind-body\b/.test(html)
+    expect(firstHasBodyFirst || firstHasClassFirst).toBe(true)
+    // 2つ目のブロック (definition-block--extra) は data-pagefind-body を持たない (属性順不問)
+    expect(html).not.toMatch(/<div\b[^>]*\bclass="definition-block--extra"[^>]*\bdata-pagefind-body\b/)
+    expect(html).not.toMatch(/<div\b[^>]*\bdata-pagefind-body\b[^>]*\bclass="definition-block--extra"/)
   })
 
   it(':::definition{#id} (local definition) には data-pagefind-body が付かない', () => {

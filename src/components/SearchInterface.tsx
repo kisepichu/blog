@@ -99,9 +99,14 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
     if (allFiltersRef.current) return allFiltersRef.current
     const pf = await getPagefind()
     if (!pf) return {}
-    const f = await pf.filters()
-    allFiltersRef.current = f
-    return f
+    try {
+      const f = await pf.filters()
+      allFiltersRef.current = f
+      return f
+    } catch {
+      setPagefindError(true)
+      return {}
+    }
   }, [getPagefind])
 
   // 入力変化でドロップダウン制御
@@ -147,6 +152,7 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         return [...prev, { kind: 'tag', value }]
       })
       setInputValue('')
+      inputValueRef.current = ''  // stale な非同期ドロップダウン更新を破棄させる
       setDropdown(null)
       setDropdownKind(null)
     },
@@ -198,6 +204,9 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         if (!cancelled) {
           setResults(data)
         }
+      } catch (err) {
+        console.error('Pagefind search failed', err)
+        if (!cancelled) setResults([])
       } finally {
         if (!cancelled) setLoading(false)
       }
