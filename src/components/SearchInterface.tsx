@@ -70,6 +70,17 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
   // race condition 防止: 非同期 getFilters 完了時に入力値が変わっていないか照合する
   const inputValueRef = useRef(initialText)
 
+  // 静的サイトでは Astro.url.searchParams がビルド時に空のため、
+  // マウント時に window.location.search から初期クエリを読み取る
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('q') ?? ''
+    if (!q || q === initialQuery) return
+    const { chips: parsedChips, text } = parseInitialQuery(q)
+    setInputValue(text)
+    inputValueRef.current = text
+    if (parsedChips.length > 0) setChips(parsedChips)
+  }, [initialQuery])
+
   // Pagefind の初期化
   useEffect(() => {
     const load = async (): Promise<PagefindModule | null> => {
@@ -260,34 +271,36 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
         </div>
       )}
 
-      {/* 入力欄 */}
-      <input
-        type="text"
-        className={styles.input}
-        value={inputValue}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        placeholder="検索… (#タグ, @type, またはフリーワード)"
-        aria-label="検索"
-        data-search-input
-      />
+      {/* 入力欄 + ドロップダウン (ドロップダウンを input 直下に配置するためラップ) */}
+      <div className={styles.inputWrapper}>
+        <input
+          type="text"
+          className={styles.input}
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="検索… (#タグ, @type, またはフリーワード)"
+          aria-label="検索"
+          data-search-input
+        />
 
-      {/* ドロップダウン */}
-      {dropdown !== null && dropdown.length > 0 && (
-        <ul data-dropdown className={styles.dropdown}>
-          {dropdown.map((item) => (
-            <li key={item}>
-              <button
-                type="button"
-                className={styles.dropdownItem}
-                onClick={() => handleCandidateClick(item, dropdownKind!)}
-              >
-                {item}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+        {/* ドロップダウン */}
+        {dropdown !== null && dropdown.length > 0 && (
+          <ul data-dropdown className={styles.dropdown}>
+            {dropdown.map((item) => (
+              <li key={item}>
+                <button
+                  type="button"
+                  className={styles.dropdownItem}
+                  onClick={() => handleCandidateClick(item, dropdownKind!)}
+                >
+                  {item}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {/* 検索結果 */}
       {loading && (

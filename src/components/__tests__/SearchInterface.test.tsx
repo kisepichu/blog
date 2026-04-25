@@ -307,6 +307,17 @@ describe('SearchInterface', () => {
       expect(input.value).toBe('poset')
       expect(document.querySelectorAll('[data-filter-chip]').length).toBe(0)
     })
+
+    it('initialQuery が空でも URL の ?q= が input に反映される (静的サイト向け)', async () => {
+      window.history.pushState({}, '', '/search?q=poset')
+      try {
+        await renderAndSettle({ initialQuery: '' })
+        const input = screen.getByRole('textbox') as HTMLInputElement
+        expect(input.value).toBe('poset')
+      } finally {
+        window.history.pushState({}, '', '/')
+      }
+    })
   })
 
   describe('通常テキスト入力', () => {
