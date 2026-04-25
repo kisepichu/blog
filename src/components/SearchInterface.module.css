@@ -86,15 +86,12 @@
 
 .dropdownItem {
   display: block;
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
   padding: 0.4rem 0.9rem;
   cursor: pointer;
   font-family: var(--font-ui);
   font-size: 0.82rem;
   color: var(--text);
+  list-style: none;
 }
 
 .dropdownItem:hover,

@@ -350,23 +350,22 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
           data-search-input
         />
 
-        {/* ドロップダウン */}
+        {/* ドロップダウン (listbox パターン: ul=listbox, li=option) */}
         {dropdown !== null && dropdown.length > 0 && (
-          <ul data-dropdown className={styles.dropdown}>
+          <ul data-dropdown className={styles.dropdown} role="listbox">
             {dropdown.map((item, idx) => (
-              <li key={item}>
-                <button
-                  type="button"
-                  className={
-                    idx === dropdownIndex
-                      ? `${styles.dropdownItem} ${styles.dropdownItemActive}`
-                      : styles.dropdownItem
-                  }
-                  onClick={() => handleCandidateClick(item, dropdownKind!)}
-                  aria-selected={idx === dropdownIndex}
-                >
-                  {item}
-                </button>
+              <li
+                key={item}
+                role="option"
+                aria-selected={idx === dropdownIndex}
+                className={
+                  idx === dropdownIndex
+                    ? `${styles.dropdownItem} ${styles.dropdownItemActive}`
+                    : styles.dropdownItem
+                }
+                onClick={() => handleCandidateClick(item, dropdownKind!)}
+              >
+                {item}
               </li>
             ))}
           </ul>
