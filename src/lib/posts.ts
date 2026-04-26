@@ -14,7 +14,7 @@ export function comparePostsByDateDesc<T extends PostLike>(a: T, b: T) {
   return b.data.date.localeCompare(a.data.date)
 }
 
-export function getVisiblePostsSorted<T extends PostLike>(posts: T[], isProd: boolean) {
-  const visiblePosts = isProd ? posts.filter((post) => post.data.status === 'published') : [...posts]
+export function getVisiblePostsSorted<T extends PostLike>(posts: T[], filterDrafts: boolean) {
+  const visiblePosts = filterDrafts ? posts.filter((post) => post.data.status === 'published') : [...posts]
   return visiblePosts.sort(comparePostsByDateDesc)
 }

@@ -66,5 +66,3 @@ jobs:
 
       - name: E2E tests
         run: pnpm test:e2e
-        env:
-          DRAFT_VISIBLE: '1'

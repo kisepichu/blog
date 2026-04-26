@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import TagBadge from '@/components/TagBadge.astro'
-import { FILTER_DRAFTS } from '@/lib/env'
+import { FILTER_DRAFTS } from '@/config/env'
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('posts')
