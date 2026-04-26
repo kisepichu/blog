@@ -25,11 +25,11 @@
 ### ビルド設定
 
 - [x] `pagefind` インストール (devDependencies)
-- [x] `package.json` の `build` スクリプト更新: `"astro build && pagefind --site dist"`
+- [x] `package.json` の `build` スクリプト更新: `"sh -c 'astro build \"$@\" && pagefind --site dist' --"`
 
 ## 完了条件
 
-- [x] pnpm test 全通過 (126/126)
+- [x] pnpm test 全通過
 - [x] pnpm astro check クリーン (既存2件のみ、今回分はゼロ)
 - [x] pnpm lint クリーン
 - [x] pnpm build 成功 (pagefind インデックス生成まで、3ページインデックス済み)
