@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "astro sync",
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist",
+    "build": "sh -c 'astro build \"$@\" && pagefind --site dist' --",
     "preview": "astro preview",
     "astro": "astro",
     "lint": "eslint .",
