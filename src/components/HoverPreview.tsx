@@ -242,13 +242,11 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
 
     // リンクに対して popup を表示する (重複チェック込み)
     function tryShowLink(linkEl: HTMLElement) {
-      // popup 生成直後のカスケード抑制 (既存 popup のタイマーキャンセルは行う)
-      if (suppressNewPopupRef.current) return
       const existingId = linkPopupMapRef.current.get(linkEl)
       if (existingId !== undefined) {
         const popupStillExists = popupsRef.current.some((p) => p.id === existingId)
         if (popupStillExists) {
-          // popup が生きている: タイマーをキャンセルするだけ
+          // popup が生きている: タイマーをキャンセルするだけ (抑制中でも閉じさせない)
           cancelTimer(existingId)
           getAncestorIds(existingId, popupsRef.current).forEach((aid) => cancelTimer(aid))
           return
@@ -256,6 +254,8 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         // popup は既に閉じている: 古いマッピングを削除して新規表示へ
         linkPopupMapRef.current.delete(linkEl)
       }
+      // popup 生成直後のカスケード抑制: 既存タイマーキャンセルは行うが新規 popup は作らない
+      if (suppressNewPopupRef.current) return
       showPopupForLink(linkEl, getParentPopupId(linkEl))
     }
 
