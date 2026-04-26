@@ -3,15 +3,16 @@ import { getCollection } from 'astro:content'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import TagBadge from '@/components/TagBadge.astro'
+import { FILTER_DRAFTS } from '@/lib/env'
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('posts')
   const allDefs  = await getCollection('defs')
 
-  const posts = import.meta.env.PROD
+  const posts = FILTER_DRAFTS
     ? allPosts.filter((p) => p.data.status === 'published')
     : allPosts
-  const defs = import.meta.env.PROD
+  const defs = FILTER_DRAFTS
     ? allDefs.filter((d) => d.data.status === 'published')
     : allDefs
 

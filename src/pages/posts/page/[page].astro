@@ -4,13 +4,14 @@ import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import PostCard from '@/components/PostCard.astro'
 import { getVisiblePostsSorted, POSTS_PAGE_SIZE } from '@/lib/posts'
+import { FILTER_DRAFTS } from '@/lib/env'
 
 export async function getStaticPaths() {
   const allPosts = await getCollection('posts')
   const allSeries = await getCollection('series')
 
-  const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
-  const visibleSeries = import.meta.env.PROD
+  const posts = getVisiblePostsSorted(allPosts, FILTER_DRAFTS)
+  const visibleSeries = FILTER_DRAFTS
     ? allSeries.filter((series) => series.data.status === 'published')
     : allSeries
   const seriesTitleMap = Object.fromEntries(visibleSeries.map((series) => [series.id, series.data.title]))

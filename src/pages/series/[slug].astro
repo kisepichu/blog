@@ -2,16 +2,17 @@
 import { getCollection } from 'astro:content'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
+import { FILTER_DRAFTS } from '@/lib/env'
 
 export async function getStaticPaths() {
   const allSeries = await getCollection('series')
   const allPosts  = await getCollection('posts')
 
-  const seriesList = import.meta.env.PROD
+  const seriesList = FILTER_DRAFTS
     ? allSeries.filter((s) => s.data.status === 'published')
     : allSeries
 
-  const posts = import.meta.env.PROD
+  const posts = FILTER_DRAFTS
     ? allPosts.filter((p) => p.data.status === 'published')
     : allPosts
 
