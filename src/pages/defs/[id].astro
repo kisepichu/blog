@@ -72,20 +72,20 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
 
     <header class="def-header">
       <div class="def-header__type">定義 / DEFINITION</div>
-      <h1 class="def-title">{def.data.title}</h1>
-      <div class="def-meta">
+      <div class="def-title-row">
+        <h1 class="def-title">{def.data.title}</h1>
         <span class="def-id-badge">{def.id}</span>
         {displayAliases.length > 0 && (
           <span class="def-aliases">別名: {displayAliases.join(', ')}</span>
         )}
-        {def.data.tags.length > 0 && (
-          <div class="def-tags">
-            {def.data.tags.map((tag) => (
-              <TagBadge tag={tag} href={`${base}/tags/${tag}`} />
-            ))}
-          </div>
-        )}
       </div>
+      {def.data.tags.length > 0 && (
+        <div class="def-tags">
+          {def.data.tags.map((tag) => (
+            <TagBadge tag={tag} href={`${base}/tags/${tag}`} />
+          ))}
+        </div>
+      )}
     </header>
 
     <!-- Pagefind フィルタ用 (1 タグ 1 span) -->
@@ -125,15 +125,15 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
     text-transform: uppercase;
     margin-bottom: 0.4rem;
   }
+  .def-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
   .def-title {
     font-size: 1.55rem;
-    margin-bottom: 0.6rem;
-  }
-  .def-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.7rem;
-    flex-wrap: wrap;
   }
   .def-id-badge {
     font-family: var(--font-code);
