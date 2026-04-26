@@ -163,10 +163,9 @@ test.describe('/search ページ', () => {
     const input = searchInterface.locator('input[data-search-input]')
     const errorMsg = page.locator('text=検索インデックスが見つかりません')
 
-    // useEffect による URL 読み取りが非同期のため、値の更新を待つ
-    await Promise.race([
-      input.waitFor({ state: 'visible' }).then(() => expect(input).toHaveValue('poset')),
-      errorMsg.waitFor({ state: 'visible' }),
-    ])
+    // useEffect による URL 読み取りが非同期のため、表示後に値の更新を待つ
+    await expect(input).toBeVisible()
+    await expect(input).toHaveValue('poset')
+    await expect(errorMsg).toHaveCount(0)
   })
 })

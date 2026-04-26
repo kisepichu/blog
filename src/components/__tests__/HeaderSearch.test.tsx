@@ -139,23 +139,31 @@ describe('タグ補完', () => {
 describe('Enter キー', () => {
   it('Enter で search ページに遷移する', async () => {
     let navigatedTo = ''
+    const originalLocation = window.location
     Object.defineProperty(window, 'location', {
       value: { ...window.location, set href(v: string) { navigatedTo = v } },
       writable: true, configurable: true,
     })
 
-    await renderAndSettle()
-    const input = screen.getByRole('combobox')
+    try {
+      await renderAndSettle()
+      const input = screen.getByRole('combobox')
 
-    await act(async () => {
-      fireEvent.change(input, { target: { value: 'poset' } })
-    })
-    await act(async () => {
-      fireEvent.keyDown(input, { key: 'Enter' })
-    })
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'poset' } })
+      })
+      await act(async () => {
+        fireEvent.keyDown(input, { key: 'Enter' })
+      })
 
-    expect(navigatedTo).toContain('search')
-    expect(decodeURIComponent(navigatedTo)).toContain('poset')
+      expect(navigatedTo).toContain('search')
+      expect(decodeURIComponent(navigatedTo)).toContain('poset')
+    } finally {
+      Object.defineProperty(window, 'location', {
+        value: originalLocation,
+        writable: true, configurable: true,
+      })
+    }
   })
 })
 
