@@ -33,14 +33,14 @@ afterEach(() => {
  * HoverPreview を描画し、mount 後の fetch 完了を待つ
  */
 async function renderAndSettle(props: { baseUrl?: string } = {}) {
-  let result: ReturnType<typeof render>
+  let result: ReturnType<typeof render> | undefined
   await act(async () => {
     result = render(<HoverPreview baseUrl={props.baseUrl ?? '/'} />)
     // fetch (Promise) を解決させる
     await Promise.resolve()
     await Promise.resolve()
   })
-  return result as ReturnType<typeof render>
+  return result!
 }
 
 // ページ上に concept-link 要素を追加するヘルパー

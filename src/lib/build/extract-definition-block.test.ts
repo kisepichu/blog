@@ -41,6 +41,11 @@ describe('extractDefinitionBlockHtml', () => {
     expect(extractDefinitionBlockHtml(html)).toBe('<p>定義内容</p>')
   })
 
+  it('data-pagefind-body が class より前に出力された場合も正しく抽出する', () => {
+    const html = '<div data-pagefind-body class="definition-block"><p>内容</p></div>'
+    expect(extractDefinitionBlockHtml(html)).toBe('<p>内容</p>')
+  })
+
   it('definition-block--extra より前に definition-block がある場合は先頭の definition-block を返す', () => {
     const html =
       '<div class="definition-block"><p>メイン定義</p></div>' +

@@ -12,9 +12,10 @@ export default function remarkDefinitionBlock() {
       count++
       node.data = {
         hName: 'div',
-        hProperties: {
-          className: count === 1 ? ['definition-block'] : ['definition-block--extra'],
-        },
+        hProperties:
+          count === 1
+            ? { className: ['definition-block'], 'data-pagefind-body': true }
+            : { className: ['definition-block--extra'] },
       }
       if (count > 1) console.warn('[definition-block] :::definition が複数あります')
     })
