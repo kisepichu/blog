@@ -141,7 +141,7 @@ a:hover { color: var(--link-h); }
   height: 52px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1.5rem;
 }
 .site-logo {
   font-family: var(--font-ui);
@@ -154,7 +154,6 @@ a:hover { color: var(--link-h); }
   letter-spacing: 0.03em;
 }
 .site-logo:hover { color: var(--text); }
-.site-logo__prompt { color: var(--accent); font-size: 1.05rem; }
 .site-nav { display: flex; align-items: center; gap: 1.5rem; }
 .site-nav a {
   font-family: var(--font-ui);
@@ -340,14 +339,6 @@ a:hover { color: var(--link-h); }
 
 /* ── HOME HERO ─────────────────────────────────── */
 .home-hero { margin-bottom: 2.8rem; padding: 2.4rem 0 2rem; }
-.home-hero__prompt {
-  font-family: var(--font-ui);
-  font-size: 0.82rem;
-  color: var(--accent);
-  margin-bottom: 0.6rem;
-  letter-spacing: 0.05em;
-}
-.home-hero__prompt::before { content: '› '; }
 .home-title { font-family: var(--font-ui); font-size: 2rem; letter-spacing: 0.02em; color: var(--text); margin-bottom: 0.4rem; }
 .home-subtitle { font-family: var(--font-body); color: var(--text-muted); font-size: 0.9rem; }
 
@@ -376,6 +367,8 @@ a:hover { color: var(--link-h); }
 /* post-card 追加フィールド */
 .post-card__tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
 .post-card__series { font-size: 0.72rem; color: var(--text-faint); font-family: var(--font-ui); margin-top: 0.3rem; }
+/* カード内タグは hover で見た目を変えない (クリックしても記事に飛ぶだけなので誤解を招かないよう) */
+.post-card .tag:hover { opacity: 1; }
 
 /* ── VIEW ALL LINK ──────────────────────────────── */
 .view-all {

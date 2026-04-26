@@ -285,6 +285,8 @@ describe('HoverPreview', () => {
       await act(async () => {
         fireEvent.mouseEnter(link)
         await Promise.resolve()
+        // popup 生成直後の mouseenter 抑制 (setTimeout 0ms) をクリアする
+        vi.advanceTimersByTime(1)
       })
 
       // 親 popup 内に concept-link を追加
@@ -360,6 +362,8 @@ describe('HoverPreview', () => {
       await act(async () => {
         fireEvent.mouseEnter(link)
         await Promise.resolve()
+        // popup 生成直後の mouseenter 抑制 (setTimeout 0ms) をクリアする
+        vi.advanceTimersByTime(1)
       })
 
       const parentPopup = document.body.querySelector('.hover-preview') as HTMLElement

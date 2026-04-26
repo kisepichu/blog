@@ -7,22 +7,16 @@ test.describe('/ (ホームページ)', () => {
 
   // --- hero セクション ---
 
-  test('hero セクションが表示される', async ({ page }) => {
-    const hero = page.locator('.home-hero__prompt')
-    await expect(hero).toBeVisible()
-    await expect(hero).toContainText('~/blog $ ls')
-  })
-
-  test('h1.home-title に "きせのブログ" が表示される', async ({ page }) => {
+  test('h1.home-title に "blog" が表示される', async ({ page }) => {
     const h1 = page.locator('h1.home-title')
     await expect(h1).toBeVisible()
-    await expect(h1).toContainText('きせのブログ')
+    await expect(h1).toContainText('blog')
   })
 
-  test('p.home-subtitle に "型理論" が含まれる', async ({ page }) => {
+  test('p.home-subtitle に "理論 CS 学び直し" が含まれる', async ({ page }) => {
     const subtitle = page.locator('p.home-subtitle')
     await expect(subtitle).toBeVisible()
-    await expect(subtitle).toContainText('型理論')
+    await expect(subtitle).toContainText('理論 CS 学び直し')
   })
 
   // --- 2カラムグリッド ---

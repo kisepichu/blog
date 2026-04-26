@@ -49,6 +49,9 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
   // タッチ長押し用
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressActiveRef = useRef(false)
+  // popup が DOM に追加された直後の mouseenter カスケードを抑制するフラグ
+  // (新要素がカーソル下に現れるとブラウザが mouseenter を再発火し、連鎖増殖が起きるため)
+  const suppressNewPopupRef = useRef(false)
 
   // portal コンテナの作成・削除
   useEffect(() => {
@@ -106,26 +109,26 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
   // popup を閉じる: 対象 id と全子孫を削除。タイマーも同時にキャンセルする
   const closePopup = useCallback(
     (id: number) => {
-      setPopups((prev) => {
-        const toRemove = new Set<number>()
-        const queue = [id]
-        while (queue.length > 0) {
-          const cur = queue.shift()!
-          toRemove.add(cur)
-          for (const p of prev) {
-            if (p.parentId === cur) queue.push(p.id)
-          }
+      const toRemove = new Set<number>()
+      const queue = [id]
+      while (queue.length > 0) {
+        const cur = queue.shift()!
+        toRemove.add(cur)
+        for (const p of popupsRef.current) {
+          if (p.parentId === cur) queue.push(p.id)
         }
-        // 削除対象の全タイマーをキャンセル
-        toRemove.forEach((rid) => {
-          const t = timersRef.current.get(rid)
-          if (t !== undefined) {
-            clearTimeout(t)
-            timersRef.current.delete(rid)
-          }
-        })
-        return prev.filter((p) => !toRemove.has(p.id))
+      }
+      // 削除対象の全タイマーをキャンセル
+      toRemove.forEach((rid) => {
+        const t = timersRef.current.get(rid)
+        if (t !== undefined) {
+          clearTimeout(t)
+          timersRef.current.delete(rid)
+        }
       })
+      // popupsRef を同期更新してから setPopups (描画間の重複チェックを正確にするため)
+      popupsRef.current = popupsRef.current.filter((p) => !toRemove.has(p.id))
+      setPopups(popupsRef.current)
     },
     [],
   )
@@ -134,6 +137,7 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
   const closeAll = useCallback(() => {
     timersRef.current.forEach((t) => clearTimeout(t))
     timersRef.current.clear()
+    popupsRef.current = []
     setPopups([])
   }, [])
 
@@ -195,11 +199,18 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         getAncestorIds(parentPopupId, popupsRef.current).forEach((aid) => cancelTimer(aid))
       }
 
-      setPopups((prev) => [
-        ...prev,
+      // popupsRef を同期更新してから setPopups (描画間の重複チェックを正確にするため)
+      popupsRef.current = [
+        ...popupsRef.current,
         { id, parentId: parentPopupId, title, html, left, top, anchorTop, zIndex, isLocal },
-      ])
+      ]
+      setPopups(popupsRef.current)
       linkPopupMapRef.current.set(linkEl, id)
+
+      // popup が DOM に追加された直後、カーソル下に現れた新要素への mouseenter を抑制する
+      // (ブラウザは新要素出現時に mouseenter を再発火するため、連鎖増殖が起きる)
+      suppressNewPopupRef.current = true
+      setTimeout(() => { suppressNewPopupRef.current = false }, 0)
 
       return id
     },
@@ -235,7 +246,7 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       if (existingId !== undefined) {
         const popupStillExists = popupsRef.current.some((p) => p.id === existingId)
         if (popupStillExists) {
-          // popup が生きている: タイマーをキャンセルするだけ
+          // popup が生きている: タイマーをキャンセルするだけ (抑制中でも閉じさせない)
           cancelTimer(existingId)
           getAncestorIds(existingId, popupsRef.current).forEach((aid) => cancelTimer(aid))
           return
@@ -243,6 +254,8 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         // popup は既に閉じている: 古いマッピングを削除して新規表示へ
         linkPopupMapRef.current.delete(linkEl)
       }
+      // popup 生成直後のカスケード抑制: 既存タイマーキャンセルは行うが新規 popup は作らない
+      if (suppressNewPopupRef.current) return
       showPopupForLink(linkEl, getParentPopupId(linkEl))
     }
 
