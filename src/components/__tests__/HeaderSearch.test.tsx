@@ -101,13 +101,7 @@ describe('タグ補完', () => {
     expect(screen.getByText('definition')).toBeInTheDocument()
   })
 
-  it('タグ候補クリックで search ページに遷移する', async () => {
-    let navigatedTo = ''
-    Object.defineProperty(window, 'location', {
-      value: { ...window.location, set href(v: string) { navigatedTo = v } },
-      writable: true, configurable: true,
-    })
-
+  it('タグ候補クリックで input に挿入されドロップダウンが閉じる', async () => {
     await renderAndSettle()
     const input = screen.getByRole('combobox')
 
@@ -119,17 +113,11 @@ describe('タグ補完', () => {
     const item = screen.getByText('集合論')
     await act(async () => { fireEvent.click(item) })
 
-    expect(navigatedTo).toContain('search')
-    expect(decodeURIComponent(navigatedTo)).toContain('#集合論')
+    expect(input).toHaveValue('#集合論')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 
-  it('検索語の後に # でインラインプレフィックス付きで遷移する', async () => {
-    let navigatedTo = ''
-    Object.defineProperty(window, 'location', {
-      value: { ...window.location, set href(v: string) { navigatedTo = v } },
-      writable: true, configurable: true,
-    })
-
+  it('検索語の後に # でインラインプレフィックス付きで input に挿入される', async () => {
     await renderAndSettle()
     const input = screen.getByRole('combobox')
 
@@ -141,10 +129,8 @@ describe('タグ補完', () => {
     const item = screen.getByText('集合論')
     await act(async () => { fireEvent.click(item) })
 
-    expect(navigatedTo).toContain('search')
-    const decoded = decodeURIComponent(navigatedTo)
-    expect(decoded).toContain('poset')
-    expect(decoded).toContain('#集合論')
+    expect(input).toHaveValue('poset #集合論')
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 })
 
@@ -176,13 +162,7 @@ describe('Enter キー', () => {
 // ── ArrowDown / ArrowUp ────────────────────────────────────────────────
 
 describe('Arrow キーナビゲーション', () => {
-  it('ArrowDown でハイライトが移動し Enter で候補選択できる', async () => {
-    let navigatedTo = ''
-    Object.defineProperty(window, 'location', {
-      value: { ...window.location, set href(v: string) { navigatedTo = v } },
-      writable: true, configurable: true,
-    })
-
+  it('ArrowDown でハイライトが移動し Enter で input に挿入される', async () => {
     await renderAndSettle()
     const input = screen.getByRole('combobox')
 
@@ -198,12 +178,14 @@ describe('Arrow キーナビゲーション', () => {
     // 1 つ目の候補がアクティブになる
     const items = screen.getAllByRole('option')
     expect(items[0]).toHaveAttribute('aria-selected', 'true')
+    const firstLabel = items[0].textContent ?? ''
 
     await act(async () => {
       fireEvent.keyDown(input, { key: 'Enter' })
     })
 
-    expect(navigatedTo).toContain('search')
+    expect(input).toHaveValue(`#${firstLabel}`)
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
   })
 
   it('Escape でドロップダウンが閉じる', async () => {

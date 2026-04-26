@@ -128,10 +128,14 @@ export default function HeaderSearch({ baseUrl }: Props) {
     (value: string, kind: 'tag' | 'type') => {
       const prefix = dropdownPrefixRef.current
       const token = kind === 'tag' ? `#${value}` : `@${value}`
-      const query = prefix ? `${prefix} ${token}` : token
-      navigate(query)
+      const newVal = prefix ? `${prefix} ${token}` : token
+      setInputValue(newVal)
+      inputValueRef.current = newVal
+      setDropdown(null)
+      setDropdownKind(null)
+      setDropdownIndex(-1)
     },
-    [navigate],
+    [],
   )
 
   const handleKeyDown = useCallback(
