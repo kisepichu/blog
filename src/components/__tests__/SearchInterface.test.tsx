@@ -516,6 +516,27 @@ describe('SearchInterface', () => {
         expect(document.querySelectorAll('[data-filter-chip]').length).toBe(0)
       })
     })
+
+    it('ドロップダウン表示中に Escape を押すとドロップダウンが閉じる', async () => {
+      await renderAndSettle()
+      const input = screen.getByRole('combobox')
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '#' } })
+        await Promise.resolve()
+        await Promise.resolve()
+      })
+
+      await waitFor(() => {
+        expect(screen.getByText('集合論')).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        fireEvent.keyDown(input, { key: 'Escape' })
+      })
+
+      expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    })
   })
 
   describe('通常テキスト入力', () => {

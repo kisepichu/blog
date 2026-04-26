@@ -224,6 +224,13 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
           handleCandidateClick(selected, dropdownKind)
           return
         }
+        if (e.key === 'Escape') {
+          e.preventDefault()
+          setDropdown(null)
+          setDropdownKind(null)
+          setDropdownIndex(-1)
+          return
+        }
       }
       // input が空、またはカーソルが先頭にある状態で Backspace を押すと末尾 chip を削除
       if (

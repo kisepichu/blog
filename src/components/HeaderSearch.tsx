@@ -158,8 +158,10 @@ export default function HeaderSearch({ baseUrl }: Props) {
           return
         }
         if (e.key === 'Escape') {
+          e.preventDefault()
           setDropdown(null)
           setDropdownKind(null)
+          setDropdownIndex(-1)
           return
         }
       }
