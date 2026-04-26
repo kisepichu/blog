@@ -4,15 +4,16 @@ import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import PostCard from '@/components/PostCard.astro'
 import { getVisiblePostsSorted, POSTS_PAGE_SIZE } from '@/lib/posts'
+import { FILTER_DRAFTS } from '@/config/env'
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 const allPosts = await getCollection('posts')
 const allSeries = await getCollection('series')
 
-const posts = getVisiblePostsSorted(allPosts, import.meta.env.PROD)
+const posts = getVisiblePostsSorted(allPosts, FILTER_DRAFTS)
 
-const visibleSeries = import.meta.env.PROD
+const visibleSeries = FILTER_DRAFTS
   ? allSeries.filter((s) => s.data.status === 'published')
   : allSeries
 const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))

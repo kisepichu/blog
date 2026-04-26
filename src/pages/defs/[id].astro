@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content'
 import { buildAliasMap } from '@/lib/build/alias-map'
+import { FILTER_DRAFTS } from '@/config/env'
 import { getBacklinkGraph } from '@/lib/build/backlink-graph'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
@@ -11,10 +12,10 @@ export async function getStaticPaths() {
   const allDefs = await getCollection('defs')
   const allPosts = await getCollection('posts')
 
-  const defs = import.meta.env.PROD
+  const defs = FILTER_DRAFTS
     ? allDefs.filter((d) => d.data.status === 'published')
     : allDefs
-  const posts = import.meta.env.PROD
+  const posts = FILTER_DRAFTS
     ? allPosts.filter((p) => p.data.status === 'published')
     : allPosts
 

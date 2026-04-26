@@ -19,7 +19,7 @@ describe('comparePostsByDateDesc', () => {
 })
 
 describe('getVisiblePostsSorted', () => {
-  it('production では published の記事だけを返す', () => {
+  it('filterDrafts=true のとき published の記事だけを返す', () => {
     const posts = [
       { data: { date: '2024-05-03', status: 'draft' } },
       { data: { date: '2024-05-02', status: 'published' } },
