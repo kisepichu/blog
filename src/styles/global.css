@@ -505,3 +505,27 @@ a:hover { color: var(--link-h); }
   opacity: 0.5;
 }
 .posts-pagination__info { color: var(--text-faint); }
+
+/* ── SERIES INDEX PAGE ───────────────────────────── */
+.series-index__heading {
+  font-family: var(--font-ui);
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+}
+
+.series-index__section {
+  margin-bottom: 3rem;
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--border-l);
+}
+.series-index__section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.series-index__desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+

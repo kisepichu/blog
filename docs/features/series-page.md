@@ -326,4 +326,4 @@ export async function getStaticPaths() {
 ## 未決事項
 
 - series_order が重複した場合の挙動 (ビルド警告を出すか否か)
-- `/series` 一覧ページの要否 (現在は未実装、Breadcrumb の "Series" はリンクなし)
+- ~~`/series` 一覧ページの要否~~ → 実装する。詳細は `docs/features/series-index.md`
