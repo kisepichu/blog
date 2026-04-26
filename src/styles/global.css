@@ -376,6 +376,8 @@ a:hover { color: var(--link-h); }
 /* post-card 追加フィールド */
 .post-card__tags { display: flex; gap: 0.3rem; flex-wrap: wrap; }
 .post-card__series { font-size: 0.72rem; color: var(--text-faint); font-family: var(--font-ui); margin-top: 0.3rem; }
+/* カード内タグは hover で見た目を変えない (クリックしても記事に飛ぶだけなので誤解を招かないよう) */
+.post-card .tag:hover { opacity: 1; }
 
 /* ── VIEW ALL LINK ──────────────────────────────── */
 .view-all {
