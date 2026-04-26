@@ -350,7 +350,11 @@ export default function SearchInterface({ initialQuery, baseUrl }: Props) {
           aria-label="検索"
           aria-autocomplete="list"
           aria-expanded={dropdown !== null && dropdown.length > 0}
-          aria-controls="search-interface-listbox"
+          aria-controls={
+            dropdown !== null && dropdown.length > 0
+              ? 'search-interface-listbox'
+              : undefined
+          }
           aria-activedescendant={
             dropdown !== null && dropdown.length > 0 && dropdownIndex >= 0
               ? `search-interface-option-${encodeURIComponent(dropdown[dropdownIndex])}`
