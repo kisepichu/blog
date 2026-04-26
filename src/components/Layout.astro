@@ -11,13 +11,12 @@ interface Props {
   pagefindIgnore?: boolean
 }
 
-const { title, siteTitle = 'kise.dev', activePage, pagefindIgnore } = Astro.props
+const { title, siteTitle = 'blog', activePage, pagefindIgnore } = Astro.props
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 const navItems = [
   { label: 'home',   href: `${base}/`,        key: 'home'   },
   { label: 'posts',  href: `${base}/posts`,    key: 'post'   },
-  { label: 'defs',   href: `${base}/defs`,     key: 'def'    },
   { label: 'series', href: `${base}/series`,   key: 'series' },
 ] as const
 ---
@@ -64,8 +63,7 @@ const navItems = [
       <header class="site-header">
         <div class="site-header__inner">
           <a class="site-logo" href={`${base}/`}>
-            <span class="site-logo__prompt">$</span>
-            <span>{siteTitle}</span>
+            {siteTitle}
           </a>
           <nav class="site-nav">
             {navItems.map((item) => (

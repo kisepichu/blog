@@ -141,7 +141,7 @@ a:hover { color: var(--link-h); }
   height: 52px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1.5rem;
 }
 .site-logo {
   font-family: var(--font-ui);
