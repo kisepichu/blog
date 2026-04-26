@@ -49,6 +49,9 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
   // タッチ長押し用
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressActiveRef = useRef(false)
+  // popup が DOM に追加された直後の mouseenter カスケードを抑制するフラグ
+  // (新要素がカーソル下に現れるとブラウザが mouseenter を再発火し、連鎖増殖が起きるため)
+  const suppressNewPopupRef = useRef(false)
 
   // portal コンテナの作成・削除
   useEffect(() => {
@@ -204,6 +207,11 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       setPopups(popupsRef.current)
       linkPopupMapRef.current.set(linkEl, id)
 
+      // popup が DOM に追加された直後、カーソル下に現れた新要素への mouseenter を抑制する
+      // (ブラウザは新要素出現時に mouseenter を再発火するため、連鎖増殖が起きる)
+      suppressNewPopupRef.current = true
+      setTimeout(() => { suppressNewPopupRef.current = false }, 0)
+
       return id
     },
     [cancelTimer, getAncestorIds],
@@ -234,6 +242,8 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
 
     // リンクに対して popup を表示する (重複チェック込み)
     function tryShowLink(linkEl: HTMLElement) {
+      // popup 生成直後のカスケード抑制 (既存 popup のタイマーキャンセルは行う)
+      if (suppressNewPopupRef.current) return
       const existingId = linkPopupMapRef.current.get(linkEl)
       if (existingId !== undefined) {
         const popupStillExists = popupsRef.current.some((p) => p.id === existingId)
