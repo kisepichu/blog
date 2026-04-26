@@ -109,35 +109,28 @@ test.describe('/posts/order-theory — Pagefind フィルター属性', () => {
 // -----------------------------------------------------------------------
 test.describe('Layout ヘッダー検索ボックス', () => {
   // ホームページで確認 (どのページにも存在するはず)
-  test('/ にヘッダー検索フォーム .header-search が存在する', async ({ page }) => {
+  test('/ にヘッダー検索 UI が存在する', async ({ page }) => {
     await page.goto('/')
-    const form = page.locator('form.header-search')
-    await expect(form).toHaveCount(1)
+    const search = page.locator('[data-header-search]')
+    await expect(search).toHaveCount(1)
   })
 
-  test('/posts にヘッダー検索フォームが存在する', async ({ page }) => {
+  test('/posts にヘッダー検索 UI が存在する', async ({ page }) => {
     await page.goto('/posts')
-    const form = page.locator('form.header-search')
-    await expect(form).toHaveCount(1)
+    const search = page.locator('[data-header-search]')
+    await expect(search).toHaveCount(1)
   })
 
-  test('/defs/poset にヘッダー検索フォームが存在する', async ({ page }) => {
+  test('/defs/poset にヘッダー検索 UI が存在する', async ({ page }) => {
     await page.goto('/defs/poset')
-    const form = page.locator('form.header-search')
-    await expect(form).toHaveCount(1)
+    const search = page.locator('[data-header-search]')
+    await expect(search).toHaveCount(1)
   })
 
-  test('検索フォームに input[name="q"] が存在する', async ({ page }) => {
+  test('ヘッダー検索 UI に検索入力が存在する', async ({ page }) => {
     await page.goto('/')
-    const input = page.locator('form.header-search input[name="q"]')
+    const input = page.locator('[data-header-search] [data-header-search-input]')
     await expect(input).toHaveCount(1)
-  })
-
-  test('フォームの action が /search を含む', async ({ page }) => {
-    await page.goto('/')
-    const form = page.locator('form.header-search')
-    const action = await form.getAttribute('action')
-    expect(action).toMatch(/\/search$/)
   })
 })
 
