@@ -175,6 +175,8 @@ $f : A \to B$ を...と定義する。
 | `/series`        | シリーズ一覧。全シリーズをひとつのページに連結表示 (タイトル・説明・記事リスト)。最新記事日付降順。詳細は `docs/features/series-index.md` |
 | `/series/[slug]` | シリーズ記事一覧・順序表示。ローカルでは draft 記事も "準備中" バッジ付きで表示。詳細は `docs/features/series-page.md` |
 
+- 記事ページ・定義ページには backlink の下に giscus コメント欄を表示する。詳細は `docs/features/giscus.md`
+
 - Definition の URL は `/defs/[id]` のみ。aliases によるリダイレクトは設けない。
 - 記事ページ内の series ナビ (prev/next リンク) も表示する。
 - 共有コンポーネント (Layout, Breadcrumb, TagBadge, Backlinks) は `src/components/` に置き def-page ブランチで整備する。
@@ -271,6 +273,7 @@ Pagefind を使用。`pnpm build` (`astro build && pagefind --site dist`) でイ
 | スタイリング           | CSS Modules                              |
 | 数式レンダラー         | MathJax (CDN) + bussproofs 拡張          |
 | 検索                   | Pagefind                                 |
+| コメント               | giscus (GitHub Discussions)              |
 | Markdown 拡張          | remark-directive                         |
 | ホスティング           | GitHub Pages                             |
 | CI/CD                  | GitHub Actions (develop push でデプロイ) |
