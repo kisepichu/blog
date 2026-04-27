@@ -276,7 +276,7 @@ Pagefind を使用。`pnpm build` (`astro build && pagefind --site dist`) でイ
 | コメント               | giscus (GitHub Discussions)              |
 | Markdown 拡張          | remark-directive                         |
 | ホスティング           | GitHub Pages                             |
-| CI/CD                  | GitHub Actions (develop push でデプロイ) |
+| CI/CD                  | GitHub Actions (main push でデプロイ)    |
 
 ---
 
@@ -318,7 +318,7 @@ const visible = import.meta.env.PROD
 - ~~記事一覧ページ (`/posts`) の要否~~ → 確定: 実装する。10件/ページ、日付降順 (`docs/features/posts.md`)
 - Definition 一覧ページ (`/defs`) の要否
 - タグ一覧ページ (`/tags`) の要否
-- 本番ブランチ運用 (develop 以外のブランチでの執筆フロー詳細)
+- ~~本番ブランチ運用~~ → 確定: main = 安定公開、develop = 開発。main push で GitHub Pages にデプロイ。執筆は writing 等のブランチで行い main にマージする運用。
 - GitHub Pages の base path: 独自ドメインなら `base: '/'`、リポジトリ配下なら `base: '/blog'` 等 (Astro config の `site`/`base` に影響。remark plugin は integration から注入された `config.base`、クライアントサイドは `import.meta.env.BASE_URL` を使う設計のため、決定後に config を埋めるだけでよい)
 - alias 重複時: ビルド警告を出し、ファイル id のアルファベット順で先勝ち ← 確定
 - `:::definition` が 0 個の場合: ビルド警告、そのページの preview と検索インデックスはなし ← 確定
