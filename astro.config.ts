@@ -17,10 +17,11 @@ function contentPipelineIntegration(): AstroIntegration {
     hooks: {
       'astro:config:setup': async ({ config, updateConfig, command }) => {
         const isProd = command === 'build'
+        const draftVisible = process.env['DRAFT_VISIBLE'] === '1'
         const defsDir = fileURLToPath(new URL('content/defs/', config.root))
         const previewIndexPath = fileURLToPath(new URL('public/preview-index.json', config.root))
         const allDefs = scanDefsDirectory(defsDir)
-        const defs = isProd ? allDefs.filter(d => d.status === 'published') : allDefs
+        const defs = (isProd && !draftVisible) ? allDefs.filter(d => d.status === 'published') : allDefs
         const aliasMap = buildAliasMap(defs)
         const baseUrl = config.base ?? '/'
         const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl, isProd)
