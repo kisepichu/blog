@@ -64,8 +64,7 @@ const basePath = import.meta.env.BASE_URL.endsWith('/')
   : `${import.meta.env.BASE_URL}/`
 const themeUrl = new URL(`${basePath}giscus-theme.css`, siteOrigin).toString()
 // HTTP URL は Mixed Content でブロックされるため、HTTPS のときのみカスタムテーマを使用する
-const useCustomTheme = themeUrl.startsWith('https://')
-const theme = useCustomTheme ? themeUrl : 'catppuccin_latte'
+const theme = themeUrl.startsWith('https://') ? themeUrl : 'catppuccin_latte'
 ---
 <div class="giscus-wrapper">
   <script
