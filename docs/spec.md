@@ -310,6 +310,8 @@ const visible = import.meta.env.PROD
   : entries;
 ```
 
+**e2e 用 override**: 環境変数 `DRAFT_VISIBLE=1` が設定されている場合、本番ビルド相当 (`import.meta.env.PROD = true`) であっても `draft` / `scrap` を除外しない。Playwright の `webServer` コマンドで `DRAFT_VISIBLE=1 pnpm build` として使用する。実装は `src/config/env.ts` の `FILTER_DRAFTS` および `astro.config.ts` の `contentPipelineIntegration` で管理する。
+
 ---
 
 ## 未決事項 (Q リスト)
