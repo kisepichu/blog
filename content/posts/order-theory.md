@@ -1,6 +1,6 @@
 ---
 title: 日記：半順序と束について
-status: published
+status: draft
 tags: [集合論, 代数]
 date: 2025-03-22
 ---

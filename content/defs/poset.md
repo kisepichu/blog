@@ -2,7 +2,7 @@
 id: poset
 title: 半順序集合
 aliases: [半順序, 半順序集合]
-status: published
+status: draft
 tags: [集合論]
 ---
 
