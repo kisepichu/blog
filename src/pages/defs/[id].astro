@@ -7,6 +7,7 @@ import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import TagBadge from '@/components/TagBadge.astro'
 import Backlinks from '@/components/Backlinks.astro'
+import GiscusComments from '@/components/GiscusComments.astro'
 
 export async function getStaticPaths() {
   const allDefs = await getCollection('defs')
@@ -110,6 +111,7 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
     <div data-pagefind-ignore>
       <Backlinks items={backlinks} />
     </div>
+    <GiscusComments />
   </div>
 </Layout>
 
