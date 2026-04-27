@@ -1,7 +1,26 @@
 {
   "permissions": {
     "allow": [
-      "Skill(cross-review)"
+      "Skill(cross-review)",
+      "Bash(codex exec:*)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(chmod +x:*)",
+      "Bash(gh api:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(grep -n \"series\\\\|encodeURI\" /home/kise/repos/blog/src/pages/posts/[slug].astro)",
+      "Read(//home/kise/.codex/skills/review/**)",
+      "Bash(tar tzf:*)",
+      "Bash(head:*)",
+      "Bash(npx playwright:*)",
+      "Bash(git fetch:*)",
+      "Bash(tar xzf:*)",
+      "Read(//tmp/blog/project/prototype/**)",
+      "Bash(grep -l \"tags:\" /home/kise/repos/blog/content/posts/*.md)",
+      "Skill(commit)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d['scripts']\\)\")",
+      "Bash(pnpm test:e2e)",
+      "Skill(pr-review)",
+      "WebFetch(domain:giscus.app)"
     ]
   }
 }
