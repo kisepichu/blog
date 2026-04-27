@@ -4,6 +4,11 @@ const basePath = import.meta.env.BASE_URL.endsWith('/')
   ? import.meta.env.BASE_URL
   : `${import.meta.env.BASE_URL}/`
 const themeUrl = new URL(`${basePath}giscus-theme.css`, siteOrigin).toString()
+
+// giscus の HTTPS iframe は HTTP URL を Mixed Content としてブロックする。
+// --site が渡されない dev/preview では localhost の HTTP URL になるため catppuccin_latte を使用する。
+const useCustomTheme = themeUrl.startsWith('https://')
+const theme = useCustomTheme ? themeUrl : 'catppuccin_latte'
 ---
 <div class="giscus-wrapper">
   <script
@@ -18,11 +23,43 @@ const themeUrl = new URL(`${basePath}giscus-theme.css`, siteOrigin).toString()
     data-reactions-enabled="1"
     data-emit-metadata="0"
     data-input-position="top"
-    data-theme={themeUrl}
+    data-theme={theme}
     data-lang="ja"
     crossorigin="anonymous"
     async
   ></script>
+
+  {useCustomTheme && (
+    <script is:inline define:vars={{ themeUrl }}>
+      // カスタムテーマ CSS が取得できない場合 catppuccin_latte にフォールバック
+      fetch(themeUrl, { method: 'HEAD' }).catch(() => {
+        function sendFallback(iframe) {
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: 'catppuccin_latte' } } },
+            'https://giscus.app'
+          )
+        }
+        function applyFallback() {
+          const iframe = document.querySelector('iframe.giscus-frame')
+          if (!iframe) return
+          iframe.addEventListener('load', () => sendFallback(iframe), { once: true })
+          // 既にロード済みの場合に備えて少し遅延して送信
+          setTimeout(() => sendFallback(iframe), 200)
+        }
+        const iframe = document.querySelector('iframe.giscus-frame')
+        if (iframe) {
+          applyFallback()
+        } else {
+          new MutationObserver((_, obs) => {
+            if (document.querySelector('iframe.giscus-frame')) {
+              obs.disconnect()
+              applyFallback()
+            }
+          }).observe(document.body, { childList: true, subtree: true })
+        }
+      })
+    </script>
+  )}
 </div>
 
 <style>
