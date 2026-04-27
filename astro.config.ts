@@ -47,7 +47,7 @@ function contentPipelineIntegration(): AstroIntegration {
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://blog.kisen.one',
+  site: process.env.SITE ?? 'https://blog.kisen.one',
   integrations: [react(), contentPipelineIntegration()],
   devToolbar: { enabled: false },
 })

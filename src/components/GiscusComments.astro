@@ -7,8 +7,7 @@ const themeUrl = new URL(`${basePath}giscus-theme.css`, siteOrigin).toString()
 
 // giscus の HTTPS iframe は HTTP URL を Mixed Content としてブロックする。
 // SITE 未設定時は Astro.url.origin が使われ HTTP URL になりうるため、https:// のみカスタムテーマを使用する。
-const useCustomTheme = themeUrl.startsWith('https://')
-const theme = useCustomTheme ? themeUrl : 'catppuccin_latte'
+const theme = themeUrl.startsWith('https://') ? themeUrl : 'catppuccin_latte'
 ---
 <div class="giscus-wrapper">
   <script
@@ -28,46 +27,6 @@ const theme = useCustomTheme ? themeUrl : 'catppuccin_latte'
     crossorigin="anonymous"
     async
   ></script>
-
-  {useCustomTheme && (
-    <script is:inline define:vars={{ themeUrl }}>
-      // カスタムテーマ CSS が取得できない場合 catppuccin_latte にフォールバック
-      fetch(themeUrl, { method: 'HEAD' })
-        .then((res) => {
-          if (!res.ok) throw new Error(`Failed to load giscus theme CSS: ${res.status}`)
-        })
-        .catch(() => {
-          function sendFallback(iframe) {
-            iframe.contentWindow.postMessage(
-              { giscus: { setConfig: { theme: 'catppuccin_latte' } } },
-              'https://giscus.app'
-            )
-          }
-          function applyFallback() {
-            const iframe = document.querySelector('iframe.giscus-frame')
-            if (!iframe) return
-            iframe.addEventListener('load', () => sendFallback(iframe), { once: true })
-            // 既にロード済みの場合に備えて少し遅延して送信
-            setTimeout(() => sendFallback(iframe), 200)
-          }
-          const wrapper = document.querySelector('.giscus-wrapper')
-          const iframe = wrapper && wrapper.querySelector('iframe.giscus-frame')
-          if (iframe) {
-            applyFallback()
-          } else if (wrapper) {
-            // iframe 未生成の場合は wrapper 内に限定して監視し、5 秒でタイムアウト
-            const obs = new MutationObserver(() => {
-              if (wrapper.querySelector('iframe.giscus-frame')) {
-                obs.disconnect()
-                applyFallback()
-              }
-            })
-            obs.observe(wrapper, { childList: true, subtree: true })
-            setTimeout(() => obs.disconnect(), 5000)
-          }
-        })
-    </script>
-  )}
 </div>
 
 <style>
