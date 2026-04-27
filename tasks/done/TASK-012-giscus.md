@@ -17,7 +17,9 @@
 
 ## 完了条件
 
+- [x] pnpm lint 全通過
 - [x] pnpm test 全通過
+- [x] pnpm test:e2e 全通過
 - [x] pnpm astro check クリーン
 - [x] pnpm build 成功
 
