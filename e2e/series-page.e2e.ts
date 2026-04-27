@@ -32,14 +32,11 @@ test.describe('/series/test-series ページ', () => {
     await expect(items.nth(4)).toHaveText('テストシリーズ')
   })
 
-  test('Breadcrumb の "Series" はリンクではなく plain text (<span>) である', async ({ page }) => {
+  test('Breadcrumb の "Series" は /series へのリンクになっている', async ({ page }) => {
     const breadcrumb = page.locator('nav[aria-label="パンくずリスト"]')
-    const seriesSpan = breadcrumb.locator('span', { hasText: 'Series' })
-    await expect(seriesSpan).toBeVisible()
-
-    // <a> タグではないことを確認
     const seriesLink = breadcrumb.locator('a', { hasText: 'Series' })
-    await expect(seriesLink).toHaveCount(0)
+    await expect(seriesLink).toBeVisible()
+    await expect(seriesLink).toHaveAttribute('href', '/series')
   })
 
   test('記事リストが series_order 昇順で表示される（最初の番号が "01"）', async ({ page }) => {

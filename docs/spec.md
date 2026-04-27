@@ -172,6 +172,7 @@ $f : A \to B$ を...と定義する。
 | `/posts/[slug]`  | 記事ページ。本文・タグ・series バッジ・series-nav (prev/next)・backlink |
 | `/defs/[id]`     | 定義ページ。definition_block・補足・タグ・backlink |
 | `/tags/[tag]`    | タグ別記事・定義一覧                               |
+| `/series`        | シリーズ一覧。全シリーズをひとつのページに連結表示 (タイトル・説明・記事リスト)。最新記事日付降順。詳細は `docs/features/series-index.md` |
 | `/series/[slug]` | シリーズ記事一覧・順序表示。ローカルでは draft 記事も "準備中" バッジ付きで表示。詳細は `docs/features/series-page.md` |
 
 - Definition の URL は `/defs/[id]` のみ。aliases によるリダイレクトは設けない。

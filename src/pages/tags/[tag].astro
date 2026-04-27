@@ -62,7 +62,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
       <div class="tag-section">
         <div class="section-title">記事</div>
         {tagPosts.map((post) => (
-          <a class="post-card" href={`${base}/posts/${post.id}`}>
+          <a class="post-card" href={`${base}/posts/${encodeURIComponent(post.id)}`}>
             {post.data.date && (
               <div class="post-card__meta">
                 <span class="post-card__date">{post.data.date}</span>
@@ -79,7 +79,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
         <div class="section-title">定義</div>
         <div class="def-compact">
           {tagDefs.map((def) => (
-            <a class="def-compact-item" href={`${base}/defs/${def.id}`}>
+            <a class="def-compact-item" href={`${base}/defs/${encodeURIComponent(def.id)}`}>
               <span class="def-compact-item__title">{def.data.title}</span>
               <span class="def-compact-item__id">{def.id}</span>
             </a>

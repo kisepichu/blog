@@ -15,8 +15,9 @@ const { title, siteTitle = 'blog', activePage, pagefindIgnore } = Astro.props
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 const navItems = [
-  { label: 'home',  href: `${base}/`,      key: 'home' },
-  { label: 'posts', href: `${base}/posts`, key: 'post' },
+  { label: 'home',   href: `${base}/`,        key: 'home' },
+  { label: 'posts',  href: `${base}/posts`,   key: 'post' },
+  { label: 'series', href: `${base}/series`,  key: 'series' },
 ] as const
 ---
 
@@ -86,7 +87,6 @@ const navItems = [
       <footer class="site-footer">
         <div class="container">
           <span>© 2026 kise</span>
-          <span>Built with Astro · React · MathJax</span>
         </div>
       </footer>
     </div>

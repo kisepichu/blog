@@ -77,6 +77,9 @@ test.describe('HoverPreview — /posts/order-theory', () => {
       .first()
 
     await expect(innerLink).toBeVisible()
+    // 一度 popup 領域内に入ってから inner link へ移動することで
+    // マウスパスが popup 外を通過してクローズタイマーが起動するのを防ぐ
+    await parentPopup.hover()
     await innerLink.hover()
 
     // 子 popup が追加されるのを待つ
