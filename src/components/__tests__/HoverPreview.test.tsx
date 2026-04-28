@@ -276,6 +276,99 @@ describe('HoverPreview', () => {
     })
   })
 
+  describe('MathJax の typesetClear によるクリーンアップ (Issue #15)', () => {
+    it('typesetPromise が実行中に popup が閉じられたとき、完了後に typesetClear で MathJax の追跡から除去する', async () => {
+      // popup 1 の typesetPromise は手動で resolve する (popup が閉じられた後に完了させる)
+      let resolveTypeset1!: () => void
+      const typeset1Promise = new Promise<void>((resolve) => {
+        resolveTypeset1 = resolve
+      })
+
+      let body1El: Element | null = null
+      const typesetPromiseMock = vi.fn().mockImplementation((els: Element[]) => {
+        if (body1El === null) {
+          // 最初の呼び出しは popup 1 の body → 手動 resolve のプロミスを返す
+          body1El = els[0]
+          return typeset1Promise
+        }
+        // 2 回目以降は即時 resolve
+        return Promise.resolve()
+      })
+      const typesetClearMock = vi.fn()
+
+      type WindowWithMathJax = typeof window & {
+        MathJax?: {
+          startup?: { promise?: Promise<unknown> }
+          typesetPromise?: (els: Element[]) => Promise<void>
+          typesetClear?: (els: Element[]) => void
+        }
+      }
+      ;(window as WindowWithMathJax).MathJax = {
+        startup: { promise: Promise.resolve() },
+        typesetPromise: typesetPromiseMock,
+        typesetClear: typesetClearMock,
+      }
+
+      try {
+        await renderAndSettle()
+        const link1 = addGlobalConceptLink('poset')
+        const link2 = addGlobalConceptLink('upper-bound')
+
+        // popup 1 を開く
+        await act(async () => {
+          fireEvent.mouseEnter(link1)
+          // useEffect の非同期処理 (startup.promise の await) を進める
+          await Promise.resolve()
+          await Promise.resolve()
+          await Promise.resolve()
+          // suppressNewPopupRef (setTimeout 0ms) をクリア
+          vi.advanceTimersByTime(1)
+        })
+
+        // popup 1 が表示され、popup 1 の body が typesetPromise に渡された
+        expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+        expect(body1El).not.toBeNull()
+
+        // popup 2 を開く
+        await act(async () => {
+          fireEvent.mouseEnter(link2)
+          await Promise.resolve()
+          await Promise.resolve()
+          await Promise.resolve()
+        })
+
+        expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+        // link1 から mouseleave → 180ms 後に popup 1 が閉じる
+        await act(async () => {
+          fireEvent.mouseLeave(link1)
+          vi.advanceTimersByTime(200)
+        })
+
+        // popup 1 が閉じた。typesetClear はまだ呼ばれていない (typeset1Promise が未完了)
+        expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+        expect(typesetClearMock).not.toHaveBeenCalled()
+
+        // popup 1 の typesetPromise を resolve (popup はもう閉じている = cancelled = true)
+        await act(async () => {
+          resolveTypeset1()
+          await Promise.resolve()
+          await Promise.resolve()
+          await Promise.resolve()
+        })
+
+        // typesetClear が popup 1 の body 要素に対して呼ばれた
+        expect(typesetClearMock).toHaveBeenCalledTimes(1)
+        expect(typesetClearMock).toHaveBeenCalledWith([body1El])
+
+        // popup 2 は引き続き表示されている
+        expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+      } finally {
+        delete (window as WindowWithMathJax).MathJax
+      }
+    })
+  })
+
   describe('ネスト (スタック) 動作', () => {
     it('popup 内の concept-link に mouseenter すると子 popup が追加表示される (親は残る)', async () => {
       // preview-index に upper-bound も含める
