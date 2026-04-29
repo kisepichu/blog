@@ -452,13 +452,12 @@ function PopupItem({ popup }: PopupItemProps) {
           await mathJax.startup?.promise
           if (!cancelled) {
             await mathJax.typesetPromise([body])
-            // typesetPromise 完了後に cancelled (= popup が unmount 済み) なら
+            // typesetPromise 完了後に cancelled (= この effect が無効化済み) なら
             // MathJax の内部追跡から body を除去する。
             // これを行わないと、DOM から外れた body1 の状態が残り、
             // 後続 popup の typesetPromise 処理に干渉して TeX が壊れる。
             if (cancelled) {
-              const w2 = window as typeof window & { MathJax?: MathJaxLike }
-              w2.MathJax?.typesetClear?.([body])
+              mathJax.typesetClear?.([body])
             }
           }
           return
