@@ -9,6 +9,4 @@ date: 2025-03-22
 
 ::embed[poset]
 
-::embed[lattice]
-
 $\mathcal{P}(X)$ は完備束をなす。
