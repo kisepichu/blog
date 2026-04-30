@@ -1,6 +1,7 @@
 ---
 id: poset
 title: 半順序集合
+english: "partially ordered set"
 aliases: [半順序, 半順序集合]
 status: draft
 tags: [集合論]

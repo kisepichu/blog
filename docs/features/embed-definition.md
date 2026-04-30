@@ -75,8 +75,9 @@ interface DefContentEntry {
 type DefContentMap = Record<string, DefContentEntry>  // canonical id → entry
 
 export async function buildDefContentMap(
-  defs: DefEntry[],
+  defs: Array<DefEntry & { body: string }>,
   aliasMap: AliasMap,
+  defMetaMap: DefMetaMap,
   baseUrl: string
 ): Promise<DefContentMap>
 ```
@@ -102,7 +103,8 @@ const isProd = process.env.NODE_ENV === 'production'
 const allDefs = scanDefsDirectory('content/defs/')
 const defs = isProd ? allDefs.filter(d => d.status === 'published') : allDefs
 const aliasMap = buildAliasMap(defs)
-const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
+const defMetaMap = buildDefMetaMap(defs)
+const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl)
 
 // preview-index.json を config:setup 時点で生成 (getStaticPaths ではなくここで)
 writePreviewIndex(defContentMap, 'public/preview-index.json')
@@ -114,7 +116,7 @@ updateConfig({
       remarkDirective,
       remarkDefinitionBlock,
       remarkLocalDefinition,
-      [remarkConceptLink, { aliasMap, baseUrl, isProd }],
+      [remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd }],
       [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
     ],
   },

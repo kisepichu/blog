@@ -2,10 +2,11 @@ import { visit, SKIP } from 'unist-util-visit'
 import type { Root, Text, Parent, PhrasingContent } from 'mdast'
 import type { Plugin } from 'unified'
 import type { VFile } from 'vfile'
-import type { AliasMap } from '../build/alias-map'
+import type { AliasMap, DefMetaMap } from '../build/alias-map'
 
 interface ConceptLinkOptions {
   aliasMap: AliasMap
+  defMetaMap?: DefMetaMap
   baseUrl: string
   isProd?: boolean
 }
@@ -71,6 +72,7 @@ function splitByConceptLinks(
   localIds: Set<string> | undefined,
 ): PhrasingContent[] {
   const { aliasMap, isProd = false } = options
+  const defMetaMap = options.defMetaMap ?? (Object.create(null) as DefMetaMap)
   // baseUrl を末尾 / 付きに正規化 (例: '/blog' → '/blog/')
   const baseUrl = options.baseUrl.replace(/\/?$/, '/')
   const parts: PhrasingContent[] = []
@@ -138,9 +140,13 @@ function splitByConceptLinks(
     const canonicalId = Object.hasOwn(aliasMap, term) ? aliasMap[term] : undefined
 
     if (canonicalId !== undefined) {
-      // 解決成功: <a class="concept-link" data-term="{canonicalId}" href="{baseUrl}/defs/{canonicalId}">{term}</a>
+      // 解決成功: <a class="concept-link" data-term="{canonicalId}" href="{baseUrl}/defs/{canonicalId}">{linkText}</a>
       const href = `${baseUrl}defs/${canonicalId}`
-      parts.push(makeConceptLinkNode(href, ['concept-link'], term, canonicalId) as unknown as PhrasingContent)
+      const meta = Object.hasOwn(defMetaMap, canonicalId) ? defMetaMap[canonicalId] : undefined
+      const linkText = meta !== undefined
+        ? (meta.english !== '' ? `${meta.title}(${meta.english})` : meta.title)
+        : term
+      parts.push(makeConceptLinkNode(href, ['concept-link'], linkText, canonicalId) as unknown as PhrasingContent)
     } else if (!isProd) {
       // 解決失敗・開発モード: <a class="concept-link concept-link--unresolved" href="#">{term}</a>
       parts.push(makeConceptLinkNode('#', ['concept-link', 'concept-link--unresolved'], term) as unknown as PhrasingContent)

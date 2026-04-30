@@ -25,12 +25,21 @@ Astro integration の `astro:config:setup` フックで構築する。
 // src/lib/build/alias-map.ts
 interface DefEntry {
   id: string
+  title: string
+  english: string
   aliases: string[]
   status: 'published' | 'draft' | 'scrap'
 }
 
-export function scanDefsDirectory(dir: string): DefEntry[]
-export function buildAliasMap(defs: DefEntry[]): AliasMap
+// alias/id → canonical id (1 対 1)
+type AliasMap = Record<string, string>
+
+// canonical id → {title, english}
+type DefMetaMap = Record<string, { title: string; english: string }>
+
+export function scanDefsDirectory(dir: string): Array<DefEntry & { body: string }>
+export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): AliasMap
+export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap
 ```
 
 - `id` 自体も alias として登録する (`"poset" → "poset"`)
@@ -53,7 +62,8 @@ const isProd = process.env.NODE_ENV === 'production'
 const allDefs = scanDefsDirectory('content/defs/')
 const defs = isProd ? allDefs.filter(d => d.status === 'published') : allDefs
 const aliasMap = buildAliasMap(defs)
-const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
+const defMetaMap = buildDefMetaMap(defs)
+const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl)
                       // ↑ embed-definition・preview-index の共有インフラ
 
 writePreviewIndex(defContentMap, 'public/preview-index.json')
@@ -64,7 +74,7 @@ updateConfig({
       remarkDirective,
       remarkDefinitionBlock,
       remarkLocalDefinition,
-      [remarkConceptLink, { aliasMap, baseUrl, isProd }],
+      [remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd }],
       [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
     ],
   },
@@ -112,12 +122,12 @@ export function parseConceptLinks(text: string): string[]
 **解決成功時:**
 
 ```html
-<a class="concept-link" data-term="poset" href="/defs/poset">半順序集合</a>
+<a class="concept-link" data-term="poset" href="/defs/poset">半順序集合(partially ordered set)</a>
 ```
 
 - `data-term`: canonical id (hover-preview がこれを使って preview-index.json を引く)
 - `href`: `{baseUrl}/defs/{canonicalId}`
-- リンクテキスト: 現状は常に元の `term` (将来予定: `display` があればそれを使う)
+- リンクテキスト: `defMetaMap` が渡される通常ケースでは `{title}({english})`。`english` は frontmatter で required のため未設定/空文字は `scanDefsDirectory` が例外を投げてビルド停止し、`{title}` のみへのフォールバックは実際には発生しない。`defMetaMap` が省略された場合のみ元の `term` にフォールバックする。(将来予定: `display` があればそれを使う)
 
 **解決失敗時 (開発環境):**
 
@@ -165,6 +175,7 @@ const localIds: Set<string> = file.data.localIds ?? new Set()
 ```ts
 interface ConceptLinkOptions {
   aliasMap: AliasMap
+  defMetaMap?: DefMetaMap // canonical id → {title, english} (リンクテキスト生成用、省略時は {})
   baseUrl: string    // Astro config.base (例: '/' または '/blog')
   isProd?: boolean   // 省略時は import.meta.env.PROD に準ずる
 }
@@ -204,13 +215,15 @@ remarkParse
 | 基本構築 | id と aliases が正しく登録される |
 | alias 重複 | アルファベット順で先勝ち + console.warn |
 | 本番フィルタリング | draft/scrap が除外される |
+| `buildDefMetaMap` 基本 | canonical id → `{title, english}` が正しく構築される |
 
 **remark-concept-link テスト:**
 
 | ケース | 期待出力 |
 |--------|---------|
-| 基本リンク | `<a class="concept-link" data-term="..." href="...">` |
-| alias 経由で解決 | href は canonical id を使う |
+| 基本リンク | `<a class="concept-link" data-term="..." href="...">title(english)</a>` |
+| alias 経由で解決 | href は canonical id、テキストは title(english) |
+| `defMetaMap` なし、またはテスト用に `english` を空文字で注入 | テキストは title のみ |
 | 解決失敗 (開発) | `<a class="concept-link concept-link--unresolved">` |
 | 解決失敗 (本番) | プレーンテキスト |
 | 1 ノードに複数 `[[term]]` | すべて変換される |

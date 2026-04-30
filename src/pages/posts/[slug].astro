@@ -22,7 +22,7 @@ export async function getStaticPaths() {
     : allDefs
 
   const aliasMap = buildAliasMap(
-    defs.map((d) => ({ id: d.id, aliases: d.data.aliases, status: d.data.status })),
+    defs.map((d) => ({ id: d.id, aliases: d.data.aliases })),
   )
 
   const entries = [

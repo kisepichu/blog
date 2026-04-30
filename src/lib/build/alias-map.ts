@@ -4,15 +4,18 @@ import { load as yamlLoad } from 'js-yaml'
 
 interface DefEntry {
   id: string
+  title: string
+  english: string
   aliases: string[]
   status: 'published' | 'draft' | 'scrap'
 }
 type AliasMap = Record<string, string> // alias/id → canonical id
+type DefMetaMap = Record<string, { title: string; english: string }>
 
-export type { DefEntry, AliasMap }
+export type { DefEntry, AliasMap, DefMetaMap }
 
 /**
- * content/defs/*.md を読み込み、frontmatter を解析して DefEntry + title + body を返す。
+ * content/defs/*.md を読み込み、frontmatter を解析して DefEntry (title・english 含む) と body を返す。
  * ディレクトリが存在しない場合は空配列を返す。
  * frontmatter は js-yaml でパースする。
  */
@@ -28,7 +31,7 @@ function parseFrontmatter(content: string): { frontmatter: Record<string, unknow
   return { frontmatter, body: match[2] }
 }
 
-export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string; body: string }> {
+export function scanDefsDirectory(dir: string): Array<DefEntry & { body: string }> {
   let files: string[]
   try {
     files = readdirSync(dir)
@@ -37,7 +40,7 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
     throw err
   }
 
-  const result: Array<DefEntry & { title: string; body: string }> = []
+  const result: Array<DefEntry & { body: string }> = []
 
   for (const file of files.sort()) {
     if (extname(file) !== '.md') continue
@@ -47,6 +50,11 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
 
     const id = String(frontmatter['id'] ?? basename(file, '.md'))
     const title = String(frontmatter['title'] ?? id)
+    const rawEnglish = frontmatter['english']
+    if (typeof rawEnglish !== 'string' || rawEnglish.trim() === '') {
+      throw new Error(`Missing required frontmatter field "english" in ${join(dir, file)}`)
+    }
+    const english = rawEnglish.trim()
     const aliases = Array.isArray(frontmatter['aliases'])
       ? frontmatter['aliases'].map(String)
       : []
@@ -55,13 +63,21 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
       ? rawStatus
       : 'draft') as 'published' | 'draft' | 'scrap'
 
-    result.push({ id, title, aliases, status, body })
+    result.push({ id, title, english, aliases, status, body })
   }
 
   return result
 }
 
-export function buildAliasMap(defs: DefEntry[]): AliasMap {
+export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap {
+  const map: DefMetaMap = Object.create(null) as DefMetaMap
+  for (const def of defs) {
+    map[def.id] = { title: def.title, english: def.english }
+  }
+  return map
+}
+
+export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): AliasMap {
   // null-prototype で prototype 汚染を防ぐ
   const map: AliasMap = Object.create(null) as AliasMap
 

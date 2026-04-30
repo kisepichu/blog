@@ -6,8 +6,7 @@ import remarkDirective from 'remark-directive'
 import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import remarkConceptLink from './remark-concept-link'
-
-type AliasMap = Record<string, string>
+import type { AliasMap, DefMetaMap } from '../build/alias-map'
 
 const process = (md: string, aliasMap: AliasMap, isProd = false) =>
   unified()
@@ -89,6 +88,51 @@ describe('remarkConceptLink', () => {
     const html = process('[[半順序集合]] において [[上界]] が存在する。', aliasMap)
     expect(html).toContain('href="/defs/poset"')
     expect(html).toContain('href="/defs/upper-bound"')
+  })
+})
+
+const processWithMeta = (md: string, aliasMap: AliasMap, defMetaMap: DefMetaMap, isProd = false) =>
+  unified()
+    .use(remarkParse)
+    .use(remarkDirective)
+    .use(remarkConceptLink, { aliasMap, defMetaMap, baseUrl: '/', isProd })
+    .use(remarkRehype)
+    .use(rehypeStringify)
+    .processSync(md)
+    .toString()
+
+describe('remarkConceptLink defMetaMap 対応', () => {
+  it('defMetaMap あり: [[poset]] のリンクテキストが title(english) 形式になる', () => {
+    const aliasMap: AliasMap = { poset: 'poset' }
+    const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: 'partially ordered set' } }
+    const html = processWithMeta('[[poset]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('href="/defs/poset"')
+    expect(html).toContain('>半順序集合(partially ordered set)<')
+  })
+
+  it('defMetaMap あり alias 経由: [[半順序集合]] → canonical id で defMetaMap を引いてテキストが title(english) になる', () => {
+    const aliasMap: AliasMap = { '半順序集合': 'poset', poset: 'poset' }
+    const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: 'partially ordered set' } }
+    const html = processWithMeta('[[半順序集合]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('href="/defs/poset"')
+    expect(html).toContain('>半順序集合(partially ordered set)<')
+  })
+
+  it('english が空文字の場合: リンクテキストが title のみになる', () => {
+    const aliasMap: AliasMap = { poset: 'poset' }
+    const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: '' } }
+    const html = processWithMeta('[[poset]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('href="/defs/poset"')
+    expect(html).toContain('>半順序集合<')
+    expect(html).not.toContain('()')
+  })
+
+  it('defMetaMap に id が登録されていない場合: フォールバックで元の term をそのまま使う', () => {
+    const aliasMap: AliasMap = { poset: 'poset' }
+    const defMetaMap: DefMetaMap = {}
+    const html = processWithMeta('[[poset]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('href="/defs/poset"')
+    expect(html).toContain('>poset<')
   })
 })
 

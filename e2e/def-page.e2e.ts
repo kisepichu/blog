@@ -61,6 +61,12 @@ test.describe('/defs/poset ページ', () => {
     await expect(idBadge).toHaveText('poset')
   })
 
+  test('def-header に英語名「partially ordered set」が表示される', async ({ page }) => {
+    const english = page.locator('.def-english')
+    await expect(english).toBeVisible()
+    await expect(english).toContainText('partially ordered set')
+  })
+
   test('バックリンクがある場合 .backlinks セクションが表示される', async ({ page }) => {
     // lattice.md が [[poset]] を参照しているため、バックリンクが表示される
     const backlinks = page.locator('.backlinks')
