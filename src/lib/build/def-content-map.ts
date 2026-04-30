@@ -6,7 +6,7 @@ import rehypeStringify from 'rehype-stringify'
 import remarkDefinitionBlock from '../remark/remark-definition-block'
 import remarkConceptLink from '../remark/remark-concept-link'
 import { extractDefinitionBlockHtml } from './extract-definition-block'
-import type { AliasMap } from './alias-map'
+import type { AliasMap, DefMetaMap } from './alias-map'
 
 export interface DefContentEntry {
   title: string
@@ -23,6 +23,7 @@ export type DefContentMap = Record<string, DefContentEntry>
 export async function buildDefContentMap(
   defs: Array<{ id: string; aliases: string[]; status: string; title: string; body: string }>,
   aliasMap: AliasMap,
+  defMetaMap: DefMetaMap,
   baseUrl: string,
   isProd = false,
 ): Promise<DefContentMap> {
@@ -33,7 +34,7 @@ export async function buildDefContentMap(
       .use(remarkParse)
       .use(remarkDirective)
       .use(remarkDefinitionBlock)
-      .use(remarkConceptLink, { aliasMap, baseUrl, isProd })
+      .use(remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd })
       .use(remarkRehype)
       .use(rehypeStringify)
       .processSync(def.body)

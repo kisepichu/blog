@@ -2,9 +2,7 @@ import { visit, SKIP } from 'unist-util-visit'
 import type { Root, Text, Parent, PhrasingContent } from 'mdast'
 import type { Plugin } from 'unified'
 import type { VFile } from 'vfile'
-import type { AliasMap } from '../build/alias-map'
-
-type DefMetaMap = Record<string, { title: string; english: string }>
+import type { AliasMap, DefMetaMap } from '../build/alias-map'
 
 interface ConceptLinkOptions {
   aliasMap: AliasMap
@@ -73,7 +71,8 @@ function splitByConceptLinks(
   options: ConceptLinkOptions,
   localIds: Set<string> | undefined,
 ): PhrasingContent[] {
-  const { aliasMap, defMetaMap = {}, isProd = false } = options
+  const { aliasMap, isProd = false } = options
+  const defMetaMap = options.defMetaMap ?? (Object.create(null) as DefMetaMap)
   // baseUrl を末尾 / 付きに正規化 (例: '/blog' → '/blog/')
   const baseUrl = options.baseUrl.replace(/\/?$/, '/')
   const parts: PhrasingContent[] = []

@@ -18,7 +18,7 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { poset: 'poset' }
-    const map = await buildDefContentMap(defs, aliasMap, '/')
+    const map = await buildDefContentMap(defs, aliasMap, {}, '/')
     expect(map).toHaveProperty('poset')
     expect(map['poset'].title).toBe('半順序集合')
     expect(map['poset'].html).toContain('半順序集合')
@@ -36,7 +36,7 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { poset: 'poset' }
-    const map = await buildDefContentMap(defs, aliasMap, '/')
+    const map = await buildDefContentMap(defs, aliasMap, {}, '/')
     // 外側の div は含まない
     expect(map['poset'].html).not.toContain('class="definition-block"')
     // 内部のコンテンツを含む
@@ -56,7 +56,7 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { 'no-def': 'no-def' }
-    const map = await buildDefContentMap(defs, aliasMap, '/')
+    const map = await buildDefContentMap(defs, aliasMap, {}, '/')
     expect(map).not.toHaveProperty('no-def')
     consoleSpy.mockRestore()
   })
@@ -74,7 +74,7 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { 'no-def': 'no-def' }
-    await buildDefContentMap(defs, aliasMap, '/')
+    await buildDefContentMap(defs, aliasMap, {}, '/')
     expect(consoleSpy).toHaveBeenCalled()
     consoleSpy.mockRestore()
   })
@@ -99,7 +99,7 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { poset: 'poset', lattice: 'lattice' }
-    const map = await buildDefContentMap(defs, aliasMap, '/')
+    const map = await buildDefContentMap(defs, aliasMap, {}, '/')
     expect(map).toHaveProperty('poset')
     expect(map).toHaveProperty('lattice')
     expect(map['poset'].title).toBe('半順序集合')
@@ -127,14 +127,14 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { poset: 'poset', stub: 'stub' }
-    const map = await buildDefContentMap(defs, aliasMap, '/')
+    const map = await buildDefContentMap(defs, aliasMap, {}, '/')
     expect(map).toHaveProperty('poset')
     expect(map).not.toHaveProperty('stub')
     consoleSpy.mockRestore()
   })
 
   it('空の配列を渡すと空のマップを返す', async () => {
-    const map = await buildDefContentMap([], {}, '/')
+    const map = await buildDefContentMap([], {}, {}, '/')
     expect(map).toEqual({})
   })
 
@@ -150,7 +150,7 @@ describe('buildDefContentMap', () => {
       },
     ]
     const aliasMap: AliasMap = { poset: 'poset', '半順序': 'poset', '半順序集合': 'poset' }
-    const map = await buildDefContentMap(defs, aliasMap, '/')
+    const map = await buildDefContentMap(defs, aliasMap, {}, '/')
     // canonical id でのみ登録される
     expect(Object.keys(map)).toEqual(['poset'])
   })

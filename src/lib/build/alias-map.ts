@@ -50,7 +50,11 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
 
     const id = String(frontmatter['id'] ?? basename(file, '.md'))
     const title = String(frontmatter['title'] ?? id)
-    const english = String(frontmatter['english'] ?? '')
+    const rawEnglish = frontmatter['english']
+    if (typeof rawEnglish !== 'string' || rawEnglish.trim() === '') {
+      throw new Error(`Missing required frontmatter field "english" in ${join(dir, file)}`)
+    }
+    const english = rawEnglish
     const aliases = Array.isArray(frontmatter['aliases'])
       ? frontmatter['aliases'].map(String)
       : []

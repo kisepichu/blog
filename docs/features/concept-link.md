@@ -175,7 +175,7 @@ const localIds: Set<string> = file.data.localIds ?? new Set()
 ```ts
 interface ConceptLinkOptions {
   aliasMap: AliasMap
-  defMetaMap: DefMetaMap  // canonical id → {title, english} (リンクテキスト生成用)
+  defMetaMap?: DefMetaMap // canonical id → {title, english} (リンクテキスト生成用、省略時は {})
   baseUrl: string    // Astro config.base (例: '/' または '/blog')
   isProd?: boolean   // 省略時は import.meta.env.PROD に準ずる
 }

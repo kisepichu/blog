@@ -25,7 +25,7 @@ function contentPipelineIntegration(): AstroIntegration {
         const aliasMap = buildAliasMap(defs)
         const defMetaMap = buildDefMetaMap(defs)
         const baseUrl = config.base ?? '/'
-        const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl, isProd)
+        const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl, isProd)
 
         writePreviewIndex(defContentMap, previewIndexPath)
 
