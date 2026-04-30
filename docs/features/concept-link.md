@@ -223,7 +223,7 @@ remarkParse
 |--------|---------|
 | 基本リンク | `<a class="concept-link" data-term="..." href="...">title(english)</a>` |
 | alias 経由で解決 | href は canonical id、テキストは title(english) |
-| `english` 未設定 | テキストは title のみ |
+| `defMetaMap` なし、またはテスト用に `english` を空文字で注入 | テキストは title のみ |
 | 解決失敗 (開発) | `<a class="concept-link concept-link--unresolved">` |
 | 解決失敗 (本番) | プレーンテキスト |
 | 1 ノードに複数 `[[term]]` | すべて変換される |
