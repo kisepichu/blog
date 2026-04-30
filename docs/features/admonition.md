@@ -40,13 +40,14 @@
 ### 出力 HTML
 
 ```html
-<div class="admonition admonition--warning">
+<div class="admonition admonition--warning" data-pagefind-ignore>
+  <span class="admonition__label">⚠ 警告</span>
   <p>この操作は元に戻せません。</p>
 </div>
 ```
 
 - クラス: `admonition admonition--{type}`
-- ラベル (`::before`) は CSS で表示する。プラグイン側は出力しない。
+- ラベルは `<span class="admonition__label">` として先頭に挿入する。スクリーンリーダーにも読まれる。
 - スタイリングは `global.css` の `ADMONITION` セクションで定義する。
 
 ### 制約

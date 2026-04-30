@@ -12,7 +12,7 @@ const ADMONITION_LABELS: Record<string, string> = {
 export default function remarkAdmonition() {
   return (tree: Root) => {
     visit(tree, 'containerDirective', (node: ContainerDirective) => {
-      if (!(node.name in ADMONITION_LABELS)) return
+      if (!Object.hasOwn(ADMONITION_LABELS, node.name)) return
       node.data = {
         hName: 'div',
         hProperties: { className: ['admonition', `admonition--${node.name}`], 'data-pagefind-ignore': true },
@@ -20,7 +20,7 @@ export default function remarkAdmonition() {
       // ラベル span を先頭に挿入してスクリーンリーダーに種別を伝える
       node.children.unshift({
         type: 'paragraph',
-        data: { hName: 'span', hProperties: { className: ['admonition__label'], 'aria-hidden': true } },
+        data: { hName: 'span', hProperties: { className: ['admonition__label'] } },
         children: [{ type: 'text', value: ADMONITION_LABELS[node.name] }],
       })
     })
