@@ -135,7 +135,8 @@ a:hover { color: var(--link-h); }
   border-width: 1.5px;
   border-style: solid;
 }
-.admonition::before {
+.admonition p:last-child { margin-bottom: 0; }
+.admonition__label {
   display: block;
   font-family: var(--font-ui);
   font-size: 0.68rem;
@@ -143,19 +144,18 @@ a:hover { color: var(--link-h); }
   text-transform: uppercase;
   margin-bottom: 0.6rem;
 }
-.admonition p:last-child { margin-bottom: 0; }
 
 .admonition--warning { background: var(--amber-bg); border-color: var(--amber-b); }
-.admonition--warning::before { content: "⚠ 警告"; color: var(--amber); }
+.admonition--warning .admonition__label { color: var(--amber); }
 
-.admonition--info { background: var(--lav-bg); border-color: var(--lav-b); }
-.admonition--info::before { content: "ℹ 情報"; color: var(--lav); }
+.admonition--info  { background: var(--lav-bg);   border-color: var(--lav-b); }
+.admonition--info  .admonition__label { color: var(--lav); }
 
-.admonition--tip { background: var(--sage-bg); border-color: var(--sage-b); }
-.admonition--tip::before { content: "💡 ヒント"; color: var(--sage); }
+.admonition--tip   { background: var(--sage-bg);  border-color: var(--sage-b); }
+.admonition--tip   .admonition__label { color: var(--sage); }
 
-.admonition--note { background: var(--peach-bg); border-color: var(--peach-b); }
-.admonition--note::before { content: "📝 注"; color: var(--peach); }
+.admonition--note  { background: var(--peach-bg); border-color: var(--peach-b); }
+.admonition--note  .admonition__label { color: var(--peach); }
 
 /* ── HEADER ─────────────────────────────────────── */
 .site-header {

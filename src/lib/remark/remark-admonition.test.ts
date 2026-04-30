@@ -21,6 +21,8 @@ describe('remarkAdmonition', () => {
     const html = process(':::warning\n注意事項。\n:::')
     expect(html).toContain('class="admonition admonition--warning"')
     expect(html).toContain('注意事項。')
+    expect(html).toContain('class="admonition__label"')
+    expect(html).toContain('⚠ 警告')
   })
 
   it(':::info を admonition--info クラスの div に変換する', () => {
@@ -52,9 +54,10 @@ describe('remarkAdmonition', () => {
     expect(html).toContain('$x + y$')
   })
 
-  it('内部が空の場合は空の div を出力する', () => {
+  it('内部が空の場合はラベルのみの div を出力する', () => {
     const html = process(':::info\n:::')
-    expect(html).toMatch(/<div[^>]*class="admonition admonition--info"[^>]*><\/div>/)
+    expect(html).toContain('class="admonition admonition--info"')
+    expect(html).toContain('ℹ 情報')
   })
 
   it('Pagefind のインデックス対象外にするため data-pagefind-ignore 属性を付与する', () => {
