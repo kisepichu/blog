@@ -13,6 +13,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: '半順序集合',
+        english: '',
         body: ':::definition\n**半順序集合**とは集合 P と関係の組である。\n:::',
       },
     ]
@@ -30,6 +31,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: '半順序集合',
+        english: '',
         body: ':::definition\n**半順序集合**とは集合 P と関係の組である。\n:::',
       },
     ]
@@ -49,6 +51,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: 'テスト',
+        english: '',
         body: '普通の段落。:::definition ブロックなし。',
       },
     ]
@@ -66,6 +69,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: 'テスト',
+        english: '',
         body: '普通の段落。:::definition ブロックなし。',
       },
     ]
@@ -82,6 +86,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: '半順序集合',
+        english: '',
         body: ':::definition\n**半順序集合**の定義。\n:::',
       },
       {
@@ -89,6 +94,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: '束',
+        english: '',
         body: ':::definition\n**束**の定義。\n:::',
       },
     ]
@@ -108,6 +114,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'published',
         title: '半順序集合',
+        english: '',
         body: ':::definition\n**半順序集合**の定義。\n:::',
       },
       {
@@ -115,6 +122,7 @@ describe('buildDefContentMap', () => {
         aliases: [],
         status: 'draft',
         title: 'スタブ',
+        english: '',
         body: '定義なし。',
       },
     ]
@@ -137,6 +145,7 @@ describe('buildDefContentMap', () => {
         aliases: ['半順序', '半順序集合'],
         status: 'published',
         title: '半順序集合',
+        english: '',
         body: ':::definition\n**半順序集合**の定義。\n:::',
       },
     ]

@@ -4,12 +4,15 @@ import { load as yamlLoad } from 'js-yaml'
 
 interface DefEntry {
   id: string
+  title: string
+  english: string
   aliases: string[]
   status: 'published' | 'draft' | 'scrap'
 }
 type AliasMap = Record<string, string> // alias/id → canonical id
+type DefMetaMap = Record<string, { title: string; english: string }>
 
-export type { DefEntry, AliasMap }
+export type { DefEntry, AliasMap, DefMetaMap }
 
 /**
  * content/defs/*.md を読み込み、frontmatter を解析して DefEntry + title + body を返す。
@@ -47,6 +50,7 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
 
     const id = String(frontmatter['id'] ?? basename(file, '.md'))
     const title = String(frontmatter['title'] ?? id)
+    const english = String(frontmatter['english'] ?? '')
     const aliases = Array.isArray(frontmatter['aliases'])
       ? frontmatter['aliases'].map(String)
       : []
@@ -55,10 +59,18 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
       ? rawStatus
       : 'draft') as 'published' | 'draft' | 'scrap'
 
-    result.push({ id, title, aliases, status, body })
+    result.push({ id, title, english, aliases, status, body })
   }
 
   return result
+}
+
+export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap {
+  const map: DefMetaMap = Object.create(null) as DefMetaMap
+  for (const def of defs) {
+    map[def.id] = { title: def.title, english: def.english }
+  }
+  return map
 }
 
 export function buildAliasMap(defs: DefEntry[]): AliasMap {
