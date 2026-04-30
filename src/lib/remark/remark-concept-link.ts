@@ -142,7 +142,7 @@ function splitByConceptLinks(
     if (canonicalId !== undefined) {
       // 解決成功: <a class="concept-link" data-term="{canonicalId}" href="{baseUrl}/defs/{canonicalId}">{linkText}</a>
       const href = `${baseUrl}defs/${canonicalId}`
-      const meta = defMetaMap[canonicalId]
+      const meta = Object.hasOwn(defMetaMap, canonicalId) ? defMetaMap[canonicalId] : undefined
       const linkText = meta !== undefined
         ? (meta.english !== '' ? `${meta.title}(${meta.english})` : meta.title)
         : term
