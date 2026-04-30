@@ -161,6 +161,39 @@ $f : A \to B$ を...と定義する。
 - **導出図**: bussproofs (prooftree) 記法、MathJax の `bussproofs` 拡張で描画
 - レンダラー: MathJax (CDN)、hover preview 内でも再実行される
 
+
+### Admonition ブロック
+
+記事内で注意・情報・ヒント・メモを色付きブロックで表現する。
+
+```markdown
+:::warning
+この操作は元に戻せません。
+:::
+
+:::info
+参考情報をここに記載する。
+:::
+
+:::tip
+効率的な書き方のコツ。
+:::
+
+:::note
+補足メモ。
+:::
+```
+
+| 種別 | 色 | ラベル |
+|------|------|--------|
+| `:::warning` | amber | ⚠ 警告 |
+| `:::info`    | lav (lavender) | ℹ 情報 |
+| `:::tip`     | sage (green)   | 💡 ヒント |
+| `:::note`    | peach          | 📝 注 |
+
+- definition_block と異なり、hover preview・検索インデックスの対象外。
+- 詳細仕様: `docs/features/admonition.md`
+
 ---
 
 ## ページ構成
