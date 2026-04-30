@@ -77,7 +77,7 @@ export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap {
   return map
 }
 
-export function buildAliasMap(defs: DefEntry[]): AliasMap {
+export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): AliasMap {
   // null-prototype で prototype 汚染を防ぐ
   const map: AliasMap = Object.create(null) as AliasMap
 
