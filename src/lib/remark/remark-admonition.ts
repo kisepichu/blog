@@ -10,7 +10,7 @@ export default function remarkAdmonition() {
       if (!ADMONITION_TYPES.has(node.name)) return
       node.data = {
         hName: 'div',
-        hProperties: { className: ['admonition', `admonition--${node.name}`] },
+        hProperties: { className: ['admonition', `admonition--${node.name}`], 'data-pagefind-ignore': true },
       }
     })
   }

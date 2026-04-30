@@ -191,7 +191,8 @@ $f : A \to B$ を...と定義する。
 | `:::tip`     | sage (green)   | 💡 ヒント |
 | `:::note`    | peach          | 📝 注 |
 
-- definition_block と異なり、hover preview・検索インデックスの対象外。
+- definition_block と異なり、hover preview の対象外。
+- remark 側で `data-pagefind-ignore` を付与するため、post ページの `<article data-pagefind-body>` 配下でも検索インデックスの対象外になる。
 - 詳細仕様: `docs/features/admonition.md`
 
 ---

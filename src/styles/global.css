@@ -145,7 +145,7 @@ a:hover { color: var(--link-h); }
 }
 .admonition p:last-child { margin-bottom: 0; }
 
-.admonition--warning { background: var(--amber-bg); border-color: var(--amber); }
+.admonition--warning { background: var(--amber-bg); border-color: var(--amber-b); }
 .admonition--warning::before { content: "⚠ 警告"; color: var(--amber); }
 
 .admonition--info { background: var(--lav-bg); border-color: var(--lav-b); }

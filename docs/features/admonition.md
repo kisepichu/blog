@@ -51,7 +51,8 @@
 
 ### 制約
 
-- admonition は hover preview・検索インデックスの対象外 (`data-pagefind-body` は付与しない)。
+- admonition は hover preview の対象外。
+- admonition の出力要素には `data-pagefind-ignore` を付与するため、post ページの `<article data-pagefind-body>` 配下に入っても検索インデックスの対象外になる。
 - ネストは想定しない。
 - 対象外のディレクティブ名は `remarkAdmonition` が無視する (他プラグインに処理を委ねる)。
 - `:::definition` と同一ファイルに混在して良い。

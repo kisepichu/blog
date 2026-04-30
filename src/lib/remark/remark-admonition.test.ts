@@ -57,9 +57,9 @@ describe('remarkAdmonition', () => {
     expect(html).toMatch(/<div[^>]*class="admonition admonition--info"[^>]*><\/div>/)
   })
 
-  it('data-pagefind-body 属性を付与しない', () => {
+  it('Pagefind のインデックス対象外にするため data-pagefind-ignore 属性を付与する', () => {
     const html = process(':::warning\n内容。\n:::')
-    expect(html).not.toContain('data-pagefind-body')
+    expect(html).toContain('data-pagefind-ignore')
   })
 
   it('複数の admonition を独立して変換する', () => {
