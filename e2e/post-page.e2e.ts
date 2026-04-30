@@ -42,6 +42,7 @@ test.describe('/posts/order-theory ページ', () => {
   test('[[半順序集合]] が .concept-link としてレンダリングされる', async ({ page }) => {
     const conceptLink = page.locator('.concept-link[data-term="poset"]').first()
     await expect(conceptLink).toBeVisible()
+    await expect(conceptLink).toHaveText('半順序集合(partially ordered set)')
   })
 
   test('::embed[poset] で .definition-block が1つ以上表示される', async ({ page }) => {
