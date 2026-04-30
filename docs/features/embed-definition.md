@@ -75,7 +75,7 @@ interface DefContentEntry {
 type DefContentMap = Record<string, DefContentEntry>  // canonical id → entry
 
 export async function buildDefContentMap(
-  defs: DefEntry[],
+  defs: Array<DefEntry & { body: string }>,
   aliasMap: AliasMap,
   defMetaMap: DefMetaMap,
   baseUrl: string
