@@ -40,7 +40,7 @@ test.describe('/posts/order-theory ページ', () => {
   })
 
   test('[[半順序集合]] が .concept-link としてレンダリングされる', async ({ page }) => {
-    const conceptLink = page.locator('.concept-link', { hasText: '半順序集合' })
+    const conceptLink = page.locator('.concept-link[data-term="poset"]').first()
     await expect(conceptLink).toBeVisible()
   })
 
