@@ -77,7 +77,7 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
         <h1 class="def-title">{def.data.title}</h1>
         <span class="def-id-badge">{def.id}</span>
         {def.data.english && (
-          <span class="def-english">{def.data.english}</span>
+          <span class="def-english def-aliases">{def.data.english}</span>
         )}
         {displayAliases.length > 0 && (
           <span class="def-aliases">別名: {displayAliases.join(', ')}</span>

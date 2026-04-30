@@ -38,7 +38,7 @@ type AliasMap = Record<string, string>
 type DefMetaMap = Record<string, { title: string; english: string }>
 
 export function scanDefsDirectory(dir: string): DefEntry[]
-export function buildAliasMap(defs: DefEntry[]): AliasMap
+export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): AliasMap
 export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap
 ```
 

@@ -15,7 +15,7 @@ type DefMetaMap = Record<string, { title: string; english: string }>
 export type { DefEntry, AliasMap, DefMetaMap }
 
 /**
- * content/defs/*.md を読み込み、frontmatter を解析して DefEntry + title + body を返す。
+ * content/defs/*.md を読み込み、frontmatter を解析して DefEntry (title・english 含む) と body を返す。
  * ディレクトリが存在しない場合は空配列を返す。
  * frontmatter は js-yaml でパースする。
  */
@@ -31,7 +31,7 @@ function parseFrontmatter(content: string): { frontmatter: Record<string, unknow
   return { frontmatter, body: match[2] }
 }
 
-export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string; body: string }> {
+export function scanDefsDirectory(dir: string): Array<DefEntry & { body: string }> {
   let files: string[]
   try {
     files = readdirSync(dir)
@@ -40,7 +40,7 @@ export function scanDefsDirectory(dir: string): Array<DefEntry & { title: string
     throw err
   }
 
-  const result: Array<DefEntry & { title: string; body: string }> = []
+  const result: Array<DefEntry & { body: string }> = []
 
   for (const file of files.sort()) {
     if (extname(file) !== '.md') continue
