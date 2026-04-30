@@ -27,7 +27,7 @@ const defs = defineCollection({
   schema: z.object({
     id: z.string(),
     title: z.string(),
-    english: z.string(),
+    english: z.string().trim().min(1, 'english は空文字を許可しません'),
     aliases: z.array(z.string()).default([]),
     status: statusSchema.default('draft'),
     tags: z.array(z.string().trim().regex(/^[^\s,/?#%]+$/, 'タグに , / ? # % および空白は使用できません')).default([]),

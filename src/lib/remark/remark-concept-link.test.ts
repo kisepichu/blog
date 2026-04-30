@@ -6,9 +6,7 @@ import remarkDirective from 'remark-directive'
 import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import remarkConceptLink from './remark-concept-link'
-
-type AliasMap = Record<string, string>
-type DefMetaMap = Record<string, { title: string; english: string }>
+import type { AliasMap, DefMetaMap } from '../build/alias-map'
 
 const process = (md: string, aliasMap: AliasMap, isProd = false) =>
   unified()

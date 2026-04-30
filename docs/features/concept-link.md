@@ -127,7 +127,7 @@ export function parseConceptLinks(text: string): string[]
 
 - `data-term`: canonical id (hover-preview がこれを使って preview-index.json を引く)
 - `href`: `{baseUrl}/defs/{canonicalId}`
-- リンクテキスト: `{title}({english})`。`english` が未設定の場合は `{title}` のみ (将来予定: `display` があればそれを使う)
+- リンクテキスト: `defMetaMap` が渡される通常ケースでは `{title}({english})`。`english` は frontmatter で required のため未設定/空文字は `scanDefsDirectory` が例外を投げてビルド停止し、`{title}` のみへのフォールバックは実際には発生しない。`defMetaMap` が省略された場合のみ元の `term` にフォールバックする。(将来予定: `display` があればそれを使う)
 
 **解決失敗時 (開発環境):**
 
