@@ -207,8 +207,9 @@ const isProd = process.env.NODE_ENV === "production";
 const allDefs = scanDefsDirectory("content/defs/");
 const defs = isProd ? allDefs.filter((d) => d.status === "published") : allDefs;
 const aliasMap = buildAliasMap(defs); // alias/id → canonical id
+const defMetaMap = buildDefMetaMap(defs); // canonical id → { title, english }
 const baseUrl = config.base ?? "/";
-const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl);
+const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl);
 // canonical id → { title, html }
 
 // preview-index.json をここで生成
@@ -216,7 +217,7 @@ writePreviewIndex(defContentMap, "public/preview-index.json");
 
 // remarkPlugins に注入
 config.markdown.remarkPlugins.push(
-  [remarkConceptLink, { aliasMap, baseUrl }],
+  [remarkConceptLink, { aliasMap, defMetaMap, baseUrl }],
   [remarkEmbedDefinition, { defContentMap, aliasMap }],
 );
 ```
@@ -229,8 +230,8 @@ config.markdown.remarkPlugins.push(
 
 1. **remark-definition-block**: `:::definition` → `<div class="definition-block">` (remark-directive 利用)
 2. **remark-local-definition**: `:::definition{#id}` → `<div class="definition-block" id="...">` + `file.data.localIds` を設定
-3. **remark-concept-link**: alias map と `baseUrl` を受け取り、`[[term]]` を変換する
-   - 解決成功: `<a class="concept-link" data-term="<canonical-id>" href="<baseUrl>/defs/<canonical-id>">term</a>`
+3. **remark-concept-link**: alias map・defMetaMap・`baseUrl` を受け取り、`[[term]]` を変換する
+   - 解決成功: `<a class="concept-link" data-term="<canonical-id>" href="<baseUrl>/defs/<canonical-id>">{title}({english})</a>`
    - 解決失敗 (開発時): `<a class="concept-link concept-link--unresolved" ...>term</a>` (赤枠等で視覚的に明示)
    - 解決失敗 (本番): プレーンテキストとして出力 + ビルド警告。ビルドは止めない。
 4. **remark-embed-definition**: `::embed[term]` → definition_block を静的展開・定義番号付与

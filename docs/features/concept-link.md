@@ -63,7 +63,7 @@ const allDefs = scanDefsDirectory('content/defs/')
 const defs = isProd ? allDefs.filter(d => d.status === 'published') : allDefs
 const aliasMap = buildAliasMap(defs)
 const defMetaMap = buildDefMetaMap(defs)
-const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
+const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl)
                       // ↑ embed-definition・preview-index の共有インフラ
 
 writePreviewIndex(defContentMap, 'public/preview-index.json')
