@@ -1,8 +1,8 @@
 ---
 id: scope
-title: スコープ
-english: scope
-aliases: [スコープ, scope]
+title: カリー化
+english: currying
+aliases: [カリー化, "curry 化", currying]
 status: published
 tags: []
 ---
