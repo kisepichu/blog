@@ -3,10 +3,11 @@ import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
 import remarkDirective from 'remark-directive'
 import remarkDefinitionBlock from './src/lib/remark/remark-definition-block'
+import remarkAdmonition from './src/lib/remark/remark-admonition'
 import remarkLocalDefinition from './src/lib/remark/remark-local-definition'
 import remarkConceptLink from './src/lib/remark/remark-concept-link'
 import remarkEmbedDefinition from './src/lib/remark/remark-embed-definition'
-import { scanDefsDirectory, buildAliasMap } from './src/lib/build/alias-map'
+import { scanDefsDirectory, buildAliasMap, buildDefMetaMap } from './src/lib/build/alias-map'
 import { buildDefContentMap } from './src/lib/build/def-content-map'
 import { writePreviewIndex } from './src/lib/build/preview-index'
 import type { AstroIntegration } from 'astro'
@@ -23,8 +24,9 @@ function contentPipelineIntegration(): AstroIntegration {
         const allDefs = scanDefsDirectory(defsDir)
         const defs = (isProd && !draftVisible) ? allDefs.filter(d => d.status === 'published') : allDefs
         const aliasMap = buildAliasMap(defs)
+        const defMetaMap = buildDefMetaMap(defs)
         const baseUrl = config.base ?? '/'
-        const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl, isProd)
+        const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl, isProd)
 
         writePreviewIndex(defContentMap, previewIndexPath)
 
@@ -35,8 +37,9 @@ function contentPipelineIntegration(): AstroIntegration {
               ...existingPlugins,
               remarkDirective,
               remarkDefinitionBlock,
+              remarkAdmonition,
               remarkLocalDefinition,
-              [remarkConceptLink, { aliasMap, baseUrl, isProd }],
+              [remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd }],
               [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
             ],
           },

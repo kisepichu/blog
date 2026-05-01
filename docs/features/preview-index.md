@@ -41,7 +41,7 @@ hover-preview 側がコンテナ div を用意して `innerHTML` にセットす
 
 ```ts
 // astro.config.ts — integration フック内
-const defContentMap = await buildDefContentMap(defs, aliasMap, baseUrl)
+const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl)
 
 writePreviewIndex(defContentMap, 'public/preview-index.json')
 // ↑ defContentMap をそのまま JSON 化して書き出すだけ

@@ -124,6 +124,39 @@ a:hover { color: var(--link-h); }
   opacity: 0.7;
 }
 
+/* -- ADMONITION ----------------------------------------------- */
+/* remark-admonition が出力する <div class="admonition admonition--{type}"> のスタイル */
+.admonition {
+  border-radius: var(--r-md);
+  padding: 1.2rem 1.4rem;
+  margin: 1.5rem 0;
+  position: relative;
+  font-size: 0.95rem;
+  border-width: 1.5px;
+  border-style: solid;
+}
+.admonition p:last-child { margin-bottom: 0; }
+.admonition__label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.6rem;
+}
+
+.admonition--warning { background: var(--amber-bg); border-color: var(--amber-b); }
+.admonition--warning .admonition__label { color: var(--amber); }
+
+.admonition--info  { background: var(--lav-bg);   border-color: var(--lav-b); }
+.admonition--info  .admonition__label { color: var(--lav); }
+
+.admonition--tip   { background: var(--sage-bg);  border-color: var(--sage-b); }
+.admonition--tip   .admonition__label { color: var(--sage); }
+
+.admonition--note  { background: var(--peach-bg); border-color: var(--peach-b); }
+.admonition--note  .admonition__label { color: var(--peach); }
+
 /* ── HEADER ─────────────────────────────────────── */
 .site-header {
   position: sticky;
