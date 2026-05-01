@@ -495,6 +495,68 @@ describe('HoverPreview', () => {
       expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
     })
 
+    it('popup 内で term の popup が開いているとき、ページ上の同一 term 別要素にホバーしても popup が増えない (Issue #32 root cause)', async () => {
+      // lattice が poset concept-link を含む HTML を返すようにモックを上書き
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          lattice: {
+            title: '束',
+            html: '<p><a href="/defs/poset" class="concept-link" data-term="poset">半順序集合</a>とは</p>',
+          },
+          poset: { title: '半順序集合', html: '<p>poset の定義</p>' },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+
+      // ページ上に lattice concept-link と、別の poset concept-link を追加
+      const latticeLink = addGlobalConceptLink('lattice')
+      const pagePosetLink = addGlobalConceptLink('poset', '半順序集合')
+
+      // lattice link にホバー → lattice popup (#1) が表示される
+      await act(async () => {
+        fireEvent.mouseEnter(latticeLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      const latticePopup = document.body.querySelector('.hover-preview') as HTMLElement
+      expect(latticePopup).not.toBeNull()
+
+      // lattice popup 内の poset link を取得
+      const popupPosetLink = latticePopup.querySelector(
+        '.concept-link[data-term="poset"]',
+      ) as HTMLElement
+      expect(popupPosetLink).not.toBeNull()
+      popupPosetLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+
+      // popup 内の poset link にホバー → poset popup (#2) が表示される
+      await act(async () => {
+        fireEvent.mouseEnter(popupPosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // ページ上の別の poset link (popup 外) に mouseenter × 3
+      // → 同一 term の popup が既に存在するので増えないこと
+      for (let i = 0; i < 3; i++) {
+        await act(async () => {
+          fireEvent.mouseEnter(pagePosetLink)
+          await Promise.resolve()
+          vi.advanceTimersByTime(1)
+        })
+      }
+
+      // popup は 2 つのまま (lattice + poset)、重複して増えない
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+    })
+
     it('子 popup から mouseleave すると子のみ閉じる (親は残る)', async () => {
       await renderAndSettle()
       const link = addGlobalConceptLink('poset')

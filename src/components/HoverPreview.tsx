@@ -184,18 +184,15 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         return null
       }
 
-      // 祖先 popup に同一 term / localId がある場合はスキップ (Issue #32: 自己参照 cascade 防止)
-      if (parentPopupId !== null) {
-        const ancestorAndParentIds = [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
-        const hasDuplicate = ancestorAndParentIds.some((aid) => {
-          const ancestor = popupsRef.current.find((p) => p.id === aid)
-          if (!ancestor) return false
-          if (term !== undefined) return ancestor.term === term
-          if (localId !== undefined) return ancestor.localId === localId
-          return false
-        })
-        if (hasDuplicate) return null
-      }
+      // 既存 popup に同一 term / localId がある場合はスキップ (重複表示防止)
+      // 祖先だけでなく全 popup を対象にすることで、親子関係の外側からの
+      // 同一 term 重複作成 (Issue #32) も防ぐ
+      const hasDuplicate = popupsRef.current.some((p) => {
+        if (term !== undefined) return p.term === term
+        if (localId !== undefined) return p.localId === localId
+        return false
+      })
+      if (hasDuplicate) return null
 
       const rect = linkEl.getBoundingClientRect()
       const popupWidth = 330
