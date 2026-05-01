@@ -1,10 +1,10 @@
 ---
 title: 型無し $\lambda$ 計算 (1) 概観
-status: draft
+status: published
 tags: [型理論]
 series: types-and-logic
 series_order: 1
-date: 2026-05/02
+date: 2026-05-02
 ---
 
 :::warning
