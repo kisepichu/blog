@@ -1,4 +1,4 @@
-// ![[term]] と [[term]] の両方にマッチする。グループ1: optional '!', グループ2: term
+// ![[term]] と [[term]] の両方にマッチする。グループ1: term（先頭の '!' はキャプチャしない）
 export const CONCEPT_LINK_REGEX = /!?\[\[([^\]]+)\]\]/g
 
 /**

@@ -104,7 +104,7 @@ export function parseConceptLinks(text: string): string[]
 
 ### `[[term|display]]` 記法 (将来予定 — 未実装)
 
-> **注意**: 現状の実装 (`parse-concept-links.ts`, `remark-concept-link.ts`) は `[[term]]` のみ対応。
+> **注意**: 現状の実装 (`parse-concept-links.ts`, `remark-concept-link.ts`) は `[[term]]` / `![[term]]` に対応。
 > `[[term|display]]` 記法は将来実装予定。
 
 表示テキストを指定する場合: `[[解決キー|表示テキスト]]`
@@ -241,7 +241,7 @@ remarkParse
 | 解決失敗 (開発) | `<a class="concept-link concept-link--unresolved">` |
 | 解決失敗 (本番) | プレーンテキスト |
 | 1 ノードに複数 `[[term]]` | すべて変換される |
-| `[[#anchor]]` | スキップ |
+| `[[#anchor]]` | `localIds` に応じて local link / unresolved / plain text を出し分ける |
 
 ## エッジケース
 
