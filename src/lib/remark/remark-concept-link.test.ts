@@ -102,20 +102,22 @@ const processWithMeta = (md: string, aliasMap: AliasMap, defMetaMap: DefMetaMap,
     .toString()
 
 describe('remarkConceptLink defMetaMap 対応', () => {
-  it('defMetaMap あり: [[poset]] のリンクテキストが title(english) 形式になる', () => {
+  it('defMetaMap あり: [[poset]] のリンクテキストが title のみになる (英語なし)', () => {
     const aliasMap: AliasMap = { poset: 'poset' }
     const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: 'partially ordered set' } }
     const html = processWithMeta('[[poset]] について説明する。', aliasMap, defMetaMap)
     expect(html).toContain('href="/defs/poset"')
-    expect(html).toContain('>半順序集合(partially ordered set)<')
+    expect(html).toContain('>半順序集合<')
+    expect(html).not.toContain('(partially ordered set)')
   })
 
-  it('defMetaMap あり alias 経由: [[半順序集合]] → canonical id で defMetaMap を引いてテキストが title(english) になる', () => {
+  it('defMetaMap あり alias 経由: [[半順序集合]] → canonical id で defMetaMap を引いてテキストが title のみになる', () => {
     const aliasMap: AliasMap = { '半順序集合': 'poset', poset: 'poset' }
     const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: 'partially ordered set' } }
     const html = processWithMeta('[[半順序集合]] について説明する。', aliasMap, defMetaMap)
     expect(html).toContain('href="/defs/poset"')
-    expect(html).toContain('>半順序集合(partially ordered set)<')
+    expect(html).toContain('>半順序集合<')
+    expect(html).not.toContain('(partially ordered set)')
   })
 
   it('english が空文字の場合: リンクテキストが title のみになる', () => {
@@ -133,6 +135,38 @@ describe('remarkConceptLink defMetaMap 対応', () => {
     const html = processWithMeta('[[poset]] について説明する。', aliasMap, defMetaMap)
     expect(html).toContain('href="/defs/poset"')
     expect(html).toContain('>poset<')
+  })
+
+  it('![[term]]: defMetaMap あり のとき title(english) 形式になる', () => {
+    const aliasMap: AliasMap = { poset: 'poset' }
+    const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: 'partially ordered set' } }
+    const html = processWithMeta('![[poset]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('href="/defs/poset"')
+    expect(html).toContain('>半順序集合(partially ordered set)<')
+  })
+
+  it('![[term]]: alias 経由でも title(english) 形式になる', () => {
+    const aliasMap: AliasMap = { '半順序集合': 'poset', poset: 'poset' }
+    const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: 'partially ordered set' } }
+    const html = processWithMeta('![[半順序集合]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('href="/defs/poset"')
+    expect(html).toContain('>半順序集合(partially ordered set)<')
+  })
+
+  it('![[term]]: english が空文字の場合は title のみになる', () => {
+    const aliasMap: AliasMap = { poset: 'poset' }
+    const defMetaMap: DefMetaMap = { poset: { title: '半順序集合', english: '' } }
+    const html = processWithMeta('![[poset]] について説明する。', aliasMap, defMetaMap)
+    expect(html).toContain('>半順序集合<')
+    expect(html).not.toContain('()')
+  })
+
+  it('![[term]]: 解決失敗 (dev) のとき concept-link--unresolved が付く', () => {
+    const aliasMap: AliasMap = {}
+    const defMetaMap: DefMetaMap = {}
+    const html = processWithMeta('![[未知の概念]] について。', aliasMap, defMetaMap, false)
+    expect(html).toContain('concept-link--unresolved')
+    expect(html).toContain('>未知の概念<')
   })
 })
 
