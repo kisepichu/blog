@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config'
 import react from '@astrojs/react'
 import remarkDirective from 'remark-directive'
 import remarkDefinitionBlock from './src/lib/remark/remark-definition-block'
+import remarkAdmonition from './src/lib/remark/remark-admonition'
 import remarkLocalDefinition from './src/lib/remark/remark-local-definition'
 import remarkConceptLink from './src/lib/remark/remark-concept-link'
 import remarkEmbedDefinition from './src/lib/remark/remark-embed-definition'
@@ -36,6 +37,7 @@ function contentPipelineIntegration(): AstroIntegration {
               ...existingPlugins,
               remarkDirective,
               remarkDefinitionBlock,
+              remarkAdmonition,
               remarkLocalDefinition,
               [remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd }],
               [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
