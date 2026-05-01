@@ -23,6 +23,8 @@ interface PopupState {
   anchorTop: number // link.top (viewport 下端超え時の反転計算に使用)
   zIndex: number
   isLocal: boolean  // ローカル定義の場合 true → MathJax を再実行しない
+  term: string | undefined      // global concept-link の data-term (重複チェック用)
+  localId: string | undefined   // local concept-link の data-local-id (重複チェック用)
 }
 
 let _popupIdCounter = 0
@@ -193,6 +195,19 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       // z-index: ベース 9000 + popup 生成順の id (hover 回数に応じて増加)
       const zIndex = 9000 + id
 
+      // 祖先 popup に同一 term / localId がある場合はスキップ (Issue #32: 自己参照 cascade 防止)
+      if (parentPopupId !== null) {
+        const ancestorAndParentIds = [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
+        const hasDuplicate = ancestorAndParentIds.some((aid) => {
+          const ancestor = popupsRef.current.find((p) => p.id === aid)
+          if (!ancestor) return false
+          if (term !== undefined) return ancestor.term === term
+          if (localId !== undefined) return ancestor.localId === localId
+          return false
+        })
+        if (hasDuplicate) return null
+      }
+
       // 親とその祖先のタイマーをキャンセル
       if (parentPopupId !== null) {
         cancelTimer(parentPopupId)
@@ -202,7 +217,7 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       // popupsRef を同期更新してから setPopups (描画間の重複チェックを正確にするため)
       popupsRef.current = [
         ...popupsRef.current,
-        { id, parentId: parentPopupId, title, html, left, top, anchorTop, zIndex, isLocal },
+        { id, parentId: parentPopupId, title, html, left, top, anchorTop, zIndex, isLocal, term, localId },
       ]
       setPopups(popupsRef.current)
       linkPopupMapRef.current.set(linkEl, id)

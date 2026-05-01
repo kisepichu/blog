@@ -448,6 +448,53 @@ describe('HoverPreview', () => {
       expect(document.body.querySelector('.hover-preview')).not.toBeNull()
     })
 
+    it('popup 内の同一 term の concept-link に mouseenter しても popup が増えない (Issue #32)', async () => {
+      await renderAndSettle()
+      const link = addGlobalConceptLink('poset')
+
+      await act(async () => {
+        fireEvent.mouseEnter(link)
+        await Promise.resolve()
+        // popup 生成直後の mouseenter 抑制 (setTimeout 0ms) をクリアする
+        vi.advanceTimersByTime(1)
+      })
+
+      const parentPopup = document.body.querySelector('.hover-preview') as HTMLElement
+      expect(parentPopup).not.toBeNull()
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+
+      // 親 popup 内に同一 term (poset) の自己参照 concept-link を追加
+      const selfRefLink = document.createElement('a')
+      selfRefLink.className = 'concept-link'
+      selfRefLink.dataset.term = 'poset'
+      selfRefLink.href = '/defs/poset'
+      selfRefLink.textContent = 'poset'
+      selfRefLink.getBoundingClientRect = () => ({
+        left: 120,
+        right: 220,
+        top: 200,
+        bottom: 220,
+        width: 100,
+        height: 20,
+        x: 120,
+        y: 200,
+        toJSON: () => ({}),
+      })
+      parentPopup.querySelector('.hover-preview__body')?.appendChild(selfRefLink)
+
+      // 同一 term の self-reference link に mouseenter × 3 (cascade を再現)
+      for (let i = 0; i < 3; i++) {
+        await act(async () => {
+          fireEvent.mouseEnter(selfRefLink)
+          await Promise.resolve()
+          vi.advanceTimersByTime(1)
+        })
+      }
+
+      // popup は増えない (同一 term なので子 popup を開かない)
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+    })
+
     it('子 popup から mouseleave すると子のみ閉じる (親は残る)', async () => {
       await renderAndSettle()
       const link = addGlobalConceptLink('poset')
