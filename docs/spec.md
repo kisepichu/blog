@@ -237,7 +237,7 @@ Astro integration の `astro:config:setup` フックで一括構築し、`remark
 
 ```ts
 // astro.config.ts (integration hook 内)
-const isProd = process.env.NODE_ENV === "production";
+const isProd = command === "build";
 const allDefs = scanDefsDirectory("content/defs/");
 const defs = isProd ? allDefs.filter((d) => d.status === "published") : allDefs;
 const aliasMap = buildAliasMap(defs); // alias/id → canonical id

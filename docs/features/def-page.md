@@ -21,7 +21,7 @@ container--narrow (max-width: 720px, padding: 2.5rem 1.25rem)
     h1: 半順序集合             ← 1.55rem
     [def-meta]
       [id-badge: poset]        ← JetBrains Mono, 0.78rem, surface bg, border
-      [英語名: partially ordered set] ← text-muted, font-ui, 0.75rem (frontmatter.english)
+      [partially ordered set]  ← text-muted, font-ui, 0.75rem (frontmatter.english)
       [別名: 半順序, 半順序集合] ← text-muted, font-ui, 0.75rem (aliases から id を除いた一覧)
       [#集合論 tag]             ← TagBadge コンポーネント
 
