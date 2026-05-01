@@ -31,6 +31,16 @@ describe('parseConceptLinks', () => {
     const result = parseConceptLinks('[[直積 集合]] について。')
     expect(result).toEqual(['直積 集合'])
   })
+
+  it('![[term]] も term を抽出する (! プレフィックスは除く)', () => {
+    const result = parseConceptLinks('![[poset]] について説明する。')
+    expect(result).toEqual(['poset'])
+  })
+
+  it('[[term]] と ![[term]] が混在する場合、両方の term を抽出する', () => {
+    const result = parseConceptLinks('[[半順序集合]] と ![[上界]] の話。')
+    expect(result).toEqual(['半順序集合', '上界'])
+  })
 })
 
 describe('parseEmbeds', () => {
