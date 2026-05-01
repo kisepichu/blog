@@ -1,6 +1,7 @@
 ---
 id: lattice
 title: 束
+english: "lattice"
 aliases: [束]
 status: draft
 tags: [代数]

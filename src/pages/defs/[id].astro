@@ -22,7 +22,7 @@ export async function getStaticPaths() {
 
   // alias map を構築 (backlink 解決に使用)
   const aliasMap = buildAliasMap(
-    defs.map((d) => ({ id: d.id, aliases: d.data.aliases, status: d.data.status })),
+    defs.map((d) => ({ id: d.id, aliases: d.data.aliases })),
   )
 
   // backlink グラフ構築用エントリ
@@ -76,6 +76,9 @@ const displayAliases = def.data.aliases.filter((a) => a !== def.id)
       <div class="def-title-row">
         <h1 class="def-title">{def.data.title}</h1>
         <span class="def-id-badge">{def.id}</span>
+        {def.data.english && (
+          <span class="def-english def-aliases">{def.data.english}</span>
+        )}
         {displayAliases.length > 0 && (
           <span class="def-aliases">別名: {displayAliases.join(', ')}</span>
         )}
