@@ -1,7 +1,8 @@
-export const CONCEPT_LINK_REGEX = /\[\[([^\]]+)\]\]/g
+// ![[term]] と [[term]] の両方にマッチする。グループ1: optional '!', グループ2: term
+export const CONCEPT_LINK_REGEX = /!?\[\[([^\]]+)\]\]/g
 
 /**
- * テキストから [[term]] 記法を抽出して term 文字列の配列を返す。
+ * テキストから [[term]] / ![[term]] 記法を抽出して term 文字列の配列を返す。
  * [[#id]] (先頭が #) は除外する。
  */
 export function parseConceptLinks(text: string): string[] {
