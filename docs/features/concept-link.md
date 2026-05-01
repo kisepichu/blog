@@ -250,7 +250,7 @@ remarkParse
 | alias 重複 | アルファベット順で先勝ち + console.warn |
 | `[[term]]` 未解決 (開発) | `concept-link--unresolved` クラス付きリンク |
 | `[[term]]` 未解決 (本番) | プレーンテキスト + console.warn |
-| `[[#anchor]]` | スキップ (local-definition が処理) |
+| `[[#anchor]]` | `localIds` に応じて local link / unresolved / plain text を出し分け |
 | term にスペースを含む | `[[直積 集合]]` → マッチ対象 (正規表現で許容) |
 
 ## 未決事項
