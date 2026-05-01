@@ -11,7 +11,8 @@ interface ConceptLinkOptions {
   isProd?: boolean
 }
 
-const CONCEPT_LINK_REGEX_SOURCE = /\[\[([^\]]+)\]\]/.source
+// グループ1: optional '!', グループ2: term
+const CONCEPT_LINK_REGEX_SOURCE = /(!?)\[\[([^\]]+)\]\]/.source
 
 /**
  * hName/hProperties 付きのリンクノードを PhrasingContent として生成する。
@@ -82,11 +83,12 @@ function splitByConceptLinks(
   let match: RegExpExecArray | null
 
   while ((match = regex.exec(value)) !== null) {
-    const term = match[1]
+    const showEnglish = match[1] === '!'
+    const term = match[2]
     const start = match.index
     const end = regex.lastIndex
 
-    // [[#anchor]] の処理
+    // [[#anchor]] / ![[#anchor]] の処理
     if (term.startsWith('#')) {
       const id = term.slice(1)
       if (localIds === undefined) {
@@ -118,7 +120,7 @@ function splitByConceptLinks(
       continue
     }
 
-    // [[term]] が localIds に含まれる → local リンク (aliasMap より優先)
+    // [[term]] / ![[term]] が localIds に含まれる → local リンク (aliasMap より優先)
     if (localIds !== undefined && localIds.has(term)) {
       anyMatch = true
       if (start > lastIndex) {
@@ -144,7 +146,7 @@ function splitByConceptLinks(
       const href = `${baseUrl}defs/${canonicalId}`
       const meta = Object.hasOwn(defMetaMap, canonicalId) ? defMetaMap[canonicalId] : undefined
       const linkText = meta !== undefined
-        ? (meta.english !== '' ? `${meta.title}(${meta.english})` : meta.title)
+        ? (showEnglish && meta.english !== '' ? `${meta.title}(${meta.english})` : meta.title)
         : term
       parts.push(makeConceptLinkNode(href, ['concept-link'], linkText, canonicalId) as unknown as PhrasingContent)
     } else if (!isProd) {

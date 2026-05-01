@@ -89,21 +89,22 @@ updateConfig({
 
 ```markdown
 [[半順序集合]] において [[上界]] が存在するとは限らない。
+![[半順序集合]] において ...  ← 英語をかっこ書きで表示したい場合
 ```
 
-`[[term]]` はインライン記法。remark の `text` ノードを walk して正規表現でパースする。
+`[[term]]` / `![[term]]` はインライン記法。remark の `text` ノードを walk して正規表現でパースする。
 
 ```ts
 // src/lib/remark/parse-concept-links.ts (backlink-graph と共有)
-// 現状: [[term]] のみ対応
-export const CONCEPT_LINK_REGEX = /\[\[([^\]]+)\]\]/g
+// ![[term]] と [[term]] の両方にマッチする
+export const CONCEPT_LINK_REGEX = /!?\[\[([^\]]+)\]\]/g
 export function parseConceptLinks(text: string): string[]
-// 将来予定: [[term|display]] 対応時は /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g に変更
+// 将来予定: [[term|display]] 対応時は正規表現を変更
 ```
 
 ### `[[term|display]]` 記法 (将来予定 — 未実装)
 
-> **注意**: 現状の実装 (`parse-concept-links.ts`, `remark-concept-link.ts`) は `[[term]]` のみ対応。
+> **注意**: 現状の実装 (`parse-concept-links.ts`, `remark-concept-link.ts`) は `[[term]]` / `![[term]]` に対応。
 > `[[term|display]]` 記法は将来実装予定。
 
 表示テキストを指定する場合: `[[解決キー|表示テキスト]]`
@@ -119,7 +120,13 @@ export function parseConceptLinks(text: string): string[]
 
 ### 出力
 
-**解決成功時:**
+**`[[term]]` 解決成功時 (英語なし・デフォルト):**
+
+```html
+<a class="concept-link" data-term="poset" href="/defs/poset">半順序集合</a>
+```
+
+**`![[term]]` 解決成功時 (英語あり):**
 
 ```html
 <a class="concept-link" data-term="poset" href="/defs/poset">半順序集合(partially ordered set)</a>
@@ -127,7 +134,11 @@ export function parseConceptLinks(text: string): string[]
 
 - `data-term`: canonical id (hover-preview がこれを使って preview-index.json を引く)
 - `href`: `{baseUrl}/defs/{canonicalId}`
-- リンクテキスト: `defMetaMap` が渡される通常ケースでは `{title}({english})`。`english` は frontmatter で required のため未設定/空文字は `scanDefsDirectory` が例外を投げてビルド停止し、`{title}` のみへのフォールバックは実際には発生しない。`defMetaMap` が省略された場合のみ元の `term` にフォールバックする。(将来予定: `display` があればそれを使う)
+- リンクテキスト:
+  - `[[term]]`: `title` のみ
+  - `![[term]]`: `title(english)` (`english` が空文字のときは `title` のみ)
+  - `defMetaMap` が省略・未登録の場合: 元の `term` にフォールバック
+  - (将来予定: `display` があればそれを使う)
 
 **解決失敗時 (開発環境):**
 
@@ -221,13 +232,16 @@ remarkParse
 
 | ケース | 期待出力 |
 |--------|---------|
-| 基本リンク | `<a class="concept-link" data-term="..." href="...">title(english)</a>` |
-| alias 経由で解決 | href は canonical id、テキストは title(english) |
-| `defMetaMap` なし、またはテスト用に `english` を空文字で注入 | テキストは title のみ |
+| `[[term]]` 基本リンク | `<a class="concept-link" data-term="..." href="...">title</a>` |
+| `[[term]]` alias 経由で解決 | href は canonical id、テキストは title のみ |
+| `![[term]]` 基本リンク | `<a class="concept-link" data-term="..." href="...">title(english)</a>` |
+| `![[term]]` alias 経由で解決 | href は canonical id、テキストは title(english) |
+| `![[term]]` english が空文字 | テキストは title のみ |
+| `defMetaMap` なし | テキストは term にフォールバック |
 | 解決失敗 (開発) | `<a class="concept-link concept-link--unresolved">` |
 | 解決失敗 (本番) | プレーンテキスト |
 | 1 ノードに複数 `[[term]]` | すべて変換される |
-| `[[#anchor]]` | スキップ |
+| `[[#anchor]]` | `localIds` に応じて local link / unresolved / plain text を出し分ける |
 
 ## エッジケース
 
@@ -236,7 +250,7 @@ remarkParse
 | alias 重複 | アルファベット順で先勝ち + console.warn |
 | `[[term]]` 未解決 (開発) | `concept-link--unresolved` クラス付きリンク |
 | `[[term]]` 未解決 (本番) | プレーンテキスト + console.warn |
-| `[[#anchor]]` | スキップ (local-definition が処理) |
+| `[[#anchor]]` | `localIds` に応じて local link / unresolved / plain text を出し分け |
 | term にスペースを含む | `[[直積 集合]]` → マッチ対象 (正規表現で許容) |
 
 ## 未決事項
