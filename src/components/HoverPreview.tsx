@@ -184,17 +184,6 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         return null
       }
 
-      const rect = linkEl.getBoundingClientRect()
-      const popupWidth = 330
-      const viewportPadding = 8
-      const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding)
-      const left = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
-      const top = rect.bottom + 8
-      const anchorTop = rect.top
-      const id = nextPopupId()
-      // z-index: ベース 9000 + popup 生成順の id (hover 回数に応じて増加)
-      const zIndex = 9000 + id
-
       // 祖先 popup に同一 term / localId がある場合はスキップ (Issue #32: 自己参照 cascade 防止)
       if (parentPopupId !== null) {
         const ancestorAndParentIds = [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
@@ -207,6 +196,17 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         })
         if (hasDuplicate) return null
       }
+
+      const rect = linkEl.getBoundingClientRect()
+      const popupWidth = 330
+      const viewportPadding = 8
+      const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding)
+      const left = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
+      const top = rect.bottom + 8
+      const anchorTop = rect.top
+      const id = nextPopupId()
+      // z-index: ベース 9000 + popup 生成順の id (hover 回数に応じて増加)
+      const zIndex = 9000 + id
 
       // 親とその祖先のタイマーをキャンセル
       if (parentPopupId !== null) {
