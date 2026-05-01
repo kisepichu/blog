@@ -2,7 +2,7 @@
 id: scope
 title: スコープ
 english: scope
-aliases: [スコープ, scope]
+aliases: [スコープ]
 status: published
 tags: []
 ---

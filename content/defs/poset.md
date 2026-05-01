@@ -2,7 +2,7 @@
 id: poset
 title: 半順序集合
 english: "partially ordered set"
-aliases: [半順序, 半順序集合, "partially ordered set", poset]
+aliases: [半順序, 半順序集合, "partially ordered set"]
 status: draft
 tags: [集合論]
 ---
