@@ -196,7 +196,6 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       })
       if (duplicatePopup) {
         cancelTimer(duplicatePopup.id)
-        getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
         // 新しい親とその祖先のタイマーもキャンセルする。
         // 親が close timer 中のときに子を再利用すると、タイマー満了で親が閉じて子も消えるため。
         if (parentPopupId !== null) {
@@ -211,8 +210,13 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
             ? [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
             : []
         if (newParentChain.includes(duplicatePopup.id)) {
+          // self-reference: hover は popup 内から。旧祖先チェーンのタイマーをキャンセルして維持する
+          getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
           return duplicatePopup.id
         }
+        // reparent する場合は旧祖先タイマーをキャンセルしない。
+        // reparent 後は parentId が変わるため、旧祖先の closePopup は duplicate popup を
+        // 巻き込まなくなり、タイマーを自然に消化させて旧祖先を正常に閉じられる。
         // 別リンク要素から hover した場合、popup の表示位置・parentId・zIndex を更新する
         const rect = linkEl.getBoundingClientRect()
         const popupWidth = 330

@@ -934,6 +934,69 @@ describe('HoverPreview', () => {
       // poset popup (reused) も残っている
       expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
     })
+
+    it('reparent 時に旧祖先の close タイマーはキャンセルされず、旧祖先は正常に閉じる', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          poset: { title: '半順序集合', html: '<p>poset の定義</p>' },
+          lattice: {
+            title: '束',
+            html: '<p><a href="/defs/poset" class="concept-link" data-term="poset">半順序集合</a></p>',
+          },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+      const latticeLinkEl = addGlobalConceptLink('lattice', '束')
+      const pagePosetLink = addGlobalConceptLink('poset', '半順序集合 (page)')
+
+      // lattice popup を開く
+      await act(async () => {
+        fireEvent.mouseEnter(latticeLinkEl)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      const latticePopup = document.body.querySelector('.hover-preview') as HTMLElement
+
+      // lattice popup 内の poset link から poset popup を開く (parentId = lattice)
+      const popupPosetLink = latticePopup.querySelector('.concept-link[data-term="poset"]') as HTMLElement
+      popupPosetLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+      await act(async () => {
+        fireEvent.mouseEnter(popupPosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // lattice popup から mouseleave → close タイマー開始 (180ms)
+      await act(async () => {
+        fireEvent.mouseLeave(latticePopup)
+        vi.advanceTimersByTime(50)
+      })
+
+      // ページ上の poset link を hover → poset popup が reparent (parentId: null)
+      await act(async () => {
+        fireEvent.mouseEnter(pagePosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      // さらに 200ms → lattice の close タイマーが消化されて lattice popup が閉じる
+      await act(async () => {
+        vi.advanceTimersByTime(200)
+      })
+
+      // lattice popup は閉じる (旧祖先タイマーは維持されていたため)
+      expect(document.body.contains(latticePopup)).toBe(false)
+      // poset popup は残る (reparent 後は parentId=null、lattice の closePopup の影響を受けない)
+      const remaining = document.body.querySelectorAll('.hover-preview')
+      expect(remaining.length).toBe(1)
+      expect(remaining[0].querySelector('.hover-preview__title')?.textContent).toBe('半順序集合')
+    })
   })
 
   describe('MathJax typeset 保持', () => {
