@@ -184,17 +184,21 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         return null
       }
 
-      // 祖先 popup に同一 term / localId がある場合はスキップ (Issue #32: 自己参照 cascade 防止)
-      if (parentPopupId !== null) {
-        const ancestorAndParentIds = [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
-        const hasDuplicate = ancestorAndParentIds.some((aid) => {
-          const ancestor = popupsRef.current.find((p) => p.id === aid)
-          if (!ancestor) return false
-          if (term !== undefined) return ancestor.term === term
-          if (localId !== undefined) return ancestor.localId === localId
-          return false
-        })
-        if (hasDuplicate) return null
+      // 既存 popup に同一 term / localId がある場合は重複作成をスキップ (Issue #32)
+      // 祖先だけでなく全 popup を対象にすることで、親子関係の外側からの重複も防ぐ。
+      // ただし既存 popup の close タイマーをキャンセルし、現在の linkEl をマッピングする。
+      // (別リンク要素から同一 term を hover した際に、タイマー未キャンセルで popup が
+      //  消えてしまうことを防ぐため)
+      const duplicatePopup = popupsRef.current.find((p) => {
+        if (term !== undefined) return p.term === term
+        if (localId !== undefined) return p.localId === localId
+        return false
+      })
+      if (duplicatePopup) {
+        cancelTimer(duplicatePopup.id)
+        getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
+        linkPopupMapRef.current.set(linkEl, duplicatePopup.id)
+        return duplicatePopup.id
       }
 
       const rect = linkEl.getBoundingClientRect()
@@ -421,7 +425,11 @@ interface PopupItemProps {
   popup: PopupState
 }
 
-function PopupItem({ popup }: PopupItemProps) {
+// popup prop が変わらない限り再レンダリングしない。
+// 他の popup が追加・削除されたとき親が再レンダリングされても、既存 popup の
+// dangerouslySetInnerHTML が再適用されて MathJax レンダリング済み innerHTML が
+// 上書きリセットされるのを防ぐ。
+const PopupItem = React.memo(function PopupItem({ popup }: PopupItemProps) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   // viewport 下端超え時にリンクの上に表示するため、top を調整する
@@ -510,4 +518,4 @@ function PopupItem({ popup }: PopupItemProps) {
       />
     </div>
   )
-}
+})
