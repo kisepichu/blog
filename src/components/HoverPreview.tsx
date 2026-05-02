@@ -206,9 +206,18 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         const newLeft = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
         const newTop = rect.bottom + 8
         const newAnchorTop = rect.top
+        // parentId の更新: 新しい parentId が duplicatePopup 自身またはその子孫に
+        // なる場合はサイクルが生じるため、元の parentId を維持する
+        const newParentChain =
+          parentPopupId !== null
+            ? [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
+            : []
+        const safeParentId = newParentChain.includes(duplicatePopup.id)
+          ? duplicatePopup.parentId
+          : parentPopupId
         popupsRef.current = popupsRef.current.map((p) =>
           p.id === duplicatePopup.id
-            ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop }
+            ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop, parentId: safeParentId }
             : p,
         )
         setPopups(popupsRef.current)

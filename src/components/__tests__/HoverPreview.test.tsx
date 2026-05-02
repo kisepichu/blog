@@ -590,6 +590,64 @@ describe('HoverPreview', () => {
       expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
     })
 
+    it('popup 内リンクで開いた popup がページリンクから再利用されると、元の親 popup の mouseleave で閉じない', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          lattice: {
+            title: '束',
+            html: '<p><a href="/defs/poset" class="concept-link" data-term="poset">半順序集合</a>とは</p>',
+          },
+          poset: { title: '半順序集合', html: '<p>poset の定義</p>' },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+      const latticeLink = addGlobalConceptLink('lattice')
+      const pagePosetLink = addGlobalConceptLink('poset', '半順序集合')
+
+      // lattice popup を開く
+      await act(async () => {
+        fireEvent.mouseEnter(latticeLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      const latticePopup = document.body.querySelector('.hover-preview') as HTMLElement
+
+      // lattice popup 内の poset link から poset popup を開く (parentId = lattice popup id)
+      const popupPosetLink = latticePopup.querySelector('.concept-link[data-term="poset"]') as HTMLElement
+      popupPosetLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+      await act(async () => {
+        fireEvent.mouseEnter(popupPosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // ページ上の poset link hover → poset popup の parentId が null に更新される
+      await act(async () => {
+        fireEvent.mouseEnter(pagePosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // lattice popup から mouseleave → lattice popup が閉じる
+      await act(async () => {
+        fireEvent.mouseLeave(latticePopup)
+        vi.advanceTimersByTime(200)
+      })
+
+      // lattice popup は閉じる。poset popup は parentId が null に更新済みなので閉じない
+      const remainingPopups = document.body.querySelectorAll('.hover-preview')
+      expect(remainingPopups.length).toBe(1)
+      expect(remainingPopups[0].querySelector('.hover-preview__title')?.textContent).toBe('半順序集合')
+    })
+
     it('子 popup から mouseleave すると子のみ閉じる (親は残る)', async () => {
       await renderAndSettle()
       const link = addGlobalConceptLink('poset')
