@@ -184,17 +184,78 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         return null
       }
 
-      // 祖先 popup に同一 term / localId がある場合はスキップ (Issue #32: 自己参照 cascade 防止)
-      if (parentPopupId !== null) {
-        const ancestorAndParentIds = [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
-        const hasDuplicate = ancestorAndParentIds.some((aid) => {
-          const ancestor = popupsRef.current.find((p) => p.id === aid)
-          if (!ancestor) return false
-          if (term !== undefined) return ancestor.term === term
-          if (localId !== undefined) return ancestor.localId === localId
-          return false
+      // 既存 popup に同一 term / localId がある場合は重複作成をスキップ (Issue #32)
+      // 祖先だけでなく全 popup を対象にすることで、親子関係の外側からの重複も防ぐ。
+      // ただし既存 popup の close タイマーをキャンセルし、現在の linkEl をマッピングする。
+      // (別リンク要素から同一 term を hover した際に、タイマー未キャンセルで popup が
+      //  消えてしまうことを防ぐため)
+      const duplicatePopup = popupsRef.current.find((p) => {
+        if (term !== undefined) return p.term === term
+        if (localId !== undefined) return p.localId === localId
+        return false
+      })
+      if (duplicatePopup) {
+        cancelTimer(duplicatePopup.id)
+        // 新しい親とその祖先のタイマーもキャンセルする。
+        // 親が close timer 中のときに子を再利用すると、タイマー満了で親が閉じて子も消えるため。
+        if (parentPopupId !== null) {
+          cancelTimer(parentPopupId)
+          getAncestorIds(parentPopupId, popupsRef.current).forEach((aid) => cancelTimer(aid))
+        }
+        linkPopupMapRef.current.set(linkEl, duplicatePopup.id)
+        // 新しい parentId が duplicatePopup 自身またはその祖先になる場合 (self-reference 等) は
+        // サイクルが生じるため、位置更新・子孫クローズをスキップして早期リターンする
+        const newParentChain =
+          parentPopupId !== null
+            ? [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
+            : []
+        if (newParentChain.includes(duplicatePopup.id)) {
+          // self-reference: hover は popup 内から。旧祖先チェーンのタイマーをキャンセルして維持する
+          getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
+          return duplicatePopup.id
+        }
+        // reparent する場合は旧祖先タイマーをキャンセルしない。
+        // reparent 後は parentId が変わるため、旧祖先の closePopup は duplicate popup を
+        // 巻き込まなくなり、タイマーを自然に消化させて旧祖先を正常に閉じられる。
+        // 別リンク要素から hover した場合、popup の表示位置・parentId・zIndex を更新する
+        const rect = linkEl.getBoundingClientRect()
+        const popupWidth = 330
+        const viewportPadding = 8
+        const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding)
+        const newLeft = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
+        const newTop = rect.bottom + 8
+        const newAnchorTop = rect.top
+        // zIndex を更新: 再利用 popup が新しい親 popup の背後に隠れないよう、新しい順序を割り当てる
+        const newZIndex = 9000 + nextPopupId()
+        // 子孫 popup を全て閉じる: 親が別リンクへ移動するため、古い位置に取り残された
+        // 子孫は孤立して不整合な表示になる
+        const descendants = new Set<number>()
+        const descQueue = popupsRef.current
+          .filter((p) => p.parentId === duplicatePopup.id)
+          .map((p) => p.id)
+        while (descQueue.length > 0) {
+          const cur = descQueue.shift()!
+          descendants.add(cur)
+          popupsRef.current
+            .filter((p) => p.parentId === cur)
+            .forEach((p) => descQueue.push(p.id))
+        }
+        descendants.forEach((did) => {
+          const t = timersRef.current.get(did)
+          if (t !== undefined) {
+            clearTimeout(t)
+            timersRef.current.delete(did)
+          }
         })
-        if (hasDuplicate) return null
+        popupsRef.current = popupsRef.current
+          .filter((p) => !descendants.has(p.id))
+          .map((p) =>
+            p.id === duplicatePopup.id
+              ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop, parentId: parentPopupId, zIndex: newZIndex }
+              : p,
+          )
+        setPopups(popupsRef.current)
+        return duplicatePopup.id
       }
 
       const rect = linkEl.getBoundingClientRect()
@@ -421,13 +482,19 @@ interface PopupItemProps {
   popup: PopupState
 }
 
-function PopupItem({ popup }: PopupItemProps) {
+// popup prop が変わらない限り再レンダリングしない。
+// 他の popup が追加・削除されたとき親が再レンダリングされても、既存 popup の
+// dangerouslySetInnerHTML が再適用されて MathJax レンダリング済み innerHTML が
+// 上書きリセットされるのを防ぐ。
+const PopupItem = React.memo(function PopupItem({ popup }: PopupItemProps) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   // viewport 下端超え時にリンクの上に表示するため、top を調整する
   const [top, setTop] = useState(popup.top)
 
   useLayoutEffect(() => {
+    // 別リンクから再利用されて popup.top が変化した場合、ローカル state をリセットしてから再判定する
+    setTop(popup.top)
     const el = popupRef.current
     if (!el) return
     const rect = el.getBoundingClientRect()
@@ -510,4 +577,4 @@ function PopupItem({ popup }: PopupItemProps) {
       />
     </div>
   )
-}
+})
