@@ -197,6 +197,12 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
       if (duplicatePopup) {
         cancelTimer(duplicatePopup.id)
         getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
+        // 新しい親とその祖先のタイマーもキャンセルする。
+        // 親が close timer 中のときに子を再利用すると、タイマー満了で親が閉じて子も消えるため。
+        if (parentPopupId !== null) {
+          cancelTimer(parentPopupId)
+          getAncestorIds(parentPopupId, popupsRef.current).forEach((aid) => cancelTimer(aid))
+        }
         linkPopupMapRef.current.set(linkEl, duplicatePopup.id)
         // 新しい parentId が duplicatePopup 自身またはその祖先になる場合 (self-reference 等) は
         // サイクルが生じるため、位置更新・子孫クローズをスキップして早期リターンする
