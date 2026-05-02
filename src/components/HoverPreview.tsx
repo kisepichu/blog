@@ -198,7 +198,16 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         cancelTimer(duplicatePopup.id)
         getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
         linkPopupMapRef.current.set(linkEl, duplicatePopup.id)
-        // 別リンク要素から hover した場合、popup の表示位置を現在のリンクに更新する
+        // 新しい parentId が duplicatePopup 自身またはその祖先になる場合 (self-reference 等) は
+        // サイクルが生じるため、位置更新・子孫クローズをスキップして早期リターンする
+        const newParentChain =
+          parentPopupId !== null
+            ? [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
+            : []
+        if (newParentChain.includes(duplicatePopup.id)) {
+          return duplicatePopup.id
+        }
+        // 別リンク要素から hover した場合、popup の表示位置・parentId・zIndex を更新する
         const rect = linkEl.getBoundingClientRect()
         const popupWidth = 330
         const viewportPadding = 8
@@ -206,15 +215,8 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         const newLeft = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
         const newTop = rect.bottom + 8
         const newAnchorTop = rect.top
-        // parentId の更新: 新しい parentId が duplicatePopup 自身またはその子孫に
-        // なる場合はサイクルが生じるため、元の parentId を維持する
-        const newParentChain =
-          parentPopupId !== null
-            ? [parentPopupId, ...getAncestorIds(parentPopupId, popupsRef.current)]
-            : []
-        const safeParentId = newParentChain.includes(duplicatePopup.id)
-          ? duplicatePopup.parentId
-          : parentPopupId
+        // zIndex を更新: 再利用 popup が新しい親 popup の背後に隠れないよう、新しい順序を割り当てる
+        const newZIndex = 9000 + nextPopupId()
         // 子孫 popup を全て閉じる: 親が別リンクへ移動するため、古い位置に取り残された
         // 子孫は孤立して不整合な表示になる
         const descendants = new Set<number>()
@@ -239,7 +241,7 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
           .filter((p) => !descendants.has(p.id))
           .map((p) =>
             p.id === duplicatePopup.id
-              ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop, parentId: safeParentId }
+              ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop, parentId: parentPopupId, zIndex: newZIndex }
               : p,
           )
         setPopups(popupsRef.current)

@@ -704,6 +704,115 @@ describe('HoverPreview', () => {
       expect(remaining[0].querySelector('.hover-preview__title')?.textContent).toBe('半順序集合')
     })
 
+    it('popup 内の self-reference リンク hover では子孫 popup が閉じない', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          poset: {
+            title: '半順序集合',
+            // 自己参照 (poset) と子リンク (upper-bound) を含む
+            html: '<p><a href="/defs/poset" class="concept-link" data-term="poset">poset</a> と <a href="/defs/upper-bound" class="concept-link" data-term="upper-bound">上界</a></p>',
+          },
+          'upper-bound': { title: '上界', html: '<p>上界の定義</p>' },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+      const pageLink = addGlobalConceptLink('poset', '半順序集合')
+
+      // poset popup を開く
+      await act(async () => {
+        fireEvent.mouseEnter(pageLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      const posetPopup = document.body.querySelector('.hover-preview') as HTMLElement
+      expect(posetPopup).not.toBeNull()
+
+      // popup 内の upper-bound リンクを hover → 子 popup を開く
+      const upperBoundLink = posetPopup.querySelector('.concept-link[data-term="upper-bound"]') as HTMLElement
+      upperBoundLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+      await act(async () => {
+        fireEvent.mouseEnter(upperBoundLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // popup 内の self-reference (poset) リンクを hover → 子孫 popup は閉じない
+      const selfRefLink = posetPopup.querySelector('.concept-link[data-term="poset"]') as HTMLElement
+      selfRefLink.getBoundingClientRect = () => ({
+        left: 110, right: 210, top: 180, bottom: 200,
+        width: 100, height: 20, x: 110, y: 180, toJSON: () => ({}),
+      })
+      await act(async () => {
+        fireEvent.mouseEnter(selfRefLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      // poset + upper-bound の 2 つが残っている
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+    })
+
+    it('duplicate popup が別リンクから再利用されると zIndex が新しい親より高くなる', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          poset: { title: '半順序集合', html: '<p>poset の定義</p>' },
+          'upper-bound': {
+            title: '上界',
+            html: '<p><a href="/defs/poset" class="concept-link" data-term="poset">半順序集合</a></p>',
+          },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+      const pagePosetLink = addGlobalConceptLink('poset', '半順序集合')
+      const upperBoundLink = addGlobalConceptLink('upper-bound', '上界')
+
+      // poset popup を開く (古い id → 低い zIndex)
+      await act(async () => {
+        fireEvent.mouseEnter(pagePosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      const posetPopupEl = document.body.querySelector('.hover-preview') as HTMLElement
+      const oldZIndex = Number(posetPopupEl.style.zIndex)
+
+      // upper-bound popup を開く (新しい id → 高い zIndex)
+      await act(async () => {
+        fireEvent.mouseEnter(upperBoundLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+      const upperBoundPopupEl = Array.from(document.body.querySelectorAll('.hover-preview')).find(
+        (el) => el.querySelector('.hover-preview__title')?.textContent === '上界'
+      ) as HTMLElement
+      const upperBoundZIndex = Number(upperBoundPopupEl.style.zIndex)
+      expect(upperBoundZIndex).toBeGreaterThan(oldZIndex)
+
+      // upper-bound popup 内の poset link から poset を再利用
+      const popupPosetLink = upperBoundPopupEl.querySelector('.concept-link[data-term="poset"]') as HTMLElement
+      popupPosetLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+      await act(async () => {
+        fireEvent.mouseEnter(popupPosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      // reuse された poset popup の zIndex が upper-bound popup より高い
+      const newPosetZIndex = Number(posetPopupEl.style.zIndex)
+      expect(newPosetZIndex).toBeGreaterThan(upperBoundZIndex)
+    })
+
     it('子 popup から mouseleave すると子のみ閉じる (親は残る)', async () => {
       await renderAndSettle()
       const link = addGlobalConceptLink('poset')
