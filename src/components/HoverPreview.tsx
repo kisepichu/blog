@@ -184,15 +184,22 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         return null
       }
 
-      // 既存 popup に同一 term / localId がある場合はスキップ (重複表示防止)
-      // 祖先だけでなく全 popup を対象にすることで、親子関係の外側からの
-      // 同一 term 重複作成 (Issue #32) も防ぐ
-      const hasDuplicate = popupsRef.current.some((p) => {
+      // 既存 popup に同一 term / localId がある場合は重複作成をスキップ (Issue #32)
+      // 祖先だけでなく全 popup を対象にすることで、親子関係の外側からの重複も防ぐ。
+      // ただし既存 popup の close タイマーをキャンセルし、現在の linkEl をマッピングする。
+      // (別リンク要素から同一 term を hover した際に、タイマー未キャンセルで popup が
+      //  消えてしまうことを防ぐため)
+      const duplicatePopup = popupsRef.current.find((p) => {
         if (term !== undefined) return p.term === term
         if (localId !== undefined) return p.localId === localId
         return false
       })
-      if (hasDuplicate) return null
+      if (duplicatePopup) {
+        cancelTimer(duplicatePopup.id)
+        getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
+        linkPopupMapRef.current.set(linkEl, duplicatePopup.id)
+        return duplicatePopup.id
+      }
 
       const rect = linkEl.getBoundingClientRect()
       const popupWidth = 330
