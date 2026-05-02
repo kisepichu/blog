@@ -2,7 +2,7 @@
 id: syntactic-object
 title: 構文
 english: syntax
-aliases: [構文, 構文的対象, "syntactic object"]
+aliases: [構文, 構文要素, 構文的対象, "syntactic element", "syntactic object"]
 status: published
 tags: []
 ---
