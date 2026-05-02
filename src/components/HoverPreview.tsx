@@ -215,11 +215,33 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         const safeParentId = newParentChain.includes(duplicatePopup.id)
           ? duplicatePopup.parentId
           : parentPopupId
-        popupsRef.current = popupsRef.current.map((p) =>
-          p.id === duplicatePopup.id
-            ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop, parentId: safeParentId }
-            : p,
-        )
+        // 子孫 popup を全て閉じる: 親が別リンクへ移動するため、古い位置に取り残された
+        // 子孫は孤立して不整合な表示になる
+        const descendants = new Set<number>()
+        const descQueue = popupsRef.current
+          .filter((p) => p.parentId === duplicatePopup.id)
+          .map((p) => p.id)
+        while (descQueue.length > 0) {
+          const cur = descQueue.shift()!
+          descendants.add(cur)
+          popupsRef.current
+            .filter((p) => p.parentId === cur)
+            .forEach((p) => descQueue.push(p.id))
+        }
+        descendants.forEach((did) => {
+          const t = timersRef.current.get(did)
+          if (t !== undefined) {
+            clearTimeout(t)
+            timersRef.current.delete(did)
+          }
+        })
+        popupsRef.current = popupsRef.current
+          .filter((p) => !descendants.has(p.id))
+          .map((p) =>
+            p.id === duplicatePopup.id
+              ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop, parentId: safeParentId }
+              : p,
+          )
         setPopups(popupsRef.current)
         return duplicatePopup.id
       }

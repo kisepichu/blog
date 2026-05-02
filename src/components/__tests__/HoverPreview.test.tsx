@@ -648,6 +648,62 @@ describe('HoverPreview', () => {
       expect(remainingPopups[0].querySelector('.hover-preview__title')?.textContent).toBe('半順序集合')
     })
 
+    it('duplicate popup が別リンクから再利用されると、その子孫 popup が閉じる', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          poset: {
+            title: '半順序集合',
+            html: '<p><a href="/defs/upper-bound" class="concept-link" data-term="upper-bound">上界</a></p>',
+          },
+          'upper-bound': { title: '上界', html: '<p>上界の定義</p>' },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+      const link1 = addGlobalConceptLink('poset', 'poset (1)')
+      const link2 = addGlobalConceptLink('poset', 'poset (2)')
+      link2.getBoundingClientRect = () => ({
+        left: 300, right: 400, top: 150, bottom: 170,
+        width: 100, height: 20, x: 300, y: 150, toJSON: () => ({}),
+      })
+
+      // link1 から poset popup を開く
+      await act(async () => {
+        fireEvent.mouseEnter(link1)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+
+      // poset popup 内の upper-bound link をクリック → 子 popup を開く
+      const posetPopup = document.body.querySelector('.hover-preview') as HTMLElement
+      const childLink = posetPopup.querySelector('.concept-link[data-term="upper-bound"]') as HTMLElement
+      expect(childLink).not.toBeNull()
+      childLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+      await act(async () => {
+        fireEvent.mouseEnter(childLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // link2 (同一 term) から hover → poset popup が再利用され、子 popup (upper-bound) は閉じる
+      await act(async () => {
+        fireEvent.mouseEnter(link2)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      // poset popup は残り、upper-bound の子 popup は閉じている
+      const remaining = document.body.querySelectorAll('.hover-preview')
+      expect(remaining.length).toBe(1)
+      expect(remaining[0].querySelector('.hover-preview__title')?.textContent).toBe('半順序集合')
+    })
+
     it('子 popup から mouseleave すると子のみ閉じる (親は残る)', async () => {
       await renderAndSettle()
       const link = addGlobalConceptLink('poset')
