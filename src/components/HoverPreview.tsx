@@ -418,7 +418,11 @@ interface PopupItemProps {
   popup: PopupState
 }
 
-function PopupItem({ popup }: PopupItemProps) {
+// popup prop が変わらない限り再レンダリングしない。
+// 他の popup が追加・削除されたとき親が再レンダリングされても、既存 popup の
+// dangerouslySetInnerHTML が再適用されて MathJax レンダリング済み innerHTML が
+// 上書きリセットされるのを防ぐ。
+const PopupItem = React.memo(function PopupItem({ popup }: PopupItemProps) {
   const bodyRef = useRef<HTMLDivElement>(null)
   const popupRef = useRef<HTMLDivElement>(null)
   // viewport 下端超え時にリンクの上に表示するため、top を調整する
@@ -507,4 +511,4 @@ function PopupItem({ popup }: PopupItemProps) {
       />
     </div>
   )
-}
+})

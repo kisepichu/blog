@@ -612,4 +612,61 @@ describe('HoverPreview', () => {
       expect(document.body.contains(parentPopup)).toBe(true)
     })
   })
+
+  describe('MathJax typeset 保持', () => {
+    it('子 popup を開いても親 popup の hover-preview__body innerHTML がリセットされない (Issue: TeX revert)', async () => {
+      // lattice が poset concept-link を含む HTML を返すようにモックを上書き
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          lattice: {
+            title: '束',
+            html: '<p>TeX: $(L,\\leq)$</p><p><a href="/defs/poset" class="concept-link" data-term="poset">半順序集合</a></p>',
+          },
+          poset: { title: '半順序集合', html: '<p>TeX: $P$</p>' },
+        }),
+      } as unknown as Response)
+
+      await renderAndSettle()
+
+      const latticeLink = addGlobalConceptLink('lattice')
+
+      // lattice popup を開く
+      await act(async () => {
+        fireEvent.mouseEnter(latticeLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      const latticePopup = document.body.querySelector('.hover-preview') as HTMLElement
+      expect(latticePopup).not.toBeNull()
+      const latticeBody = latticePopup.querySelector('.hover-preview__body') as HTMLElement
+      expect(latticeBody).not.toBeNull()
+
+      // MathJax が TeX を描画したと仮定して innerHTML を書き換える
+      const renderedTeX = '<p>TeX: <math>...</math></p><p><a href="/defs/poset" class="concept-link" data-term="poset">半順序集合</a></p>'
+      latticeBody.innerHTML = renderedTeX
+
+      // popup 内の poset link を取得して hover → 子 popup を開く
+      const popupPosetLink = latticeBody.querySelector(
+        '.concept-link[data-term="poset"]',
+      ) as HTMLElement
+      expect(popupPosetLink).not.toBeNull()
+      popupPosetLink.getBoundingClientRect = () => ({
+        left: 120, right: 220, top: 200, bottom: 220,
+        width: 100, height: 20, x: 120, y: 200, toJSON: () => ({}),
+      })
+
+      await act(async () => {
+        fireEvent.mouseEnter(popupPosetLink)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(2)
+
+      // 子 popup を開いた後も親 popup の body innerHTML がリセットされていないこと
+      expect(latticeBody.innerHTML).toBe(renderedTeX)
+    })
+  })
 })
