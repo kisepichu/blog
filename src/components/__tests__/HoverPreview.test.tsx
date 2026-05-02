@@ -495,6 +495,39 @@ describe('HoverPreview', () => {
       expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
     })
 
+    it('同一 localId を参照する別リンクに mouseenter しても popup が増えない (localId 重複抑止)', async () => {
+      await renderAndSettle()
+      addDefinitionBlock('local-g', '<p>写像 g の定義</p>')
+
+      // 同じ localId を参照する 2 つのリンクを追加
+      const link1 = addLocalConceptLink('local-g', 'g (1)')
+      const link2 = addLocalConceptLink('local-g', 'g (2)')
+      link2.getBoundingClientRect = () => ({
+        left: 300, right: 400, top: 150, bottom: 170,
+        width: 100, height: 20, x: 300, y: 150, toJSON: () => ({}),
+      })
+
+      // link1 hover → popup 表示
+      await act(async () => {
+        fireEvent.mouseEnter(link1)
+        await Promise.resolve()
+        vi.advanceTimersByTime(1)
+      })
+
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+
+      // link2 (同一 localId) hover × 3 → popup は増えない
+      for (let i = 0; i < 3; i++) {
+        await act(async () => {
+          fireEvent.mouseEnter(link2)
+          await Promise.resolve()
+          vi.advanceTimersByTime(1)
+        })
+      }
+
+      expect(document.body.querySelectorAll('.hover-preview').length).toBe(1)
+    })
+
     it('popup 内で term の popup が開いているとき、ページ上の同一 term 別要素にホバーしても popup が増えない (Issue #32 root cause)', async () => {
       // lattice が poset concept-link を含む HTML を返すようにモックを上書き
       global.fetch = vi.fn().mockResolvedValue({

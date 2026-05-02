@@ -198,6 +198,20 @@ export default function HoverPreview({ baseUrl = '/' }: Props) {
         cancelTimer(duplicatePopup.id)
         getAncestorIds(duplicatePopup.id, popupsRef.current).forEach((aid) => cancelTimer(aid))
         linkPopupMapRef.current.set(linkEl, duplicatePopup.id)
+        // 別リンク要素から hover した場合、popup の表示位置を現在のリンクに更新する
+        const rect = linkEl.getBoundingClientRect()
+        const popupWidth = 330
+        const viewportPadding = 8
+        const maxLeft = Math.max(viewportPadding, window.innerWidth - popupWidth - viewportPadding)
+        const newLeft = Math.max(viewportPadding, Math.min(rect.left, maxLeft))
+        const newTop = rect.bottom + 8
+        const newAnchorTop = rect.top
+        popupsRef.current = popupsRef.current.map((p) =>
+          p.id === duplicatePopup.id
+            ? { ...p, left: newLeft, top: newTop, anchorTop: newAnchorTop }
+            : p,
+        )
+        setPopups(popupsRef.current)
         return duplicatePopup.id
       }
 
@@ -436,6 +450,8 @@ const PopupItem = React.memo(function PopupItem({ popup }: PopupItemProps) {
   const [top, setTop] = useState(popup.top)
 
   useLayoutEffect(() => {
+    // 別リンクから再利用されて popup.top が変化した場合、ローカル state をリセットしてから再判定する
+    setTop(popup.top)
     const el = popupRef.current
     if (!el) return
     const rect = el.getBoundingClientRect()
