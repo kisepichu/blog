@@ -148,8 +148,7 @@ test.describe('/ (ホームページ)', () => {
     const count = await defItems.count()
     expect(count).toBeGreaterThanOrEqual(1)
     for (let i = 0; i < count; i++) {
-      const href = await defItems.nth(i).getAttribute('href')
-      expect(href).toMatch(/^\/defs\//)
+      await expect(defItems.nth(i)).toHaveAttribute('href', /^\/defs\//)
     }
   })
 
