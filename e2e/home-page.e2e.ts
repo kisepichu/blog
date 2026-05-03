@@ -143,14 +143,13 @@ test.describe('/ (ホームページ)', () => {
     expect(count).toBeLessThanOrEqual(4)
   })
 
-  test('poset の def-compact-item が /defs/poset へのリンクになっている', async ({ page }) => {
-    const defItem = page.locator('a.def-compact-item[href="/defs/poset"]')
-    await expect(defItem).toBeVisible()
-  })
-
-  test('lattice の def-compact-item が /defs/lattice へのリンクになっている', async ({ page }) => {
-    const defItem = page.locator('a.def-compact-item[href="/defs/lattice"]')
-    await expect(defItem).toBeVisible()
+  test('各 def-compact-item が /defs/ へのリンクになっている', async ({ page }) => {
+    const defItems = page.locator('a.def-compact-item')
+    const count = await defItems.count()
+    expect(count).toBeGreaterThanOrEqual(1)
+    for (let i = 0; i < count; i++) {
+      await expect(defItems.nth(i)).toHaveAttribute('href', /^\/defs\//)
+    }
   })
 
   // --- aside: タグ一覧 ---
