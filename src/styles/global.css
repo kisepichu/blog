@@ -416,7 +416,7 @@ a:hover { color: var(--link-h); }
 .view-all:hover { color: var(--accent-dim); text-decoration: underline; }
 
 /* ── HOME ASIDE ─────────────────────────────────── */
-/* aside 内の 2〜3 番目のセクション (最近の定義・タグ) に上余白 */
+/* aside 内の後続セクションに上余白 */
 .home-aside-section { margin-top: 2rem; }
 /* タグ一覧コンテナ */
 .home-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
@@ -561,4 +561,3 @@ a:hover { color: var(--link-h); }
   color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
-
