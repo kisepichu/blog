@@ -34,12 +34,11 @@ const visibleSeries = FILTER_DRAFTS
   : allSeries
 const seriesTitleMap = new Map(visibleSeries.map((s) => [s.id, s.data.title]))
 
-// 定義: id のアルファベット順に最大4件
+// 定義: タグ集計に使用
 const allDefs = await getCollection('defs')
 const defs = FILTER_DRAFTS
   ? allDefs.filter((d) => d.data.status === 'published')
   : allDefs
-const recentDefs = [...defs].sort((a, b) => a.id.localeCompare(b.id)).slice(0, 4)
 
 // タグ: 投稿・定義から全ユニークタグを収集
 const allTags = [...new Set([
@@ -52,7 +51,7 @@ const allTags = [...new Set([
   <div class="container" data-pagefind-ignore>
     <div class="home-hero">
       <h1 class="home-title">blog (仮)</h1>
-      <p class="home-subtitle">理論 CS 学び直し</p>
+      <p class="home-subtitle">理論 CS 学び直しノート</p>
     </div>
 
     <div class="home-grid">
@@ -90,20 +89,6 @@ const allTags = [...new Set([
             </>
           )
         })()}
-
-        {recentDefs.length > 0 && (
-          <>
-            <div class="section-title home-aside-section">最近の定義</div>
-            <div class="def-compact">
-              {recentDefs.map((def) => (
-                <a class="def-compact-item" href={`${base}/defs/${encodeURIComponent(def.id)}`}>
-                  <span class="def-compact-item__title">{def.data.title}</span>
-                  <span class="def-compact-item__id">{def.id}</span>
-                </a>
-              ))}
-            </div>
-          </>
-        )}
 
         {allTags.length > 0 && (
           <>
