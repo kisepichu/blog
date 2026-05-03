@@ -13,10 +13,10 @@ test.describe('/ (ホームページ)', () => {
     await expect(h1).toContainText('blog')
   })
 
-  test('p.home-subtitle に "理論 CS 学び直し" が含まれる', async ({ page }) => {
+  test('p.home-subtitle に "理論 CS 学び直しノート" が含まれる', async ({ page }) => {
     const subtitle = page.locator('p.home-subtitle')
     await expect(subtitle).toBeVisible()
-    await expect(subtitle).toContainText('理論 CS 学び直し')
+    await expect(subtitle).toContainText('理論 CS 学び直しノート')
   })
 
   // --- 2カラムグリッド ---
@@ -125,32 +125,15 @@ test.describe('/ (ホームページ)', () => {
 
   // --- aside: 最近の定義 ---
 
-  test('"最近の定義" セクションタイトルが表示される', async ({ page }) => {
+  test('"最近の定義" セクションタイトルは表示されない', async ({ page }) => {
     const sectionTitles = page.locator('.section-title')
     const defsSection = sectionTitles.filter({ hasText: '最近の定義' })
-    await expect(defsSection).toBeVisible()
+    await expect(defsSection).toHaveCount(0)
   })
 
-  test('.def-compact-item が1件以上表示される', async ({ page }) => {
-    const defItems = page.locator('.def-compact-item')
-    const count = await defItems.count()
-    expect(count).toBeGreaterThanOrEqual(1)
-  })
-
-  test('.def-compact-item は最大4件まで表示される', async ({ page }) => {
-    const defItems = page.locator('.def-compact-item')
-    const count = await defItems.count()
-    expect(count).toBeLessThanOrEqual(4)
-  })
-
-  test('poset の def-compact-item が /defs/poset へのリンクになっている', async ({ page }) => {
-    const defItem = page.locator('a.def-compact-item[href="/defs/poset"]')
-    await expect(defItem).toBeVisible()
-  })
-
-  test('lattice の def-compact-item が /defs/lattice へのリンクになっている', async ({ page }) => {
-    const defItem = page.locator('a.def-compact-item[href="/defs/lattice"]')
-    await expect(defItem).toBeVisible()
+  test('aside に .def-compact-item は表示されない', async ({ page }) => {
+    const defItems = page.locator('aside .def-compact-item')
+    await expect(defItems).toHaveCount(0)
   })
 
   // --- aside: タグ一覧 ---
