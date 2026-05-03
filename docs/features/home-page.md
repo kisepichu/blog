@@ -51,10 +51,12 @@ container (max-width: 900px, padding: 2.5rem 1.25rem)
 
 ```ts
 // src/pages/index.astro
+import { FILTER_DRAFTS } from '@/config/env'
+
 const allPosts = await getCollection('posts')
 const allDefs  = await getCollection('defs')
 
-const posts = (import.meta.env.PROD
+const posts = (FILTER_DRAFTS
   ? allPosts.filter((p) => p.data.status === 'published')
   : allPosts
 ).sort((a, b) => {
@@ -64,7 +66,7 @@ const posts = (import.meta.env.PROD
   return b.data.date.localeCompare(a.data.date)
 })
 
-const defs = import.meta.env.PROD
+const defs = FILTER_DRAFTS
   ? allDefs.filter((d) => d.data.status === 'published')
   : allDefs
 
