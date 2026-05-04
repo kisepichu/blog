@@ -25,7 +25,8 @@ function contentPipelineIntegration(): AstroIntegration {
         const defs = (isProd && !draftVisible) ? allDefs.filter(d => d.status === 'published') : allDefs
         const aliasMap = buildAliasMap(defs)
         const defMetaMap = buildDefMetaMap(defs)
-        const defTitleMap = Object.fromEntries(defs.map(d => [d.id, d.title]))
+        const defTitleMap: Record<string, string> = Object.create(null) as Record<string, string>
+        for (const def of defs) defTitleMap[def.id] = def.title
         const baseUrl = config.base ?? '/'
         const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl, isProd)
 
