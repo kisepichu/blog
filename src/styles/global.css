@@ -68,18 +68,20 @@ a:hover { color: var(--link-h); }
   margin: 1.5rem 0;
   position: relative;
 }
-/* def-page のグローバル定義 (番号なし) に ▶ 定義 ラベルを付与 */
-.definition-block:not(.definition-block--embedded):not([id])::before {
+/* def-page / local definition の番号なし定義に ▶ 定義 ラベルを付与 */
+.definition-block:not(.definition-block--embedded)::before {
   content: '▶ 定義';
   display: block;
   font-family: var(--font-ui);
   font-size: 0.68rem;
   color: var(--accent-dim);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
   margin-bottom: 0.6rem;
 }
-/* embedded / local-numbered blocks — definition-number span が内部にあるので ::before 不要 */
+.definition-block:not(.definition-block--embedded)[data-def-title]::before {
+  content: '▶ 定義 (' attr(data-def-title) ')';
+}
+/* embedded / local blocks の余白を少し広げる */
 .definition-block.definition-block--embedded,
 .definition-block[id] {
   margin: 1.8rem 0;
@@ -94,7 +96,6 @@ a:hover { color: var(--link-h); }
   font-size: 0.68rem;
   color: var(--accent-dim);
   letter-spacing: 0.1em;
-  text-transform: uppercase;
   margin-bottom: 0.6rem;
 }
 
