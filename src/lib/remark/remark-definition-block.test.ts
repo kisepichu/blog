@@ -6,11 +6,11 @@ import remarkRehype from 'remark-rehype'
 import rehypeStringify from 'rehype-stringify'
 import remarkDefinitionBlock from './remark-definition-block'
 
-const process = (md: string) =>
+const process = (md: string, options?: Parameters<typeof remarkDefinitionBlock>[0]) =>
   unified()
     .use(remarkParse)
     .use(remarkDirective)
-    .use(remarkDefinitionBlock)
+    .use(remarkDefinitionBlock, options)
     .use(remarkRehype)
     .use(rehypeStringify)
     .processSync(md)
@@ -70,6 +70,26 @@ describe('remarkDefinitionBlock', () => {
     const hasClassFirst = /<div\b[^>]*\bclass="definition-block"[^>]*\bdata-pagefind-body\b/.test(html)
     const hasBodyFirst  = /<div\b[^>]*\bdata-pagefind-body\b[^>]*\bclass="definition-block"/.test(html)
     expect(hasClassFirst || hasBodyFirst).toBe(true)
+  })
+
+  it('title オプションが指定された場合、最初の :::definition に data-def-title が付く', () => {
+    const md = `:::definition\n半順序集合とは集合 P と関係の組である。\n:::`
+    const html = process(md, { title: '半順序集合' })
+    expect(html).toMatch(/<div\b[^>]*\bclass="definition-block"[^>]*>/)
+    expect(html).toContain('data-def-title="半順序集合"')
+  })
+
+  it('defTitleMap が指定された場合、ファイル名に対応する title を data-def-title に使う', () => {
+    const md = `:::definition\n半順序集合とは集合 P と関係の組である。\n:::`
+    const file = unified()
+      .use(remarkParse)
+      .use(remarkDirective)
+      .use(remarkDefinitionBlock, { defTitleMap: { poset: '半順序集合' } })
+      .use(remarkRehype)
+      .use(rehypeStringify)
+      .processSync({ value: md, path: '/repo/content/defs/poset.md' })
+    const html = String(file)
+    expect(html).toContain('data-def-title="半順序集合"')
   })
 
   it('複数の :::definition がある場合、最初の div のみ data-pagefind-body を持ち、2つ目は持たない', () => {

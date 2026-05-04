@@ -25,6 +25,7 @@ function contentPipelineIntegration(): AstroIntegration {
         const defs = (isProd && !draftVisible) ? allDefs.filter(d => d.status === 'published') : allDefs
         const aliasMap = buildAliasMap(defs)
         const defMetaMap = buildDefMetaMap(defs)
+        const defTitleMap = Object.fromEntries(defs.map(d => [d.id, d.title]))
         const baseUrl = config.base ?? '/'
         const defContentMap = await buildDefContentMap(defs, aliasMap, defMetaMap, baseUrl, isProd)
 
@@ -36,7 +37,7 @@ function contentPipelineIntegration(): AstroIntegration {
             remarkPlugins: [
               ...existingPlugins,
               remarkDirective,
-              remarkDefinitionBlock,
+              [remarkDefinitionBlock, { defTitleMap }],
               remarkAdmonition,
               remarkLocalDefinition,
               [remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd }],

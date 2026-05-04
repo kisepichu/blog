@@ -33,7 +33,7 @@ export async function buildDefContentMap(
     const html = unified()
       .use(remarkParse)
       .use(remarkDirective)
-      .use(remarkDefinitionBlock)
+      .use(remarkDefinitionBlock, { title: def.title })
       .use(remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd })
       .use(remarkRehype)
       .use(rehypeStringify)

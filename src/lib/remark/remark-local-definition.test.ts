@@ -27,6 +27,19 @@ describe('remarkLocalDefinition', () => {
     expect(html).toContain('id="local-f"')
   })
 
+  it(':::definition{#id title="..."} の title を data-def-title に出力する', () => {
+    const md = `:::definition{#local-f title="写像 f"}\n内容\n:::`
+    const { html } = process(md)
+    expect(html).toContain('id="local-f"')
+    expect(html).toContain('data-def-title="写像 f"')
+  })
+
+  it('title がない :::definition{#id} は id を data-def-title に出力する', () => {
+    const md = `:::definition{#local-f}\n内容\n:::`
+    const { html } = process(md)
+    expect(html).toContain('data-def-title="local-f"')
+  })
+
   it(':::definition{#id} の id が file.data.localIds に追加される', () => {
     const md = `:::definition{#local-f}\n内容\n:::`
     const { localIds } = process(md)

@@ -12,6 +12,25 @@ interface EmbedDefinitionOptions {
   isProd?: boolean
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;'
+      case '<':
+        return '&lt;'
+      case '>':
+        return '&gt;'
+      case '"':
+        return '&quot;'
+      case "'":
+        return '&#39;'
+      default:
+        return char
+    }
+  })
+}
+
 /**
  * ::embed[term] ディレクティブを definition-block--embedded div に変換する remark プラグイン。
  * - alias-map で canonical id に解決し、defContentMap から html を取得する
@@ -49,7 +68,7 @@ const remarkEmbedDefinition: Plugin<[EmbedDefinitionOptions], Root> = (options) 
         ;(node as unknown as { children: unknown[] }).children = [
           {
             type: 'html',
-            value: `<span class="definition-number">定義 ${n}</span>${defContent.html}`,
+            value: `<span class="definition-number">定義 ${n} (${escapeHtml(defContent.title)})</span>${defContent.html}`,
           },
         ]
       } else if (!isProd) {
