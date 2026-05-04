@@ -17,10 +17,13 @@ export default function remarkLocalDefinition() {
       // localIds に追加
       ;(file.data.localIds as Set<string>).add(id)
 
+      const rawTitle = node.attributes?.title
+      const title = typeof rawTitle === 'string' && rawTitle.trim() ? rawTitle.trim() : id
+
       // hast プロパティを設定
       node.data = {
         hName: 'div',
-        hProperties: { className: ['definition-block'], id },
+        hProperties: { className: ['definition-block'], id, 'data-def-title': title },
       }
     })
   }

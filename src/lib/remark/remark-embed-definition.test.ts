@@ -9,8 +9,10 @@ import remarkEmbedDefinition from './remark-embed-definition'
 const defContentMap = {
   poset: { title: '半順序集合', html: '<p><strong>半順序集合</strong>とは...</p>' },
   lattice: { title: '束', html: '<p><strong>束</strong>とは...</p>' },
+  special: { title: '<b>bold</b> & "quoted" \'single\'', html: '<p>特殊文字を含むタイトル。</p>' },
+  'blank-title': { title: '   ', html: '<p>空タイトル。</p>' },
 }
-const aliasMap = { poset: 'poset', '半順序': 'poset', lattice: 'lattice' }
+const aliasMap = { poset: 'poset', '半順序': 'poset', lattice: 'lattice', special: 'special', 'blank-title': 'blank-title' }
 
 const process = (md: string, isProd = false) =>
   unified()
@@ -33,9 +35,21 @@ describe('remarkEmbedDefinition', () => {
     expect(html).toContain('data-def-number="1"')
   })
 
-  it('::embed[poset] の出力に <span class="definition-number">定義 1</span> が含まれる', () => {
+  it('::embed[poset] の出力に <span class="definition-number">定義 1 (半順序集合)</span> が含まれる', () => {
     const html = process('::embed[poset]')
-    expect(html).toContain('<span class="definition-number">定義 1</span>')
+    expect(html).toContain('<span class="definition-number">定義 1 (半順序集合)</span>')
+  })
+
+  it('::embed のタイトルに含まれる HTML 特殊文字をエスケープする', () => {
+    const html = process('::embed[special]')
+    expect(html).toContain('<span class="definition-number">定義 1 (&lt;b&gt;bold&lt;/b&gt; &amp; &quot;quoted&quot; &#39;single&#39;)</span>')
+    expect(html).not.toContain('<span class="definition-number">定義 1 (<b>bold</b>')
+  })
+
+  it('::embed のタイトルが空白のみの場合は canonical id を表示タイトルに使う', () => {
+    const html = process('::embed[blank-title]')
+    expect(html).toContain('<span class="definition-number">定義 1 (blank-title)</span>')
+    expect(html).not.toContain('定義 1 ()')
   })
 
   it('::embed[poset] の出力に defContentMap の html 内容が含まれる', () => {
@@ -59,8 +73,8 @@ describe('remarkEmbedDefinition', () => {
   it('複数の ::embed の <span class="definition-number"> がそれぞれ連番になる', () => {
     const md = '::embed[poset]\n\n::embed[lattice]'
     const html = process(md)
-    expect(html).toContain('<span class="definition-number">定義 1</span>')
-    expect(html).toContain('<span class="definition-number">定義 2</span>')
+    expect(html).toContain('<span class="definition-number">定義 1 (半順序集合)</span>')
+    expect(html).toContain('<span class="definition-number">定義 2 (束)</span>')
   })
 
   it('解決失敗 (isProd=false) → definition-block--embed-unresolved クラスの div が出力される', () => {

@@ -35,6 +35,7 @@ tags: [集合論]
 ```
 
 - `:::definition` ブロックが **definition_block**。hover preview・検索・一覧表示はすべてこれを対象とする。
+- Definition ページ上の definition_block は frontmatter `title` を使い、ラベルを `定義 (タイトル)` 形式で表示する。
 - definition_block の外の本文は補足説明として自由に記述できる。
 
 ### Series
@@ -118,19 +119,19 @@ hover preview とは異なり、ページのコンテンツとして HTML に含
 ```
 
 - `term` は Definition の `id` または `aliases` のいずれかにマッチすれば解決される。
-- 埋め込み順 (上から) に定義番号が振られる (`data-def-number` 属性 + `定義 N` ラベル)。
-- 番号スコープはページ内のみ。ローカル定義 (`:::definition{#id}`) も `::embed[term]` も同じカウンターで連番される (AST の上から下の出現順)。
+- 埋め込み順 (上から) に定義番号が振られる (`data-def-number` 属性 + `定義 N (タイトル)` ラベル)。
+- 番号スコープはページ内のみ。現状は `::embed[term]` のみ AST の上から下の出現順で連番される。
 - 埋め込まれた definition_block 内の `[[term]]` リンクも有効 (hover preview が動作する)。
 - `::embed[term]` は `[[term]]` と同等の backlink 参照として扱われる。
 
 ### ローカル定義
 
-記事内のみで有効な一時的な定義。`:::definition{#id}` で記述する。
+記事内のみで有効な一時的な定義。`:::definition{#id title="タイトル"}` で記述する。
 
 ```markdown
 ここでは写像 $f$ を次のように定める。
 
-:::definition{#local-f}
+:::definition{#local-f title="写像 f"}
 $f : A \to B$ を...と定義する。
 :::
 
@@ -143,6 +144,7 @@ $f : A \to B$ を...と定義する。
 - `[[term]]` — まずローカル定義の id を検索し、なければ global Definition の id/alias を検索する (ローカル優先)
 
 ページ外から参照されない。
+表示ラベルは global Definition と同じ `定義 (タイトル)` 形式にする。`title` が省略された場合は互換性のため id を表示タイトルとして使う。
 
 ### リンク・埋め込み記法一覧
 
@@ -262,8 +264,8 @@ config.markdown.remarkPlugins.push(
 
 実行順:
 
-1. **remark-definition-block**: `:::definition` → `<div class="definition-block">` (remark-directive 利用)
-2. **remark-local-definition**: `:::definition{#id}` → `<div class="definition-block" id="...">` + `file.data.localIds` を設定
+1. **remark-definition-block**: `:::definition` → `<div class="definition-block" data-def-title="...">` (remark-directive 利用)
+2. **remark-local-definition**: `:::definition{#id title="..."}` → `<div class="definition-block" id="..." data-def-title="...">` + `file.data.localIds` を設定
 3. **remark-concept-link**: alias map・defMetaMap・`baseUrl` を受け取り、`[[term]]` を変換する
    - 解決成功: `<a class="concept-link" data-term="<canonical-id>" href="<baseUrl>/defs/<canonical-id>">{title}({english})</a>`
    - 解決失敗 (開発時): `<a class="concept-link concept-link--unresolved" ...>term</a>` (赤枠等で視覚的に明示)

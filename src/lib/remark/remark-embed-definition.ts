@@ -12,6 +12,30 @@ interface EmbedDefinitionOptions {
   isProd?: boolean
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => {
+    switch (char) {
+      case '&':
+        return '&amp;'
+      case '<':
+        return '&lt;'
+      case '>':
+        return '&gt;'
+      case '"':
+        return '&quot;'
+      case "'":
+        return '&#39;'
+      default:
+        return char
+    }
+  })
+}
+
+function formatDefinitionNumber(n: number, canonicalId: string, title: string): string {
+  const displayTitle = title.trim() || canonicalId
+  return `定義 ${n} (${escapeHtml(displayTitle)})`
+}
+
 /**
  * ::embed[term] ディレクティブを definition-block--embedded div に変換する remark プラグイン。
  * - alias-map で canonical id に解決し、defContentMap から html を取得する
@@ -35,7 +59,7 @@ const remarkEmbedDefinition: Plugin<[EmbedDefinitionOptions], Root> = (options) 
       const canonicalId = Object.hasOwn(aliasMap, term) ? aliasMap[term] : undefined
       const defContent = canonicalId !== undefined ? defContentMap[canonicalId] : undefined
 
-      if (defContent !== undefined) {
+      if (canonicalId !== undefined && defContent !== undefined) {
         // 解決成功
         counter++
         const n = counter
@@ -49,7 +73,7 @@ const remarkEmbedDefinition: Plugin<[EmbedDefinitionOptions], Root> = (options) 
         ;(node as unknown as { children: unknown[] }).children = [
           {
             type: 'html',
-            value: `<span class="definition-number">定義 ${n}</span>${defContent.html}`,
+            value: `<span class="definition-number">${formatDefinitionNumber(n, canonicalId, defContent.title)}</span>${defContent.html}`,
           },
         ]
       } else if (!isProd) {
