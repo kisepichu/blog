@@ -9,8 +9,9 @@ import remarkEmbedDefinition from './remark-embed-definition'
 const defContentMap = {
   poset: { title: '半順序集合', html: '<p><strong>半順序集合</strong>とは...</p>' },
   lattice: { title: '束', html: '<p><strong>束</strong>とは...</p>' },
+  special: { title: 'A <B> & "C" \'D\'', html: '<p>特殊文字を含むタイトル。</p>' },
 }
-const aliasMap = { poset: 'poset', '半順序': 'poset', lattice: 'lattice' }
+const aliasMap = { poset: 'poset', '半順序': 'poset', lattice: 'lattice', special: 'special' }
 
 const process = (md: string, isProd = false) =>
   unified()
@@ -36,6 +37,11 @@ describe('remarkEmbedDefinition', () => {
   it('::embed[poset] の出力に <span class="definition-number">定義 1 (半順序集合)</span> が含まれる', () => {
     const html = process('::embed[poset]')
     expect(html).toContain('<span class="definition-number">定義 1 (半順序集合)</span>')
+  })
+
+  it('::embed のタイトルに含まれる HTML 特殊文字をエスケープする', () => {
+    const html = process('::embed[special]')
+    expect(html).toContain('<span class="definition-number">定義 1 (A &lt;B&gt; &amp; &quot;C&quot; &#39;D&#39;)</span>')
   })
 
   it('::embed[poset] の出力に defContentMap の html 内容が含まれる', () => {

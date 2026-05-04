@@ -34,6 +34,18 @@ describe('remarkLocalDefinition', () => {
     expect(html).toContain('data-def-title="写像 f"')
   })
 
+  it(':::definition{#id title="..."} の title 前後空白を除去して data-def-title に出力する', () => {
+    const md = `:::definition{#local-f title="  写像 f  "}\n内容\n:::`
+    const { html } = process(md)
+    expect(html).toContain('data-def-title="写像 f"')
+  })
+
+  it('title が空白のみの :::definition{#id} は id を data-def-title に出力する', () => {
+    const md = `:::definition{#local-f title="   "}\n内容\n:::`
+    const { html } = process(md)
+    expect(html).toContain('data-def-title="local-f"')
+  })
+
   it('title がない :::definition{#id} は id を data-def-title に出力する', () => {
     const md = `:::definition{#local-f}\n内容\n:::`
     const { html } = process(md)
