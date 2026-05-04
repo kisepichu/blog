@@ -29,14 +29,14 @@ body を持たないため container directive (`:::`) ではなく leaf directi
 
 ```html
 <div class="definition-block definition-block--embedded" data-def-number="1">
-  <span class="definition-number">定義 1</span>
+  <span class="definition-number">定義 1 (半順序集合)</span>
   <!-- defContentMap[canonicalId].html の内容 -->
   <p><strong>半順序集合</strong> (poset) とは...</p>
 </div>
 ```
 
 - `data-def-number`: ページ内での順番 (1 始まり)
-- `definition-number` span: 表示用ラベル (スタイリングは ui-base で定義)
+- `definition-number` span: 表示用ラベル。`定義 N (タイトル)` 形式で表示する (スタイリングは ui-base で定義)
 - 内部の `[[term]]` リンクは defContentMap 構築時に `<a class="concept-link">` として変換済み
   → hover-preview React island がクライアントサイドで処理するため hover preview も有効
 
@@ -45,9 +45,9 @@ body を持たないため container directive (`:::`) ではなく leaf directi
 - スコープ: 1 ページ内
 - 順序: AST の上から下の出現順
 - カウント対象 (将来予定): `::embed[term]` および `:::definition{#id}` ローカル定義の両方を同一カウンターで連番
-- ローカル定義の出力例 (将来予定): `<div class="definition-block definition-block--local" id="..." data-def-number="1"><span class="definition-number">定義 1</span>...</div>`
+- ローカル定義の出力例 (現状): `<div class="definition-block" id="..." data-def-title="...">...</div>`
 
-> **現状の実装**: `remarkEmbedDefinition` は `::embed` のみカウント。ローカル定義 (`:::definition{#id}`) は番号なしの `<div class="definition-block" id="...">` を出力するだけ。
+> **現状の実装**: `remarkEmbedDefinition` は `::embed` のみカウント。ローカル定義 (`:::definition{#id title="..."}`) は番号なしの `<div class="definition-block" id="..." data-def-title="...">` を出力する。
 > **将来予定 (post-page ブランチ)**: ローカル定義にも同一カウンターで番号を付与する。
 > 方法: `remarkEmbedDefinition` 内で `:::definition{#id}` ノードにも番号を付与する
 > (または専用の `remarkDefNumberer` プラグインを追加する)。

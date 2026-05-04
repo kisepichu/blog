@@ -26,7 +26,7 @@ test.describe('/defs/poset ページ', () => {
     await expect(block).toBeVisible()
   })
 
-  test('▶ 定義 ラベルが CSS ::before 擬似要素で表示される', async ({ page }) => {
+  test('▶ 定義 (タイトル) ラベルが CSS ::before 擬似要素で表示される', async ({ page }) => {
     const block = page.locator('.definition-block')
     await expect(block).toBeVisible()
 
@@ -37,8 +37,8 @@ test.describe('/defs/poset ページ', () => {
       return window.getComputedStyle(el, '::before').content
     })
 
-    // content は CSS 文字列として返るので引用符付き '▶ 定義' を期待
-    expect(beforeContent).toBe('"▶ 定義"')
+    // content は CSS 文字列として返るので引用符付き '▶ 定義 (タイトル)' を期待
+    expect(beforeContent).toBe('"▶ 定義 (半順序集合)"')
   })
 
   test('タグバッジ #集合論 が色付きで表示される', async ({ page }) => {
