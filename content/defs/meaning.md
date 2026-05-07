@@ -2,7 +2,7 @@
 id: meaning
 title: 意味
 english: meaning
-aliases: [意味]
+aliases: []
 status: published
 tags: []
 ---

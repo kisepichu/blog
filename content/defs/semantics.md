@@ -2,7 +2,7 @@
 id: semantics
 title: 意味論
 english: semantics
-aliases: [意味論]
+aliases: []
 status: published
 tags: []
 ---
