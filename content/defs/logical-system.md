@@ -2,7 +2,7 @@
 id: logical-system
 title: 論理体系
 english: logical system
-aliases: [論理体系, "logical system"]
+aliases: []
 status: published
 tags: []
 ---

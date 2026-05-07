@@ -2,7 +2,7 @@
 id: system
 title: 体系
 english: system
-aliases: [体系, 形式体系, "formal system"]
+aliases: [形式体系, "formal system"]
 status: published
 tags: []
 ---

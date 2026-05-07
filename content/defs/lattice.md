@@ -2,7 +2,7 @@
 id: lattice
 title: 束
 english: "lattice"
-aliases: [束]
+aliases: []
 status: draft
 tags: [代数]
 ---

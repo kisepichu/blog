@@ -38,11 +38,12 @@ type AliasMap = Record<string, string>
 type DefMetaMap = Record<string, { title: string; english: string }>
 
 export function scanDefsDirectory(dir: string): Array<DefEntry & { body: string }>
-export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): AliasMap
+export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'title' | 'aliases'>>): AliasMap
 export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap
 ```
 
 - `id` 自体も alias として登録する (`"poset" → "poset"`)
+- `title` も自動的に alias として登録する (`"半順序集合" → "poset"`) — frontmatter に手動で書く必要はない
 - `aliases` の各エントリも登録する (`"半順序" → "poset"`)
 - 本番ビルド時は `draft`・`scrap` の Definition を除外する
 
@@ -223,7 +224,8 @@ remarkParse
 
 | ケース | 期待出力 |
 |--------|---------|
-| 基本構築 | id と aliases が正しく登録される |
+| 基本構築 | id と title と aliases が正しく登録される |
+| title の自動登録 | `aliases` に title を書かなくても `[[title]]` で解決できる |
 | alias 重複 | アルファベット順で先勝ち + console.warn |
 | 本番フィルタリング | draft/scrap が除外される |
 | `buildDefMetaMap` 基本 | canonical id → `{title, english}` が正しく構築される |

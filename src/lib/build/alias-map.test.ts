@@ -8,6 +8,14 @@ describe('buildAliasMap', () => {
     expect(map['poset']).toBe('poset')
   })
 
+  it('title が自動的に alias として登録される', () => {
+    const defs = [
+      { id: 'poset', title: '半順序集合', english: 'dummy', aliases: [], status: 'published' as const },
+    ]
+    const map = buildAliasMap(defs)
+    expect(map['半順序集合']).toBe('poset')
+  })
+
   it('aliases の各エントリが canonical id にマップされる', () => {
     const defs = [
       { id: 'poset', title: 'dummy', english: 'dummy', aliases: ['半順序', '半順序集合'], status: 'published' as const },
