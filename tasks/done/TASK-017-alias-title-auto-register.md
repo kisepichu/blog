@@ -3,14 +3,14 @@
 ## 参照仕様
 
 - docs/features/concept-link.md — buildAliasMap: title を自動登録
-- docs/features/def-page.md — displayAliases から id と title を除外
+- docs/features/def-page.md — displayAliases から id・title・english を除外
 
 ## チェックリスト
 
 - [x] alias-map.test.ts: title 自動登録のテストを追加
 - [x] alias-map.ts: buildAliasMap で title も keys に含める・シグネチャ更新
 - [x] alias-map.ts: 呼び出し側に title を渡す (pages/defs/[id].astro・pages/posts/[slug].astro)
-- [x] [id].astro: displayAliases フィルタから title も除外
+- [x] [id].astro: displayAliases フィルタから id・title・english を除外
 - [x] content/defs/*.md: aliases から title と重複するエントリを削除
 - [x] pnpm test が通る
 
