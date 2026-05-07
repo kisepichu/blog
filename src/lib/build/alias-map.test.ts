@@ -28,8 +28,8 @@ describe('buildAliasMap', () => {
   it('alias 重複時はアルファベット順で先勝ち (a より b が後)', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const defs = [
-      { id: 'beta', title: 'dummy', english: 'dummy', aliases: ['共通語'], status: 'published' as const },
-      { id: 'alpha', title: 'dummy', english: 'dummy', aliases: ['共通語'], status: 'published' as const },
+      { id: 'beta', title: 'ベータ', english: 'beta', aliases: ['共通語'], status: 'published' as const },
+      { id: 'alpha', title: 'アルファ', english: 'alpha', aliases: ['共通語'], status: 'published' as const },
     ]
     const map = buildAliasMap(defs)
     // アルファベット順で先勝ち → 'alpha' が勝つ
@@ -40,11 +40,12 @@ describe('buildAliasMap', () => {
   it('alias 重複時に console.warn が呼ばれる', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const defs = [
-      { id: 'alpha', title: 'dummy', english: 'dummy', aliases: ['共通語'], status: 'published' as const },
-      { id: 'beta', title: 'dummy', english: 'dummy', aliases: ['共通語'], status: 'published' as const },
+      { id: 'alpha', title: 'アルファ', english: 'alpha', aliases: ['共通語'], status: 'published' as const },
+      { id: 'beta', title: 'ベータ', english: 'beta', aliases: ['共通語'], status: 'published' as const },
     ]
     buildAliasMap(defs)
-    expect(consoleSpy).toHaveBeenCalled()
+    // '共通語' の重複で warn が呼ばれることを確認
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('共通語'))
     consoleSpy.mockRestore()
   })
 

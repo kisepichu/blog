@@ -57,8 +57,10 @@ const { Content } = await render(def)
 
 const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
-// id と title を除いたエイリアス一覧 (両者はページ上で別途表示済み)
-const displayAliases = def.data.aliases.filter((a) => a !== def.id && a !== def.data.title)
+// id・title・english を除いたエイリアス一覧 (いずれもページ上で別途表示済み)
+const displayAliases = def.data.aliases.filter(
+  (a) => a !== def.id && a !== def.data.title && a !== def.data.english
+)
 ---
 
 <Layout title={def.data.title} activePage="def">
