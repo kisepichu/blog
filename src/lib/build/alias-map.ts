@@ -77,7 +77,7 @@ export function buildDefMetaMap(defs: DefEntry[]): DefMetaMap {
   return map
 }
 
-export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): AliasMap {
+export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'title' | 'aliases'>>): AliasMap {
   // null-prototype で prototype 汚染を防ぐ
   const map: AliasMap = Object.create(null) as AliasMap
 
@@ -85,7 +85,7 @@ export function buildAliasMap(defs: Array<Pick<DefEntry, 'id' | 'aliases'>>): Al
   const sorted = [...defs].sort((a, b) => a.id.localeCompare(b.id))
 
   for (const def of sorted) {
-    const keys = [def.id, ...def.aliases]
+    const keys = [def.id, def.title, ...def.aliases]
     for (const key of keys) {
       if (Object.hasOwn(map, key)) {
         console.warn(

@@ -2,7 +2,7 @@
 id: calculus
 title: 計算体系
 english: calculus
-aliases: [計算体系]
+aliases: []
 status: published
 tags: []
 ---

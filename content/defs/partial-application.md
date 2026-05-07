@@ -2,7 +2,7 @@
 id: partial-application
 title: 部分適用
 english: partial application
-aliases: [部分適用]
+aliases: []
 status: published
 tags: []
 ---

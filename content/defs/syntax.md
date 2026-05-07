@@ -2,7 +2,7 @@
 id: syntax
 title: 構文論
 english: syntax
-aliases: [構文論]
+aliases: []
 status: published
 tags: []
 ---
