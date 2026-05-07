@@ -2,7 +2,7 @@
 id: currying
 title: カリー化
 english: currying
-aliases: [カリー化, "curry 化"]
+aliases: ["curry 化"]
 status: published
 tags: []
 ---
