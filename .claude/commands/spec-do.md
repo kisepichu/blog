@@ -7,19 +7,17 @@
 2. `docs/features/{feature}.md` を読む。なければ `docs/spec.md` の該当部分を読む
 3. `CLAUDE.md` のアーキテクチャルールを確認する
 4. 実装をレイヤーごとに分解してタスクを洗い出す
-5. タスクファイルを `tasks/doing/TASK-NNN-{feature}.md` に作成する。ブランチの切り方をユーザーに確認する
+5. タスクファイルを `tasks/doing/TASK-NNN-{feature}.md` に作成する。ブランチの切り方を確認し切る
    - NNN は既存タスクの連番 (todo/ doing/ done/ を合わせて最大番号 + 1)
 6. タスクファイルのチェックリスト項目ごとに以下の TDD サイクルを回す:
 
    **RED フェーズ** — `.claude/agents/test-writer.md` のテンプレートを使い、
    test-writer subagent を Agent ツールで起動する。
-
    - subagent がテストを書き、`pnpm test` で失敗を確認してレポートを返す
    - テストが期待通りに失敗していることを確認してから次へ進む
 
    **GREEN フェーズ** — `.claude/agents/implementer.md` のテンプレートを使い、
    implementer subagent を Agent ツールで起動する。
-
    - test-writer のレポート (失敗したテスト名・ファイルパス) をプロンプトに含める
    - subagent が最小限の実装を書き、`pnpm test` で全テスト通過を確認してレポートを返す
 
