@@ -172,17 +172,13 @@ a:hover { color: var(--link-h); }
   font-size: 0.95rem;
 }
 .local-block p:last-child { margin-bottom: 0; }
-.local-block::before {
-  content: '▶ ' attr(data-block-label);
+.local-block__label {
   display: block;
   font-family: var(--font-ui);
   font-size: 0.68rem;
   color: var(--block-fg);
   letter-spacing: 0.1em;
   margin-bottom: 0.6rem;
-}
-.local-block[data-block-title]::before {
-  content: '▶ ' attr(data-block-label) ' (' attr(data-block-title) ')';
 }
 
 /* ── HEADER ─────────────────────────────────────── */

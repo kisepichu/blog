@@ -24,7 +24,11 @@ export default function remarkLocalBlock() {
       ;(file.data.localIds as Set<string>).add(id)
 
       const rawTitle = node.attributes?.title
-      const title = typeof rawTitle === 'string' && rawTitle.trim() ? rawTitle.trim() : id
+      const trimmedTitle = typeof rawTitle === 'string' ? rawTitle.trim() : ''
+      const hasExplicitTitle = trimmedTitle.length > 0
+      const labelText = hasExplicitTitle
+        ? `▶ ${blockType.label} (${trimmedTitle})`
+        : `▶ ${blockType.label}`
 
       const ct = blockType.colorToken
       node.data = {
@@ -32,12 +36,19 @@ export default function remarkLocalBlock() {
         hProperties: {
           className: ['local-block', `${blockType.name}-block`],
           id,
-          'data-block-title': title,
           'data-block-label': blockType.label,
           style: `--block-bg:var(--${ct}-bg);--block-b:var(--${ct}-b);--block-fg:var(--${ct})`,
+          ...(hasExplicitTitle ? { 'data-block-title': trimmedTitle } : {}),
           ...(blockType.pagefindIgnore ? { 'data-pagefind-ignore': true } : {}),
         },
       }
+
+      // スクリーンリーダー対応: 実体のあるラベル要素を先頭に挿入
+      node.children.unshift({
+        type: 'paragraph',
+        data: { hName: 'span', hProperties: { className: ['local-block__label'] } },
+        children: [{ type: 'text', value: labelText }],
+      })
     })
   }
 }

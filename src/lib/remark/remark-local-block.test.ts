@@ -28,6 +28,19 @@ describe('remarkLocalBlock', () => {
     expect(html).toContain('data-block-title="定理名"')
   })
 
+  it(':::theorem{#id title="定理名"} のラベル span に "▶ 定理 (定理名)" が挿入される', () => {
+    const { html } = process(':::theorem{#thm1 title="定理名"}\n内容\n:::')
+    expect(html).toContain('class="local-block__label"')
+    expect(html).toContain('▶ 定理 (定理名)')
+  })
+
+  it(':::theorem{#id} (title なし) のラベル span に "▶ 定理" が挿入される', () => {
+    const { html } = process(':::theorem{#thm1}\n内容\n:::')
+    expect(html).toContain('class="local-block__label"')
+    expect(html).toContain('▶ 定理')
+    expect(html).not.toContain('▶ 定理 (')
+  })
+
   it(':::theorem{#id} に data-block-label="定理" が付与される', () => {
     const { html } = process(':::theorem{#thm1}\n内容\n:::')
     expect(html).toContain('data-block-label="定理"')
@@ -65,19 +78,19 @@ describe('remarkLocalBlock', () => {
     expect(html).toContain('id="not1"')
   })
 
-  it('title 省略時は id を data-block-title に使う', () => {
-    const { html } = process(':::theorem{#thm1}\n内容\n:::')
-    expect(html).toContain('data-block-title="thm1"')
-  })
-
-  it('title 前後の空白を除去して data-block-title に出力する', () => {
+  it('title あり: data-block-title に trimmed title を設定する', () => {
     const { html } = process(':::theorem{#thm1 title="  定理名  "}\n内容\n:::')
     expect(html).toContain('data-block-title="定理名"')
   })
 
-  it('title が空白のみの場合は id を data-block-title に使う', () => {
+  it('title なし: data-block-title を付与しない', () => {
+    const { html } = process(':::theorem{#thm1}\n内容\n:::')
+    expect(html).not.toContain('data-block-title')
+  })
+
+  it('title が空白のみ: data-block-title を付与しない', () => {
     const { html } = process(':::theorem{#thm1 title="   "}\n内容\n:::')
-    expect(html).toContain('data-block-title="thm1"')
+    expect(html).not.toContain('data-block-title')
   })
 
   it('{#id} なしは変換せず console.warn を出力する', () => {
