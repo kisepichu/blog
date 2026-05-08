@@ -20,29 +20,48 @@ const process = (md: string) => {
 }
 
 describe('remarkLocalBlock', () => {
-  it(':::theorem{#id title="定理名"} を theorem-block クラス付き div に変換する', () => {
+  it(':::theorem{#id title="定理名"} を local-block theorem-block クラス付き div に変換する', () => {
     const { html } = process(':::theorem{#thm1 title="定理名"}\n内容\n:::')
-    expect(html).toContain('class="theorem-block"')
+    expect(html).toContain('local-block')
+    expect(html).toContain('theorem-block')
     expect(html).toContain('id="thm1"')
     expect(html).toContain('data-block-title="定理名"')
   })
 
-  it(':::example{#id} を example-block クラス付き div に変換し data-pagefind-ignore を付与する', () => {
+  it(':::theorem{#id} に data-block-label="定理" が付与される', () => {
+    const { html } = process(':::theorem{#thm1}\n内容\n:::')
+    expect(html).toContain('data-block-label="定理"')
+  })
+
+  it(':::theorem{#id} に colorToken lav の inline style が付与される', () => {
+    const { html } = process(':::theorem{#thm1}\n内容\n:::')
+    expect(html).toContain('--block-bg:var(--lav-bg)')
+    expect(html).toContain('--block-b:var(--lav-b)')
+    expect(html).toContain('--block-fg:var(--lav)')
+  })
+
+  it(':::example{#id} を local-block example-block クラス付き div に変換し data-pagefind-ignore を付与する', () => {
     const { html } = process(':::example{#ex1}\n内容\n:::')
-    expect(html).toContain('class="example-block"')
+    expect(html).toContain('local-block')
+    expect(html).toContain('example-block')
     expect(html).toContain('id="ex1"')
     expect(html).toContain('data-pagefind-ignore')
   })
 
+  it(':::example{#id} に data-block-label="例" が付与される', () => {
+    const { html } = process(':::example{#ex1}\n内容\n:::')
+    expect(html).toContain('data-block-label="例"')
+  })
+
   it(':::remark{#id} を remark-block クラス付き div に変換する', () => {
     const { html } = process(':::remark{#rem1}\n内容\n:::')
-    expect(html).toContain('class="remark-block"')
+    expect(html).toContain('remark-block')
     expect(html).toContain('id="rem1"')
   })
 
   it(':::notation{#id} を notation-block クラス付き div に変換する', () => {
     const { html } = process(':::notation{#not1}\n内容\n:::')
-    expect(html).toContain('class="notation-block"')
+    expect(html).toContain('notation-block')
     expect(html).toContain('id="not1"')
   })
 
@@ -96,7 +115,7 @@ describe('remarkLocalBlock', () => {
 
   it('内部コンテンツが空でも変換する', () => {
     const { html } = process(':::theorem{#thm1}\n:::')
-    expect(html).toContain('class="theorem-block"')
+    expect(html).toContain('theorem-block')
   })
 
   it('未知のディレクティブ名はスキップする', () => {
@@ -107,8 +126,8 @@ describe('remarkLocalBlock', () => {
   it('theorem と example が同一ページに混在する', () => {
     const md = ':::theorem{#thm1 title="定理"}\nA\n:::\n\n:::example{#ex1 title="例"}\nB\n:::'
     const { html } = process(md)
-    expect(html).toContain('class="theorem-block"')
-    expect(html).toContain('class="example-block"')
+    expect(html).toContain('theorem-block')
+    expect(html).toContain('example-block')
     expect(html).toContain('data-pagefind-ignore')
     // theorem は pagefindIgnore: false なので data-pagefind-ignore は theorem-block には付かない
     expect(html).not.toMatch(/theorem-block[^>]*data-pagefind-ignore/)

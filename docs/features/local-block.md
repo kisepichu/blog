@@ -28,8 +28,7 @@ export const LOCAL_BLOCK_TYPES: LocalBlockType[] = [
 ```
 
 新しいブロック種別を追加するには:
-1. `LOCAL_BLOCK_TYPES` にエントリを追加
-2. `global.css` に対応する CSS を追加 (`${name}-block` クラスで命名)
+1. `LOCAL_BLOCK_TYPES` にエントリを追加するだけ。CSS 変更は不要。
 
 ### 入力構文
 
@@ -50,7 +49,11 @@ $f$ が連続ならば...
 ### 出力 HTML
 
 ```html
-<div class="theorem-block" id="id" data-block-title="定理名">
+<div class="local-block theorem-block"
+     id="id"
+     data-block-title="定理名"
+     data-block-label="定理"
+     style="--block-bg:var(--lav-bg);--block-b:var(--lav-b);--block-fg:var(--lav)">
   <p>$f$ が連続ならば...</p>
 </div>
 ```
@@ -58,37 +61,39 @@ $f$ が連続ならば...
 `pagefindIgnore: true` のブロックは `data-pagefind-ignore` 属性を付与する:
 
 ```html
-<div class="example-block" id="ex1" data-block-title="ex1" data-pagefind-ignore>
+<div class="local-block example-block"
+     id="ex1"
+     data-block-title="ex1"
+     data-block-label="例"
+     style="--block-bg:var(--sage-bg);--block-b:var(--sage-b);--block-fg:var(--sage)"
+     data-pagefind-ignore>
   ...
 </div>
 ```
 
-- クラス名: `${name}-block` (例: `theorem-block`, `example-block`)
+- クラス名: `local-block ${name}-block` (共通クラス + 種別クラス)
 - `id` 属性でページ内アンカーになる
-- `data-block-title` にタイトルを格納 (CSS で `▶ 定理 (定理名)` 形式に描画)
+- `data-block-title` にタイトルを格納
+- `data-block-label` に設定ファイルの `label` を格納 (CSS の `attr()` で `▶ 定理 (定理名)` 形式に描画)
+- inline style に CSS カスタムプロパティとして `colorToken` を注入 (`--block-bg` / `--block-b` / `--block-fg`)
 
 ### CSS (ラベル表示)
 
-`definition-block` の `::before` パターンを踏襲する:
+共通クラス `.local-block` に CSS カスタムプロパティ経由でスタイルを集約する。種別追加時の CSS 変更は不要。
 
 ```css
-/* theorem-block */
-.theorem-block::before {
-  content: '▶ 定理';
+.local-block {
+  background: var(--block-bg);   /* inline style から注入 */
+  border: 1.5px solid var(--block-b);
+  /* ... */
 }
-.theorem-block[data-block-title]::before {
-  content: '▶ 定理 (' attr(data-block-title) ')';
+.local-block::before {
+  content: '▶ ' attr(data-block-label);  /* label を attr() で参照 */
+  color: var(--block-fg);
 }
-```
-
-各 `${name}-block` に対して `colorToken` に対応する背景・ボーダー・テキスト色を付与する:
-
-```css
-.theorem-block {
-  background: var(--lav-bg);
-  border: 1.5px solid var(--lav-b);
+.local-block[data-block-title]::before {
+  content: '▶ ' attr(data-block-label) ' (' attr(data-block-title) ')';
 }
-.theorem-block::before { color: var(--lav); }
 ```
 
 ### 参照・hover preview
@@ -123,18 +128,18 @@ remarkParse
 
 | ファイル | 役割 |
 |---------|------|
-| `src/lib/remark/local-block-config.ts` | ブロック種別設定 |
-| `src/lib/remark/remark-local-block.ts` | プラグイン本体 |
+| `src/lib/remark/local-block-config.ts` | ブロック種別設定 (label / colorToken / pagefindIgnore) |
+| `src/lib/remark/remark-local-block.ts` | プラグイン本体。設定値を data 属性・inline style として出力 |
 | `src/lib/remark/remark-local-block.test.ts` | Vitest テスト |
-| `src/styles/global.css` | 各ブロックの CSS (`LOCAL-BLOCK` セクション追加) |
+| `src/styles/global.css` | `.local-block` 共通 CSS (`LOCAL-BLOCK` セクション) |
 | `astro.config.ts` | `remarkPlugins` に `remarkLocalBlock` を追加 |
 
 ## テスト戦略 (Vitest)
 
 | ケース | 期待出力 |
 |--------|---------|
-| `:::theorem{#id title="定理名"}` | `<div class="theorem-block" id="id" data-block-title="定理名">` |
-| `:::example{#id}` | `class="example-block"` + `data-pagefind-ignore` あり |
+| `:::theorem{#id title="定理名"}` | `class="local-block theorem-block"` + `data-block-title="定理名"` + `data-block-label="定理"` + inline style |
+| `:::example{#id}` | `class="local-block example-block"` + `data-pagefind-ignore` あり |
 | `:::theorem{#id}` (title 省略) | `data-block-title="id"` (id をフォールバック) |
 | `:::theorem` (id なし) | 変換されない + console.warn |
 | `:::definition{#id}` | remarkLocalBlock がスキップ (remarkLocalDefinition が処理) |

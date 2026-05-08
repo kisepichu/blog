@@ -159,57 +159,31 @@ a:hover { color: var(--link-h); }
 .admonition--note  .admonition__label { color: var(--peach); }
 
 /* -- LOCAL-BLOCK ---------------------------------------------- */
-/* remark-local-block が出力する <div class="{name}-block"> のスタイル */
-.theorem-block,
-.example-block,
-.remark-block,
-.notation-block {
+/* remark-local-block が出力する <div class="local-block {name}-block"> のスタイル */
+/* カラーは inline style の CSS 変数 (--block-bg / --block-b / --block-fg) で注入される。  */
+/* 新種別追加は local-block-config.ts へのエントリ追加のみ。CSS 変更は不要。            */
+.local-block {
+  background: var(--block-bg);
+  border: 1.5px solid var(--block-b);
   border-radius: var(--r-md);
   padding: 1.2rem 1.4rem;
   margin: 1.8rem 0;
   position: relative;
   font-size: 0.95rem;
-  border-width: 1.5px;
-  border-style: solid;
 }
-.theorem-block p:last-child,
-.example-block p:last-child,
-.remark-block p:last-child,
-.notation-block p:last-child { margin-bottom: 0; }
-
-/* ▶ ラベル (::before) */
-.theorem-block::before,
-.example-block::before,
-.remark-block::before,
-.notation-block::before {
+.local-block p:last-child { margin-bottom: 0; }
+.local-block::before {
+  content: '▶ ' attr(data-block-label);
   display: block;
   font-family: var(--font-ui);
   font-size: 0.68rem;
+  color: var(--block-fg);
   letter-spacing: 0.1em;
   margin-bottom: 0.6rem;
 }
-.theorem-block::before  { content: '▶ 定理'; }
-.example-block::before  { content: '▶ 例'; }
-.remark-block::before   { content: '▶ 注意'; }
-.notation-block::before { content: '▶ 記法'; }
-
-.theorem-block[data-block-title]::before  { content: '▶ 定理 (' attr(data-block-title) ')'; }
-.example-block[data-block-title]::before  { content: '▶ 例 (' attr(data-block-title) ')'; }
-.remark-block[data-block-title]::before   { content: '▶ 注意 (' attr(data-block-title) ')'; }
-.notation-block[data-block-title]::before { content: '▶ 記法 (' attr(data-block-title) ')'; }
-
-/* カラートークン */
-.theorem-block  { background: var(--lav-bg);   border-color: var(--lav-b); }
-.theorem-block::before  { color: var(--lav); }
-
-.example-block  { background: var(--sage-bg);  border-color: var(--sage-b); }
-.example-block::before  { color: var(--sage); }
-
-.remark-block   { background: var(--amber-bg); border-color: var(--amber-b); }
-.remark-block::before   { color: var(--amber); }
-
-.notation-block { background: var(--peach-bg); border-color: var(--peach-b); }
-.notation-block::before { color: var(--peach); }
+.local-block[data-block-title]::before {
+  content: '▶ ' attr(data-block-label) ' (' attr(data-block-title) ')';
+}
 
 /* ── HEADER ─────────────────────────────────────── */
 .site-header {

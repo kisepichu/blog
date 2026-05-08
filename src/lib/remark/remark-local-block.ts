@@ -26,12 +26,15 @@ export default function remarkLocalBlock() {
       const rawTitle = node.attributes?.title
       const title = typeof rawTitle === 'string' && rawTitle.trim() ? rawTitle.trim() : id
 
+      const ct = blockType.colorToken
       node.data = {
         hName: 'div',
         hProperties: {
-          className: [`${blockType.name}-block`],
+          className: ['local-block', `${blockType.name}-block`],
           id,
           'data-block-title': title,
+          'data-block-label': blockType.label,
+          style: `--block-bg:var(--${ct}-bg);--block-b:var(--${ct}-b);--block-fg:var(--${ct})`,
           ...(blockType.pagefindIgnore ? { 'data-pagefind-ignore': true } : {}),
         },
       }
