@@ -44,9 +44,11 @@ $f$ が連続ならば...
 
 - `remark-directive` の `containerDirective` として解析
 - `{#id}` は**必須** — ない場合は `console.warn` を出力してスキップ (変換しない)
-- `title` は省略可能。省略時は `id` を表示タイトルとして使う
+- `title` は省略可能。省略時は `data-block-title` を付与しない (ラベルには種別名のみ表示)
 
 ### 出力 HTML
+
+`title` あり:
 
 ```html
 <div class="local-block theorem-block"
@@ -54,7 +56,20 @@ $f$ が連続ならば...
      data-block-title="定理名"
      data-block-label="定理"
      style="--block-bg:var(--lav-bg);--block-b:var(--lav-b);--block-fg:var(--lav)">
+  <span class="local-block__label">▶ 定理 (定理名)</span>
   <p>$f$ が連続ならば...</p>
+</div>
+```
+
+`title` なし:
+
+```html
+<div class="local-block theorem-block"
+     id="id"
+     data-block-label="定理"
+     style="--block-bg:var(--lav-bg);--block-b:var(--lav-b);--block-fg:var(--lav)">
+  <span class="local-block__label">▶ 定理</span>
+  <p>内容</p>
 </div>
 ```
 
@@ -63,19 +78,20 @@ $f$ が連続ならば...
 ```html
 <div class="local-block example-block"
      id="ex1"
-     data-block-title="ex1"
      data-block-label="例"
      style="--block-bg:var(--sage-bg);--block-b:var(--sage-b);--block-fg:var(--sage)"
      data-pagefind-ignore>
+  <span class="local-block__label">▶ 例</span>
   ...
 </div>
 ```
 
 - クラス名: `local-block ${name}-block` (共通クラス + 種別クラス)
 - `id` 属性でページ内アンカーになる
-- `data-block-title` にタイトルを格納
-- `data-block-label` に設定ファイルの `label` を格納 (CSS の `attr()` で `▶ 定理 (定理名)` 形式に描画)
-- inline style に CSS カスタムプロパティとして `colorToken` を注入 (`--block-bg` / `--block-b` / `--block-fg`)
+- `data-block-title`: `title` が明示された場合のみ付与
+- `data-block-label`: 設定ファイルの `label` を常に付与
+- `<span class="local-block__label">`: ラベルテキストを持つ実体要素 (支援技術で読み上げ可能)
+- inline style: `colorToken` から CSS カスタムプロパティ (`--block-bg` / `--block-b` / `--block-fg`) を注入
 
 ### CSS (ラベル表示)
 
@@ -87,12 +103,13 @@ $f$ が連続ならば...
   border: 1.5px solid var(--block-b);
   /* ... */
 }
-.local-block::before {
-  content: '▶ ' attr(data-block-label);  /* label を attr() で参照 */
+.local-block__label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
   color: var(--block-fg);
-}
-.local-block[data-block-title]::before {
-  content: '▶ ' attr(data-block-label) ' (' attr(data-block-title) ')';
+  letter-spacing: 0.1em;
+  margin-bottom: 0.6rem;
 }
 ```
 
@@ -129,18 +146,18 @@ remarkParse
 | ファイル | 役割 |
 |---------|------|
 | `src/lib/remark/local-block-config.ts` | ブロック種別設定 (label / colorToken / pagefindIgnore) |
-| `src/lib/remark/remark-local-block.ts` | プラグイン本体。設定値を data 属性・inline style として出力 |
+| `src/lib/remark/remark-local-block.ts` | プラグイン本体。設定値を data 属性・inline style・ラベル span として出力 |
 | `src/lib/remark/remark-local-block.test.ts` | Vitest テスト |
-| `src/styles/global.css` | `.local-block` 共通 CSS (`LOCAL-BLOCK` セクション) |
+| `src/styles/global.css` | `.local-block` / `.local-block__label` 共通 CSS (`LOCAL-BLOCK` セクション) |
 | `astro.config.ts` | `remarkPlugins` に `remarkLocalBlock` を追加 |
 
 ## テスト戦略 (Vitest)
 
 | ケース | 期待出力 |
 |--------|---------|
-| `:::theorem{#id title="定理名"}` | `class="local-block theorem-block"` + `data-block-title="定理名"` + `data-block-label="定理"` + inline style |
+| `:::theorem{#id title="定理名"}` | `class="local-block theorem-block"` + `data-block-title="定理名"` + ラベル span `▶ 定理 (定理名)` |
 | `:::example{#id}` | `class="local-block example-block"` + `data-pagefind-ignore` あり |
-| `:::theorem{#id}` (title 省略) | `data-block-title="id"` (id をフォールバック) |
+| `:::theorem{#id}` (title 省略) | `data-block-title` なし + ラベル span `▶ 定理` |
 | `:::theorem` (id なし) | 変換されない + console.warn |
 | `:::definition{#id}` | remarkLocalBlock がスキップ (remarkLocalDefinition が処理) |
 | id が `file.data.localIds` に追加される | `localIds.has('id')` が true |
@@ -153,7 +170,8 @@ remarkParse
 | ケース | 挙動 |
 |--------|------|
 | `{#id}` なし | console.warn + 変換スキップ |
-| `title` 省略 | `data-block-title` に id を使う |
+| `title` 省略 | `data-block-title` を付与しない。ラベル span は `▶ {label}` のみ |
+| `title` が空白のみ | `title` 省略と同じ扱い |
 | `:::definition{#id}` と混在 | remarkLocalDefinition と独立して動作 |
 | admonition と混在 | それぞれ独立して動作 |
 | pagefindIgnore: false | `data-pagefind-ignore` を付与しない |
