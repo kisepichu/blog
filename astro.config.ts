@@ -5,6 +5,7 @@ import remarkDirective from 'remark-directive'
 import remarkDefinitionBlock from './src/lib/remark/remark-definition-block'
 import remarkAdmonition from './src/lib/remark/remark-admonition'
 import remarkLocalDefinition from './src/lib/remark/remark-local-definition'
+import remarkLocalBlock from './src/lib/remark/remark-local-block'
 import remarkConceptLink from './src/lib/remark/remark-concept-link'
 import remarkEmbedDefinition from './src/lib/remark/remark-embed-definition'
 import { scanDefsDirectory, buildAliasMap, buildDefMetaMap } from './src/lib/build/alias-map'
@@ -41,6 +42,7 @@ function contentPipelineIntegration(): AstroIntegration {
               [remarkDefinitionBlock, { defTitleMap }],
               remarkAdmonition,
               remarkLocalDefinition,
+              remarkLocalBlock,
               [remarkConceptLink, { aliasMap, defMetaMap, baseUrl, isProd }],
               [remarkEmbedDefinition, { defContentMap, aliasMap, isProd }],
             ],

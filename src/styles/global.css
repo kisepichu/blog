@@ -158,6 +158,29 @@ a:hover { color: var(--link-h); }
 .admonition--note  { background: var(--peach-bg); border-color: var(--peach-b); }
 .admonition--note  .admonition__label { color: var(--peach); }
 
+/* -- LOCAL-BLOCK ---------------------------------------------- */
+/* remark-local-block が出力する <div class="local-block {name}-block"> のスタイル */
+/* カラーは inline style の CSS 変数 (--block-bg / --block-b / --block-fg) で注入される。  */
+/* 新種別追加は local-block-config.ts へのエントリ追加のみ。CSS 変更は不要。            */
+.local-block {
+  background: var(--block-bg);
+  border: 1.5px solid var(--block-b);
+  border-radius: var(--r-md);
+  padding: 1.2rem 1.4rem;
+  margin: 1.8rem 0;
+  position: relative;
+  font-size: 0.95rem;
+}
+.local-block p:last-child { margin-bottom: 0; }
+.local-block__label {
+  display: block;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  color: var(--block-fg);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.6rem;
+}
+
 /* ── HEADER ─────────────────────────────────────── */
 .site-header {
   position: sticky;
