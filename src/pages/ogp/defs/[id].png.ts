@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
 import { renderDefImage } from '@/lib/ogp/render-def-image'
+import { FILTER_DRAFTS } from '@/config/env'
 
 const fontDir = path.resolve('src/assets/fonts')
 const dotGothic16 = fs.readFileSync(path.join(fontDir, 'DotGothic16-Regular.ttf')).buffer as ArrayBuffer
@@ -11,7 +12,7 @@ const mplusRounded = fs.readFileSync(path.join(fontDir, 'MPLUSRounded1c-Regular.
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const allDefs = await getCollection('defs')
-  const defs = import.meta.env.PROD
+  const defs = FILTER_DRAFTS
     ? allDefs.filter((d) => d.data.status === 'published')
     : allDefs
   return defs.map((def) => ({ params: { id: def.id } }))

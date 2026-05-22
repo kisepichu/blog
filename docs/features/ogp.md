@@ -64,14 +64,18 @@ interface Props {
 
 ### Definition
 
-definition_block の先頭 120 文字 (HTML タグを除去したプレーンテキスト) を使う。
+`def.body` (生 Markdown) の先頭 120 文字を `extractDescription` でプレーンテキスト化して使う。
 frontmatter に `description` フィールドは持たない。
 
 ### 共通
 
 - 120 文字を超える場合は末尾に `…` を付与する。
 - テキスト抽出は `src/lib/build/extract-description.ts` として実装する (純粋関数、テスト可能)。
-- Markdown→プレーンテキスト変換では見出し・コードブロック・数式を除去し、通常段落のみ使う。
+- `extractDescription` は以下の構造を除去してプレーンテキスト化する:
+  - ブロック: `:::directive ... :::` / コードフェンス / `$$ ... $$` (数式ブロック) / `::embed[term]` / `[[concept-link]]` / Markdown 見出し (`## ...`)
+  - インライン: HTML タグ / `$...$` (インライン数式) / `**bold**` / `*italic*` / `` `code` ``
+  - 連続する空白は 1 つに正規化し、前後の空白を trim する
+- 空文字になった場合は `og:description` / `twitter:description` タグを出力しない (`Layout.astro` の `description && ...` 条件による)
 
 ---
 
@@ -211,7 +215,7 @@ description: 単純型付きラムダ計算から System F までを直感的に
 
 | ケース | 挙動 |
 |---|---|
-| `description` なし + 本文が空 | 空文字でも許容。description タグを空文字で出力する |
+| `description` なし + 本文が空 | `extractDescription` が空文字を返す。`Layout.astro` の `description && ...` 条件により `og:description` / `twitter:description` タグを出力しない |
 | タイトルが長い (30 文字超) | Satori の自動折り返しに委ねる。最大 3 行程度を想定 |
 | タグが多い | 横並びに収まらない場合は 1 行に収まる範囲で表示し、超過分は省略 |
 | `english` が長い | 1 行で収まらない場合は折り返し |

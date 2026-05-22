@@ -63,8 +63,12 @@ const displayAliases = def.data.aliases.filter(
   (a) => a !== def.id && a !== def.data.title && a !== def.data.english
 )
 
-const ogDescription = extractDescription(def.body ?? '', 120)
-const ogImage = Astro.site ? `${new URL(Astro.site).href}ogp/defs/${def.id}.png` : undefined
+// :::definition ... ::: ブロックの内側テキストを description に使う (ブロックごと除去すると空になるため)
+const defBodyForDesc = (def.body ?? '').replace(/:::definition[^\n]*\n([\s\S]*?):::/g, '$1')
+const ogDescription = extractDescription(defBodyForDesc, 120)
+const ogImage = Astro.site
+  ? new URL(`${import.meta.env.BASE_URL}ogp/defs/${def.id}.png`, Astro.site).href
+  : undefined
 ---
 
 <Layout title={def.data.title} description={ogDescription} ogImage={ogImage} activePage="def">

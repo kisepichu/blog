@@ -229,8 +229,8 @@ $f : A \to B$ を...と定義する。
 
 - 対象: `/posts/[slug]` と `/defs/[id]` のみ。一覧ページ・ホームには OGP タグを付与しない。
 - OGP 画像はビルド時に Satori + resvg で PNG 生成し、静的エンドポイント (`src/pages/ogp/`) として配置する。
-- `og:site_name` は `kisen.one`。`og:image` URL は `{Astro.site}/ogp/{posts|defs}/{slug|id}.png`。
-- `og:description`: Post は frontmatter `description` → 本文冒頭 120 文字のフォールバック。Definition は definition_block 先頭 120 文字。
+- `og:site_name` は `kisen.one`。`og:image` URL は `new URL(BASE_URL + ogp/..., Astro.site)` で解決し、base パスを考慮する。
+- `og:description`: Post は frontmatter `description` → `def.body`/`post.body` 冒頭 120 文字のフォールバック。`extractDescription` が Markdown/HTML をプレーンテキスト化する。空文字の場合は description タグを出力しない。
 - Twitter Card (`summary_large_image`) も合わせて付与する。
 
 ---

@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
 import { renderPostImage } from '@/lib/ogp/render-post-image'
+import { FILTER_DRAFTS } from '@/config/env'
 
 const fontDir = path.resolve('src/assets/fonts')
 const dotGothic16 = fs.readFileSync(path.join(fontDir, 'DotGothic16-Regular.ttf')).buffer as ArrayBuffer
@@ -11,7 +12,7 @@ const mplusRounded = fs.readFileSync(path.join(fontDir, 'MPLUSRounded1c-Regular.
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const allPosts = await getCollection('posts')
-  const posts = import.meta.env.PROD
+  const posts = FILTER_DRAFTS
     ? allPosts.filter((p) => p.data.status === 'published')
     : allPosts
   return posts.map((post) => ({ params: { slug: post.id } }))
