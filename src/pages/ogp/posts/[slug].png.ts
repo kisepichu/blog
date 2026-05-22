@@ -7,8 +7,14 @@ import { renderPostImage } from '@/lib/ogp/render-post-image'
 import { FILTER_DRAFTS } from '@/config/env'
 
 const fontDir = path.resolve('src/assets/fonts')
-const dotGothic16 = fs.readFileSync(path.join(fontDir, 'DotGothic16-Regular.ttf')).buffer as ArrayBuffer
-const mplusRounded = fs.readFileSync(path.join(fontDir, 'MPLUSRounded1c-Regular.ttf')).buffer as ArrayBuffer
+
+function readFont(filePath: string): ArrayBuffer {
+  const buf = fs.readFileSync(filePath)
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
+}
+
+const dotGothic16 = readFont(path.join(fontDir, 'DotGothic16-Regular.ttf'))
+const mplusRounded = readFont(path.join(fontDir, 'MPLUSRounded1c-Regular.ttf'))
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const allPosts = await getCollection('posts')
@@ -18,12 +24,12 @@ export const getStaticPaths: GetStaticPaths = async () => {
   return posts.map((post) => ({ params: { slug: post.id } }))
 }
 
-export const GET: APIRoute = async ({ params, site }) => {
+export const GET: APIRoute = async ({ params }) => {
   const allPosts = await getCollection('posts')
   const post = allPosts.find((p) => p.id === params.slug)
   if (!post) return new Response('Not found', { status: 404 })
 
-  const siteUrl = site ? new URL(site).hostname : 'kisen.one'
+  const siteUrl = 'kisen.one'
 
   const svg = await renderPostImage({
     title: post.data.title,
