@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content'
 import { buildAliasMap } from '@/lib/build/alias-map'
 import { FILTER_DRAFTS } from '@/config/env'
 import { getBacklinkGraph } from '@/lib/build/backlink-graph'
+import { extractDescription } from '@/lib/build/extract-description'
 import Layout from '@/components/Layout.astro'
 import Breadcrumb from '@/components/Breadcrumb.astro'
 import TagBadge from '@/components/TagBadge.astro'
@@ -61,9 +62,12 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 const displayAliases = def.data.aliases.filter(
   (a) => a !== def.id && a !== def.data.title && a !== def.data.english
 )
+
+const ogDescription = extractDescription(def.body ?? '', 120)
+const ogImage = Astro.site ? `${new URL(Astro.site).href}ogp/defs/${def.id}.png` : undefined
 ---
 
-<Layout title={def.data.title} activePage="def">
+<Layout title={def.data.title} description={ogDescription} ogImage={ogImage} activePage="def">
   <div class="container--narrow">
     <Breadcrumb
       items={[

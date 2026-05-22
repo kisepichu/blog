@@ -68,6 +68,7 @@ status: published   # published | draft | scrap
 tags: [型理論]
 series: type-theory-intro # 省略可
 series_order: 1 # series 指定時は必須
+description: "単純型付きラムダ計算から System F までを解説する記事。" # 省略可。OGP description に使用。省略時は本文冒頭 120 文字を自動抽出
 ```
 
 ---
@@ -222,6 +223,18 @@ $f : A \to B$ を...と定義する。
 
 ---
 
+## OGP
+
+記事ページ・定義ページに OGP メタタグと OGP 画像を付与する。詳細仕様: `docs/features/ogp.md`
+
+- 対象: `/posts/[slug]` と `/defs/[id]` のみ。一覧ページ・ホームには OGP タグを付与しない。
+- OGP 画像はビルド時に Satori + resvg で PNG 生成し、静的エンドポイント (`src/pages/ogp/`) として配置する。
+- `og:site_name` は `kisen.one`。`og:image` URL は `{Astro.site}/ogp/{posts|defs}/{slug|id}.png`。
+- `og:description`: Post は frontmatter `description` → 本文冒頭 120 文字のフォールバック。Definition は definition_block 先頭 120 文字。
+- Twitter Card (`summary_large_image`) も合わせて付与する。
+
+---
+
 ## ビルドパイプライン
 
 独自 AST は持たない。Astro のコンテンツコレクション + remark/rehype プラグインで実現する。
@@ -313,6 +326,7 @@ Pagefind を使用。`pnpm build` (`astro build && pagefind --site dist`) でイ
 | 検索                   | Pagefind                                 |
 | コメント               | giscus (GitHub Discussions)              |
 | Markdown 拡張          | remark-directive                         |
+| OGP 画像生成           | Satori + @resvg/resvg-js                 |
 | ホスティング           | GitHub Pages                             |
 | CI/CD                  | GitHub Actions (main push でデプロイ)    |
 
@@ -366,3 +380,6 @@ const visible = import.meta.env.PROD
 - `[[term]]` が未解決の場合: 開発時は視覚的 broken リンク、本番は警告 + プレーンテキスト出力 (ビルドは止めない) ← 確定
 - タグ URL のエンコード規則 (日本語タグをそのまま URL に使うか slug 化するか)
 - ~~hover preview のタッチ端末・キーボード操作・閉じ方・遅延表示仕様~~ → 確定 (`docs/features/hover-preview.md`)
+- OGP フォント取得方法: 手動 DL か `@fontsource` npm パッケージか
+- OGP タグ省略のしきい値 (タグが多い場合に何個まで表示するか)
+- Post に `og:article:published_time` を付与するか
