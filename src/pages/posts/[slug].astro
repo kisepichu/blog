@@ -82,7 +82,7 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 const ogDescription = post.data.description ?? extractDescription(post.body ?? '', 120)
 const ogImage = Astro.site
-  ? new URL(`${import.meta.env.BASE_URL}ogp/posts/${post.id}.png`, Astro.site).href
+  ? new URL(`${import.meta.env.BASE_URL}ogp/posts/${encodeURIComponent(post.id)}.png`, Astro.site).href
   : undefined
 ---
 

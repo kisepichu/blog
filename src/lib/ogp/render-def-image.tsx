@@ -51,17 +51,15 @@ export async function renderDefImage({
         >
           {title}
         </div>
-        {english && (
-          <span
-            style={{
-              fontSize: 24,
-              color: '#747468',
-              fontFamily: 'MPLUSRounded',
-            }}
-          >
-            {english}
-          </span>
-        )}
+        <span
+          style={{
+            fontSize: 24,
+            color: '#747468',
+            fontFamily: 'MPLUSRounded',
+          }}
+        >
+          {english}
+        </span>
       </div>
 
       {/* 下部: タグ */}

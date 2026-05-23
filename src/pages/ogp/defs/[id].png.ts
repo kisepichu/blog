@@ -1,22 +1,9 @@
 import type { APIRoute, GetStaticPaths } from 'astro'
 import { getCollection } from 'astro:content'
-import fs from 'node:fs'
-import path from 'node:path'
 import { Resvg } from '@resvg/resvg-js'
 import { renderDefImage } from '@/lib/ogp/render-def-image'
+import { dotGothic16Font, mplusRoundedFont } from '@/lib/ogp/fonts'
 import { FILTER_DRAFTS } from '@/config/env'
-
-// Astro の pre-render バンドルでは import.meta.url がコンパイル後パスを指すため
-// process.cwd() (= プロジェクトルート) 起点で解決する
-const fontDir = path.resolve('src/assets/fonts')
-
-function readFont(filePath: string): ArrayBuffer {
-  const buf = fs.readFileSync(filePath)
-  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength)
-}
-
-const dotGothic16 = readFont(path.join(fontDir, 'DotGothic16-Regular.ttf'))
-const mplusRounded = readFont(path.join(fontDir, 'MPLUSRounded1c-Regular.ttf'))
 
 interface DefOgpProps {
   title: string
@@ -47,7 +34,7 @@ export const GET: APIRoute = async ({ props }) => {
     english,
     tags,
     siteUrl: 'kisen.one',
-    fonts: { dotGothic16, mplusRounded },
+    fonts: { dotGothic16: dotGothic16Font, mplusRounded: mplusRoundedFont },
   })
 
   const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } })
