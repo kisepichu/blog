@@ -63,9 +63,9 @@ describe('extractDescription', () => {
     expect(extractDescription(md, 120)).toBe('定義: 以上より')
   })
 
-  it('[[concept-link]] を除去する', () => {
+  it('[[concept-link]] を内側テキストに置換する', () => {
     const md = '[[半順序集合]] において [[上界]] が存在する。'
-    expect(extractDescription(md, 120)).toBe('において が存在する。')
+    expect(extractDescription(md, 120)).toBe('半順序集合 において 上界 が存在する。')
   })
 
   it('::embed[term] を除去する', () => {
