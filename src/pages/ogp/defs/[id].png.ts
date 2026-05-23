@@ -16,26 +16,35 @@ function readFont(filePath: string): ArrayBuffer {
 const dotGothic16 = readFont(path.join(fontDir, 'DotGothic16-Regular.ttf'))
 const mplusRounded = readFont(path.join(fontDir, 'MPLUSRounded1c-Regular.ttf'))
 
+interface DefOgpProps {
+  title: string
+  english: string
+  tags: string[]
+}
+
 export const getStaticPaths: GetStaticPaths = async () => {
   const allDefs = await getCollection('defs')
   const defs = FILTER_DRAFTS
     ? allDefs.filter((d) => d.data.status === 'published')
     : allDefs
-  return defs.map((def) => ({ params: { id: def.id } }))
+  return defs.map((def) => ({
+    params: { id: def.id },
+    props: {
+      title: def.data.title,
+      english: def.data.english,
+      tags: def.data.tags,
+    } satisfies DefOgpProps,
+  }))
 }
 
-export const GET: APIRoute = async ({ params }) => {
-  const allDefs = await getCollection('defs')
-  const def = allDefs.find((d) => d.id === params.id)
-  if (!def) return new Response('Not found', { status: 404 })
-
-  const siteUrl = 'kisen.one'
+export const GET: APIRoute = async ({ props }) => {
+  const { title, english, tags } = props as DefOgpProps
 
   const svg = await renderDefImage({
-    title: def.data.title,
-    english: def.data.english,
-    tags: def.data.tags,
-    siteUrl,
+    title,
+    english,
+    tags,
+    siteUrl: 'kisen.one',
     fonts: { dotGothic16, mplusRounded },
   })
 

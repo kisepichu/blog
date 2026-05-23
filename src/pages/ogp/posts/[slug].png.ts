@@ -14,29 +14,37 @@ function readFont(filePath: string): ArrayBuffer {
 }
 
 const dotGothic16 = readFont(path.join(fontDir, 'DotGothic16-Regular.ttf'))
-const mplusRounded = readFont(path.join(fontDir, 'MPLUSRounded1c-Regular.ttf'))
+
+interface PostOgpProps {
+  title: string
+  date: string | undefined
+  tags: string[]
+}
 
 export const getStaticPaths: GetStaticPaths = async () => {
   const allPosts = await getCollection('posts')
   const posts = FILTER_DRAFTS
     ? allPosts.filter((p) => p.data.status === 'published')
     : allPosts
-  return posts.map((post) => ({ params: { slug: post.id } }))
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: {
+      title: post.data.title,
+      date: post.data.date,
+      tags: post.data.tags,
+    } satisfies PostOgpProps,
+  }))
 }
 
-export const GET: APIRoute = async ({ params }) => {
-  const allPosts = await getCollection('posts')
-  const post = allPosts.find((p) => p.id === params.slug)
-  if (!post) return new Response('Not found', { status: 404 })
-
-  const siteUrl = 'kisen.one'
+export const GET: APIRoute = async ({ props }) => {
+  const { title, date, tags } = props as PostOgpProps
 
   const svg = await renderPostImage({
-    title: post.data.title,
-    date: post.data.date,
-    tags: post.data.tags,
-    siteUrl,
-    fonts: { dotGothic16, mplusRounded },
+    title,
+    date,
+    tags,
+    siteUrl: 'kisen.one',
+    fonts: { dotGothic16 },
   })
 
   const resvg = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } })

@@ -7,7 +7,6 @@ interface PostImageProps {
   siteUrl: string
   fonts: {
     dotGothic16: ArrayBuffer
-    mplusRounded: ArrayBuffer
   }
 }
 
@@ -70,7 +69,6 @@ export async function renderPostImage({
       height: 630,
       fonts: [
         { name: 'DotGothic16', data: fonts.dotGothic16, weight: 400, style: 'normal' },
-        { name: 'MPLUSRounded', data: fonts.mplusRounded, weight: 400, style: 'normal' },
       ],
     },
   )
