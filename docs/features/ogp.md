@@ -64,7 +64,8 @@ interface Props {
 
 ### Definition
 
-`def.body` (生 Markdown) の先頭 120 文字を `extractDescription` でプレーンテキスト化して使う。
+`def.body` から `:::definition ... :::` ブロックの内側テキストを抽出し、`extractDescription` でプレーンテキスト化して使う。
+`def.body` をそのまま渡すと directive ブロック除去で空になるため、先にブロック内側を取り出す前処理を行う。
 frontmatter に `description` フィールドは持たない。
 
 ### 共通
@@ -105,9 +106,11 @@ src/pages/ogp/defs/[id].png.ts     → /ogp/defs/<id>.png
 ### ogImage URL
 
 ```
-{Astro.site}/ogp/posts/<slug>.png
-{Astro.site}/ogp/defs/<id>.png
+new URL(`${BASE_URL}ogp/posts/<slug>.png`, Astro.site).href
+new URL(`${BASE_URL}ogp/defs/<id>.png`, Astro.site).href
 ```
+
+`BASE_URL` が `/blog/` 等のサブパスの場合も正しく解決される。
 
 ### フォント
 
