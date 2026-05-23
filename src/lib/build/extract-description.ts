@@ -22,6 +22,9 @@ export function extractDescription(rawText: string, maxLen: number): string {
   // [[concept-link]] / ![[concept-link]] → 内側テキストに置換 (語を残す)
   text = text.replace(/!?\[\[([^\]]*)\]\]/g, '$1')
 
+  // インライン: Markdown リンク ![alt](url) / [text](url) → テキストのみ残す
+  text = text.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+
   // ブロック: Markdown 見出し (行頭 # ...)
   text = text.replace(/^#{1,6}\s+.*/gm, '')
 

@@ -73,6 +73,16 @@ describe('extractDescription', () => {
     expect(extractDescription(md, 120)).toBe('この方法を カリー化 と言う。')
   })
 
+  it('Markdown インラインリンク [text](url) をテキストのみに置換する', () => {
+    const md = '[前回](types-and-logic-1.md) の続き。'
+    expect(extractDescription(md, 120)).toBe('前回 の続き。')
+  })
+
+  it('Markdown 画像 ![alt](url) を alt テキストに置換する', () => {
+    const md = '概要を示す。![図1](diagram.png)'
+    expect(extractDescription(md, 120)).toBe('概要を示す。図1')
+  })
+
   it('::embed[term] を除去する', () => {
     const md = '以下に定義を示す。\n\n::embed[poset]\n\n続き。'
     expect(extractDescription(md, 120)).toBe('以下に定義を示す。 続き。')
