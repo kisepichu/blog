@@ -27,6 +27,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 }
 
 export const GET: APIRoute = async ({ props }) => {
+  if (!props) return new Response(null, { status: 404 })
   const { title, english, tags } = props as DefOgpProps
 
   const svg = await renderDefImage({
