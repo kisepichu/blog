@@ -24,7 +24,7 @@ Layout.astro の `<head>` に以下を追加する。
 ```html
 <!-- Open Graph -->
 <meta property="og:title" content="{title}" />
-<meta property="og:description" content="{description}" />
+{description && <meta property="og:description" content="{description}" />}
 <meta property="og:type" content="article" />
 <meta property="og:url" content="{canonicalUrl}" />
 <meta property="og:image" content="{ogImageUrl}" />
@@ -33,7 +33,7 @@ Layout.astro の `<head>` に以下を追加する。
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="{title}" />
-<meta name="twitter:description" content="{description}" />
+{description && <meta name="twitter:description" content="{description}" />}
 <meta name="twitter:image" content="{ogImageUrl}" />
 ```
 

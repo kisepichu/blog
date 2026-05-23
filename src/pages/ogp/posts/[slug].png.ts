@@ -6,6 +6,8 @@ import { Resvg } from '@resvg/resvg-js'
 import { renderPostImage } from '@/lib/ogp/render-post-image'
 import { FILTER_DRAFTS } from '@/config/env'
 
+// Astro の pre-render バンドルでは import.meta.url がコンパイル後パスを指すため
+// process.cwd() (= プロジェクトルート) 起点で解決する
 const fontDir = path.resolve('src/assets/fonts')
 
 function readFont(filePath: string): ArrayBuffer {
