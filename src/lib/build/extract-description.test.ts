@@ -68,6 +68,11 @@ describe('extractDescription', () => {
     expect(extractDescription(md, 120)).toBe('半順序集合 において 上界 が存在する。')
   })
 
+  it('![[concept-link]] も内側テキストに置換する', () => {
+    const md = 'この方法を **![[カリー化]]** と言う。'
+    expect(extractDescription(md, 120)).toBe('この方法を カリー化 と言う。')
+  })
+
   it('::embed[term] を除去する', () => {
     const md = '以下に定義を示す。\n\n::embed[poset]\n\n続き。'
     expect(extractDescription(md, 120)).toBe('以下に定義を示す。 続き。')
