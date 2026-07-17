@@ -72,7 +72,7 @@ $$
 :::example{#example-term title="λ 項"}
 
 $V=\\\{\mathtt{x}, \mathtt{y}\\\}$ とする。
-  
+
 - $\mathtt{x}$, $\mathtt{y}$ — 変数そのもの
 - $\lambda \mathtt{x}.\mathtt{x}$ — λ 抽象（恒等関数）
 - $(\lambda \mathtt{x}.\mathtt{x})\,\mathtt{y}$ — 適用（外側括弧省略の対比用に、ここだけ括弧を残す）
@@ -80,7 +80,6 @@ $V=\\\{\mathtt{x}, \mathtt{y}\\\}$ とする。
 - $\lambda \mathtt{x}.\mathtt{x}\,\mathtt{y}$ — 略記 $\lambda \mathtt{x}.(\mathtt{x}\,\mathtt{y})$（λ の体は適用全体）
 - $\lambda \mathtt{x}.\mathtt{y}$ — 自由変数 $\mathtt{y}$（$FV = \{\mathtt{y}\}$）
 - $\lambda \mathtt{x}.\lambda \mathtt{x}.\mathtt{x}$ — 変数のシャドーイング（内側の $\mathtt{x}$ が有効）
-
 
 :::
 
@@ -130,9 +129,12 @@ $$
 
 ## 雑談 (1) 具象構文と抽象構文
 
-todo: untyped lc の具象構文を書き、 parse について書き、 parse された後の抽象構文だけ考えるということを書く
+todo: untyped lc の具象構文を書き、 parse について書き、このブログでは parse された後の抽象構文だけ考えるということを書く
+
+## 雑談 (2) 強さ
+
+todo: チューリング完全、型がないことによりなんでもできてしまうことを書く。生成文法の方の分類についても調べ、それも一番広い分類はチューリング完全であることを書き、方の分類との分類の違いについて調べて書く。
 
 ## 雑談 (2) 生成文法周りの理論
-
 
 ## 参考文献
